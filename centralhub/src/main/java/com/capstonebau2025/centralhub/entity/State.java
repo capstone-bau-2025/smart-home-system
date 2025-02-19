@@ -39,6 +39,7 @@ public class State {
 
     @NotNull
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StateType type;
 
     //Attributes specific to state with type RANGE, NULL otherwise

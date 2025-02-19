@@ -7,42 +7,42 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "devices")
-public class Device {
+@Table(name = "automation_rules")
+public class AutomationRule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "model_id", nullable = false)
-    private DeviceModel model;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User createdBy;
 
     @NotNull
     @Column(unique = true, nullable = false)
-    private Long uid;
+    private String name;
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean isEnabled;
 
     @NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private DeviceStatus status;
+    private TriggerType triggerType;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "area_id", nullable = false)
-    private Area area;
+    //Attribute specific to automation rule with type SCHEDULE, NULL otherwise
+    private LocalTime scheduledTime;
 
-    private LocalDateTime lastSeen = LocalDateTime.now();
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private String description;
 
-    public enum DeviceStatus {
-        CONNECTED, DISCONNECTED, NOT_RESPONDING
+    public enum TriggerType {
+        SCHEDULE, EVENT, STATUS_VALUE
     }
 }
