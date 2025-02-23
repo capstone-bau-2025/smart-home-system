@@ -1,8 +1,6 @@
-package com.capstonebau2025.centralhub.entity;
+package com.capstonebau2025.cloudserver.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,52 +23,38 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(unique = true, nullable = false)
     private String username;
-
-    @NotNull
-    @Email
-    @Column(unique = true, nullable = false)
     private String email;
-
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    private String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.getName()));
+
+        return List.of(new SimpleGrantedAuthority("USER"));
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return email; // Use email as the username
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return true; // Account never expires
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return true; // Account is never locked
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return true; // Credentials never expire
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
-    public String getPassword() {
-        return "DUMMY PASSWORD"; // Return a dummy value as password is not used in hub
+        return true; // Account is always enabled
     }
 }
