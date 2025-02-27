@@ -3,8 +3,6 @@ import {
   StyleSheet,
   View,
   ActivityIndicator,
-  Text,
-  Pressable,
 } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
@@ -16,17 +14,30 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useState } from "react";
+import { useContext } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import AuthContextProvider, { AuthContext } from "./store/auth-context";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 export default function App() {
-  const [authenticated, setAuthenticated] = useState(false);
+  return (
+    <AuthContextProvider> 
+      <RootApp />
+    </AuthContextProvider>
+  );
+}
 
-  function screensHandler() {
-    setAuthenticated((prevState) => !prevState);
+function RootApp() {
+  const { isLoading, userToken } = useContext(AuthContext);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   const [fontsLoaded] = useFonts({
@@ -39,94 +50,88 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" />
       </View>
     );
   }
 
-  function AuthStack() {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Login" options={{ headerShown: false }}>
-          {(props) => (
-            <LoginScreen {...props} screensHandler={screensHandler} />
-          )}
-          {/* to pass extra props */}
-        </Stack.Screen>
-        <Stack.Screen name="Register" options={{ headerShown: true, headerTitle: "", headerTransparent: true }}>
-          {(props) => <RegisterScreen {...props} />}
-        </Stack.Screen>
-      </Stack.Navigator>
-    );
-  }
+  return ( //screens nav logic
+    <NavigationContainer>
+      {userToken !== null ? <AuthenticatedStack /> : <AuthStack />}
+    </NavigationContainer>
+  );
+}
 
-  function AuthenticatedStack() {
-    return (
-      <BottomTabs.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: "orange", // Active tab color
-          tabBarInactiveTintColor: "gray", // Inactive tab color
-          tabBarStyle: { backgroundColor: "white" }, // Background color of the tab bar
+function AuthStack() { //login + register screens
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Login" options={{ headerShown: false }}>
+        {(props) => <LoginScreen {...props} />}
+      </Stack.Screen>
+      <Stack.Screen name="Register" options={{ headerShown: true, headerTitle: "", headerTransparent: true }}>
+        {(props) => <RegisterScreen {...props} />}
+      </Stack.Screen>
+    </Stack.Navigator>
+  );
+}
+
+function AuthenticatedStack() { //actual app
+  return (
+    <BottomTabs.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: "orange",
+        tabBarInactiveTintColor: "gray",
+        tabBarStyle: { backgroundColor: "white" },
+      }}
+    >
+      <BottomTabs.Screen
+        name="Home"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
         }}
       >
-        <BottomTabs.Screen
-          name="Home"
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home-outline" size={size} color={color} />
-            ),
-          }}
-        >
-          {(props) => <HomeScreen {...props} />}
-        </BottomTabs.Screen>
-  
-        <BottomTabs.Screen
-          name="Surveillance"
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="camera-outline" size={size} color={color} />
-            ),
-          }}
-        >
-          {(props) => <SurveillanceScreen {...props} />}
-        </BottomTabs.Screen>
-  
-        <BottomTabs.Screen
-          name="Automation"
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="alarm-outline" size={size} color={color} />
-            ),
-          }}
-        >
-          {(props) => <AutomationScreen {...props} />}
-        </BottomTabs.Screen>
-  
-        <BottomTabs.Screen
-          name="Profile"
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="person-circle-outline" size={size} color={color} />
-            ),
-          }}
-        >
-          {(props) => <ProfileScreen {...props} screensHandler={screensHandler} />}
-        </BottomTabs.Screen>
-      </BottomTabs.Navigator>
-    );
-  }
-  
-  return (
-    <>
-      <StatusBar style="dark" />
-      <NavigationContainer>
-        {authenticated ? <AuthenticatedStack /> : <AuthStack />}
-      </NavigationContainer>
-    </>
+        {(props) => <HomeScreen {...props} />}
+      </BottomTabs.Screen>
+
+      <BottomTabs.Screen
+        name="Surveillance"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="camera-outline" size={size} color={color} />
+          ),
+        }}
+      >
+        {(props) => <SurveillanceScreen {...props} />}
+      </BottomTabs.Screen>
+
+      <BottomTabs.Screen
+        name="Automation"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="alarm-outline" size={size} color={color} />
+          ),
+        }}
+      >
+        {(props) => <AutomationScreen {...props} />}
+      </BottomTabs.Screen>
+
+      <BottomTabs.Screen
+        name="Profile"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle-outline" size={size} color={color} />
+          ),
+        }}
+      >
+        {(props) => <ProfileScreen {...props} />}
+      </BottomTabs.Screen>
+    </BottomTabs.Navigator>
   );
 }
 
