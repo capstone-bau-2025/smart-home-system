@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 **.db
+**/.lck
 
 ### STS ###
 .apt_generated
