@@ -22,7 +22,7 @@ public class MqttDynControl {
         ADMIN_PASSWORD = env.getProperty("mosquitto.adminPassword");
     }
 
-    public static void createMqttUser(String username, String password) throws IOException, InterruptedException {
+    public static boolean createMqttUser(String username, String password) throws IOException, InterruptedException {
         int exitCode = new ProcessBuilder(
                 "mosquitto_ctrl",
                 "-h", "localhost",
@@ -36,25 +36,26 @@ public class MqttDynControl {
             logger.info("Mqtt user created: {}", username);
         else
             logger.error("Failed to create user: {}", username);
+        return exitCode == 0;
     }
 
-    public static boolean createDeviceTopics(String deviceId) throws IOException, InterruptedException {
+    public static boolean setupDeviceAccessControl(String username) throws IOException, InterruptedException {
 
         // in and out from device prospective
-        String inTopic = "device/" + deviceId + "/in";
-        String outTopic = "device/" + deviceId + "/out";
-        String roleName = "role-" + deviceId;
+        String inTopic = "device/" + username + "/in";
+        String outTopic = "device/" + username + "/out";
+        String roleName = "role-" + username;
 
         if(
             createRole(roleName) &&
             grantWriteAccess(roleName, outTopic) &&
             grantReadAccess(roleName, inTopic) &&
-            addRoleToUser(roleName, deviceId)
+            addRoleToUser(roleName, username)
         ) {
-            logger.info("Device topics created for device: {}", deviceId);
+            logger.info("Device topics created for device: {}", username);
             return true;
         }
-        logger.error("Failed to create device topics for device: {}", deviceId);
+        logger.error("Failed to create device topics for device: {}", username);
         return false;
     }
 

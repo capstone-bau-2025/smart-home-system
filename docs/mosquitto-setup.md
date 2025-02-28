@@ -35,6 +35,30 @@ plugin_opt_config_file /etc/mosquitto/dynamic-security.json
 
 ```
 
+### device creation steps:
+```bash
+# before devices connect they can use "default-user" with password just the word "password"
+# this user is known to everyone and can be used to discover devices
+# this user only has access to discovery and config topics
+
+# step 1: subscribe to config/[temp-code] topic with the default-user, "[temp-code]" can be any random string
+mosquitto_sub -t "config/[temp-code]" -u "default-user" -P "password"
+
+# step 2: publish to discovery/[temp-code] topic with the unique-id of device, 
+# "[temp-code]" should be the same as the one used in the previous step
+mosquitto_pub -t "discovery/[temp-code]" -m "[unique-id]" -u "default-user" -P "password"
+
+# step 3: after that device should recieve a message on the config/[temp-code] topic with the username and password
+# status: true , username: [username] , password: [password]
+
+# step 4: those username and password should be used to publish any message to the out topic of the device
+# and to subscribe to the in topic of the device to receive messages, 
+# these topics will be used for all communication from now on
+mosquitto_pub -t "device/[username]/out" -m "is private working?x" -u "[username]" -P "[password]"
+mosquitto_sub -t "device/[username]/in" -u "[username]" -P "[password]"
+
+```
+
 ### mqtt subscribe and publish discovery examples
 ```bash
 # central-hub user can publish and subscribe to any topic at any level
@@ -46,6 +70,9 @@ mosquitto_pub -t "config/1234" -m "hello" -u "central-hub" -P "central-hub-passw
 # it should use its id as the second level of the topic ex. config/[device-id] or discovery/[device-id]
 mosquitto_pub -t "discovery/1234" -m "hello" -u "default-user" -P "password"
 mosquitto_sub -t "config/1234" -u "default-user" -P "password"
+
+# commands used by hub
+mosquitto_sub -t "device/+/out" -u "central-hub" -P "central-hub-password"
 ```
 
 ### testing dynamic security
