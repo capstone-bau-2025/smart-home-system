@@ -40,8 +40,9 @@ public class MqttDynControl {
 
     public static boolean createDeviceTopics(String deviceId) throws IOException, InterruptedException {
 
-        String inTopic = "devices/" + deviceId + "/in";
-        String outTopic = "devices/" + deviceId + "/out";
+        // in and out from device prospective
+        String inTopic = "device/" + deviceId + "/in";
+        String outTopic = "device/" + deviceId + "/out";
         String roleName = "role-" + deviceId;
 
         if(
@@ -161,5 +162,19 @@ public class MqttDynControl {
         ).start().waitFor();
 
         return (receiveExitCode == 0 && subExitCode == 0);
+    }
+    public static boolean denyReadAccess(String roleName, String topic) throws IOException, InterruptedException {
+
+        int exitCode = new ProcessBuilder(
+                "mosquitto_ctrl",
+                "-h", "localhost",
+                "-u", ADMIN_USER,
+                "-P", ADMIN_PASSWORD,
+                "dynsec", "addRoleACL", roleName,
+                "subscribeLiteral", topic,
+                "deny", "10"
+        ).start().waitFor();
+
+        return exitCode == 0;
     }
 }

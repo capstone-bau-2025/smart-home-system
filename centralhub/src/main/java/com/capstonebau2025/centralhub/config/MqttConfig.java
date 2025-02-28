@@ -26,7 +26,7 @@ public class MqttConfig {
     private String mqttPassword;
 
     @Bean
-    public MqttClient mqttClient() throws MqttException, IOException, InterruptedException {
+    public MqttClient mqttClient(MqttDynControl mqttDynControl) throws MqttException, IOException, InterruptedException {
         MqttClient client = new MqttClient(brokerUrl, clientId);
 
         // Create an admin user with full access for the central hub to use
@@ -38,6 +38,7 @@ public class MqttConfig {
         MqttDynControl.createRole("default-user-role");
         MqttDynControl.grantWriteAccess("default-user-role", "discovery/+");
         MqttDynControl.grantPatternReadAccess("default-user-role", "config/+");
+        mqttDynControl.denyReadAccess("default-user-role", "config/+");
         MqttDynControl.addRoleToUser("default-user-role", "default-user");
 
         // Connect to the broker
