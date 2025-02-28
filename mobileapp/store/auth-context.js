@@ -10,6 +10,8 @@ function AuthContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false)
   const [userToken, setUserToken] = useState(null)
   const [userInfo, setUserInfo] = useState(null)
+  const [authStatus, setAuthStatus] = useState(null) 
+
 
   const login = (email,password) => {
     setIsLoading(true)
@@ -22,16 +24,21 @@ function AuthContextProvider({ children }) {
       let userInfo = res.data
       setUserInfo(userInfo)
       setUserToken(userInfo.token)
-
+      setAuthStatus(res.status)
+      console.log(authStatus)
       AsyncStorage.setItem('userToken', userInfo.token) //storing token 
       AsyncStorage.setItem('userInfo', JSON.stringify(userInfo)) //storing token 
       console.log("User Token " + userInfo.token)
+
     })
     .catch(e =>{
-      console.log(`Login Error ${e}`);
-    }) 
+      setAuthStatus(e.response?.status || 'error');
+      
+      console.log(`Login Error ${authStatus}`);
 
+    }) 
     setIsLoading(false)
+
   }
 
   const logout = () => {
@@ -84,6 +91,8 @@ function AuthContextProvider({ children }) {
 
   
     setIsLoading(false)
+
+  //FOR REFRESHING TOKEN (DIDNT TEST IT YET):
   //   try {
   //     setIsLoading(true);
   
@@ -117,11 +126,14 @@ function AuthContextProvider({ children }) {
   }
   }
 
+
+
+
 useEffect(() => {
   isLoggedIn();
-},[])  
+},[]);
 
-  return <AuthContext.Provider value={{register, login, logout, isLoading, userToken}}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{register, login, logout, isLoading, userToken,authStatus}}>{children}</AuthContext.Provider>;
 }
 
 export default AuthContextProvider;

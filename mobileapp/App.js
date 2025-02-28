@@ -6,10 +6,10 @@ import {
 } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
-import HomeScreen from "./screens/HomeScreen";
-import AutomationScreen from "./screens/AutomationScreen";
-import SurveillanceScreen from "./screens/SurveillanceScreen";
-import ProfileScreen from "./screens/ProfileScreen";
+import HomeScreen from "./screens/Tabs/HomeScreen";
+import AutomationScreen from "./screens/Tabs/AutomationScreen";
+import SurveillanceScreen from "./screens/Tabs/SurveillanceScreen";
+import ProfileScreen from "./screens/Tabs/ProfileScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -30,9 +30,9 @@ export default function App() {
 }
 
 function RootApp() {
-  const { isLoading, userToken } = useContext(AuthContext);
+  const { isLoading, userToken, authStatus } = useContext(AuthContext);
 
-  if (isLoading) {
+if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />

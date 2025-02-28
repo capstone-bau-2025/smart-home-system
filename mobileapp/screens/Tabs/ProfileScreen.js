@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import OvalButton from '../components/UI/OvalButton'
+import OvalButton from '../../components/UI/OvalButton'
 import { useContext } from 'react'
-import { AuthContext } from '../store/auth-context'
+import { AuthContext } from '../../store/auth-context'
 
 export default function ProfileScreen({}) {
     const {logout} = useContext(AuthContext)

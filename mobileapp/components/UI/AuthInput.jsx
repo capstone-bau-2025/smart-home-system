@@ -16,7 +16,7 @@ export default function AuthInput({
 
   return (
     <View style={styles.inputWrapper}>
-      {/* Input Field */}
+
       <View style={[styles.inputContainer, errorMessage ? styles.errorBorder : null]}>
         <Ionicons name={icon} size={20} color="#ffffff" style={styles.icon} />
         <TextInput
@@ -36,10 +36,12 @@ export default function AuthInput({
         )}
       </View>
 
-      {/* Fixed Space for Error Message */}
-      <View style={styles.errorContainer}>
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-      </View>
+  
+      {errorMessage ? (
+        <Text style={styles.errorText}>{errorMessage}</Text>
+      ) : (
+        <View style={styles.errorPlaceholder} />
+      )}
     </View>
   );
 }
@@ -47,8 +49,7 @@ export default function AuthInput({
 const styles = StyleSheet.create({
   inputWrapper: {
     marginBottom: 10,
-    justifyContent:'center',
-    alignContent:'center'
+    alignSelf: "center", 
   },
   inputContainer: {
     flexDirection: "row",
@@ -76,16 +77,17 @@ const styles = StyleSheet.create({
   passIconContainer: {
     padding: 5,
   },
-  errorContainer: {
-    height: 15,  // Ensures space is always reserved for error messages // Matches input width for alignment
-    justifyContent: "center",  // Centers text vertically
-    alignItems: "flex-start",  // Aligns text to left
-  },
-  
   errorText: {
     color: "red",
     fontSize: 12,
     fontFamily: "Lexend-Regular",
-
+    textAlign: "left",
+    width: 311, 
+    marginTop: 2,
+    
+  },
+  errorPlaceholder: {
+    height: 15, 
+    width: 311, 
   },
 });

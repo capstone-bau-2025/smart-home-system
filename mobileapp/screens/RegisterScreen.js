@@ -11,7 +11,7 @@ import { AuthContext } from "../store/auth-context";
 
 
 export default function RegisterScreen({ navigation }) {
-
+  const { register } = useContext(AuthContext);
 
 
   return (
@@ -19,7 +19,7 @@ export default function RegisterScreen({ navigation }) {
       <View style={styles.container}>
         <SVGS/>
           <Text style={styles.appName}>Create an account</Text>
-      <RegForm  />
+      <RegForm register={register} />
       </View>
     </DismissKeyboard>
   );

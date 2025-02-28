@@ -4,15 +4,14 @@ import OvalButton from "../UI/OvalButton";
 import { AuthContext } from "../../store/auth-context";
 import AuthInput from "../UI/AuthInput";
 
-export default function RegForm() {
-  const { register } = useContext(AuthContext);
+export default function RegForm({register}) {
+
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // State for validation errors
   const [errors, setErrors] = useState({
     username: "",
     email: "",
@@ -27,32 +26,40 @@ export default function RegForm() {
 
   const handleRegister = () => {
     let newErrors = { username: "", email: "", password: "", confirmPassword: "" };
+  
 
-    // Username validation
+    const allowedDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com","bahcesehir.edu.tr"];
+    const emailParts = email.split("@");
+  
+    
     if (!username) newErrors.username = "Username is required!";
     else if (!usernameRegex.test(username))
-      newErrors.username = "Username must be 8-20 characters (Edit later)";
+      newErrors.username = "Username must be 8-20 characters, can only contain letters, numbers, and _ ";
+  
 
-    // Email validation
-    if (!email) newErrors.email = "Email is required!";
-    else if (!emailRegex.test(email)) newErrors.email = "Enter a valid email (e.g., user@example.com).";
+    if (!email) {
+      newErrors.email = "Email is required!";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Enter a valid email (e.g., user@example.com).";
+    } else if (!allowedDomains.includes(emailParts[1])) {
+      newErrors.email = "Only @gmail.com, @yahoo.com, @outlook.com, @hotmail.com, and @bahcesehir.edu.tr domains are allowed";
+    }
+  
 
-    // Password validation
     if (!password) newErrors.password = "Password is required!";
     else if (!passwordRegex.test(password))
-      newErrors.password = "Must be 8+ chars, at least 1 uppercase letter";
+      newErrors.password = "Must be 8+ characters, at least 1 uppercase letter and has no special characters ";
 
-    // Confirm password validation
-    if (!confirmPassword) newErrors.confirmPassword = "Confirm password is required!";
-    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match!";
-
+    if (!confirmPassword) newErrors.confirmPassword = "Confirm password is required";
+    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+  
     setErrors(newErrors);
 
-    // If no errors, proceed with registration
     if (Object.values(newErrors).every((error) => error === "")) {
       register(username, email, password);
     }
   };
+  
 
   return (
     <View style={styles.formContainer}>

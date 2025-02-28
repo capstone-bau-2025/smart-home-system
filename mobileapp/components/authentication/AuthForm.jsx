@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { View, Pressable, Text, StyleSheet } from "react-native";
+import { useState,useEffect } from "react";
+import { View, Pressable, Text, StyleSheet,  } from "react-native";
 import OvalButton from "../UI/OvalButton";
 import AuthInput from "../UI/AuthInput";
 
-export default function AuthForm({ login }) {
+export default function AuthForm({ login, authStatus }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // State to store validation errors
+
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -16,16 +16,27 @@ export default function AuthForm({ login }) {
   const handleLogin = () => {
     let newErrors = { email: "", password: "" };
 
-    if (!email) newErrors.email = "Email is required!";
-    if (!password) newErrors.password = "Password is required!";
+    if (!email) newErrors.email = "Email is required to login";
+    if (!password) newErrors.password = "Password is required to login";
 
     setErrors(newErrors);
 
-    // If no errors, proceed with login
+
     if (!newErrors.email && !newErrors.password) {
       login(email, password);
     }
+
+
   };
+
+  useEffect(() => {
+    if (authStatus === 403) {
+      setErrors({
+        email: " ",
+        password: "Incorrect email or password ",
+      });
+    }
+  }, [authStatus]); // Runs whenever authStatus changes
 
   return (
     <View style={styles.formContainer}>
@@ -37,6 +48,7 @@ export default function AuthForm({ login }) {
         onChangeText={setEmail}
         keyboardType="email-address"
         errorMessage={errors.email}
+        autoCapitalize="none"
       />
 
       {/* Password Input */}
@@ -63,6 +75,10 @@ export default function AuthForm({ login }) {
 const styles = StyleSheet.create({
   formContainer: {
     padding: 20,
+  },  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   forgotPass: {
     textDecorationLine: "underline",

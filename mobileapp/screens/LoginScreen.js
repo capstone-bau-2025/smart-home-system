@@ -10,7 +10,7 @@ export default function LoginScreen({ navigation, screensHandler }) {
 
 
 
-  const {login} = useContext(AuthContext);
+  const {login,authStatus} = useContext(AuthContext);
   
   return (
     <DismissKeyboard>
@@ -20,7 +20,7 @@ export default function LoginScreen({ navigation, screensHandler }) {
           <Text style={styles.appName}>Smart Home</Text>
           <Text style={styles.title2}>Sign in to your account</Text>
         </View>
-        <AuthForm screensHandler={screensHandler} login={login} />
+        <AuthForm screensHandler={screensHandler} login={login} authStatus={authStatus} />
         <AuthFooter navigation={navigation} />
       </View>
     </DismissKeyboard>
