@@ -3,23 +3,28 @@ package com.capstonebau2025.centralhub.service;
 import com.capstonebau2025.centralhub.helper.MqttDynControl;
 import com.capstonebau2025.centralhub.helper.PasswordGenerator;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MqttSubscriber {
 
-    @Autowired
-    private MqttClient mqttClient;
+    private final MqttClient mqttClient;
     private final Logger logger = LoggerFactory.getLogger(MqttSubscriber.class);
 
     @PostConstruct
     private void subscribeToDiscovery() throws MqttException {
+        if(!mqttClient.isConnected()) {
+            logger.error("mqttClient not connected, could not subscribe to discovery topics");
+            return;
+        }
+
         mqttClient.subscribe("discovery/+", (topic, mqttMessage) -> {
 
             // extract message
@@ -51,6 +56,11 @@ public class MqttSubscriber {
 
     @PostConstruct
     private void subscribeToDeviceOut() throws MqttException {
+        if(!mqttClient.isConnected()) {
+            logger.error("mqttClient not connected, could not subscribe to devices OUT topics.");
+            return;
+        }
+
         mqttClient.subscribe("device/+/out", (topic, mqttMessage) -> {
 
             // extract message

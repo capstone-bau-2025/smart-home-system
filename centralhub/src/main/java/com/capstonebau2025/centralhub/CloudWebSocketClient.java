@@ -31,8 +31,8 @@ public class CloudWebSocketClient extends WebSocketClient {
     }
 
     @Override
-    public void onError(Exception ex) {
-        logger.error("Error: ", ex);
+    public void onError(Exception e) {
+        logger.error("Error: {}", e.getMessage());
     }
 }
 
