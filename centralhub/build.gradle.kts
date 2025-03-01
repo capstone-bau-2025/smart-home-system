@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("org.java-websocket:Java-WebSocket:1.5.3")
+	implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
 
 	implementation("org.projectlombok:lombok")
 	compileOnly("org.projectlombok:lombok")

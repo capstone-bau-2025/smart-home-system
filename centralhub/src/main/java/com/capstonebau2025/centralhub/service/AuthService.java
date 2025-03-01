@@ -3,12 +3,10 @@ package com.capstonebau2025.centralhub.service;
 import com.capstonebau2025.centralhub.dto.AuthRequest;
 import com.capstonebau2025.centralhub.dto.AuthResponse;
 import com.capstonebau2025.centralhub.entity.User;
-import com.capstonebau2025.centralhub.repository.RoleRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
