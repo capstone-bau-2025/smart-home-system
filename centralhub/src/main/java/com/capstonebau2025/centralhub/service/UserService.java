@@ -1,58 +1,43 @@
 package com.capstonebau2025.centralhub.service;
 
+// UserService.java
+
 import com.capstonebau2025.centralhub.entity.User;
+import com.capstonebau2025.centralhub.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class UserService {
+import java.util.Optional;
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+@Service
+public class UserService extends GenericServiceImpl<User, Long> {
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+    public UserService(UserRepository userRepository) {
+        setRepository(userRepository);
     }
 
-    // Create User
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public User create(User user) {
+        return super.create(user);
     }
 
-    // Get User by ID
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public User update(User user) {
+        return super.update(user);
     }
 
-    // Update User
-    public User updateUser(Long id, User userDetails) {
-        User user = getUserById(id);
-        user.setName(userDetails.getName());
-        user.setEmail(userDetails.getEmail());
-        return userRepository.save(user);
+    public Optional<User> getById(Long id) {
+        return super.getById(id);
     }
 
-    // Delete User
-    public void deleteUser(Long id) {
-        User user = getUserById(id);
-        userRepository.delete(user);
+    public Iterable<User> getAll() {
+        return super.getAll();
     }
 
-    // Assign Role to User
-    public User assignRoleToUser(Long userId, Long roleId) {
-        User user = getUserById(userId);
-        Role role = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-        user.getRoles().add(role);
-        return userRepository.save(user);
+    public void deleteById(Long id) {
+        super.deleteById(id);
     }
 
-    // Remove Role from User
-    public User removeRoleFromUser(Long userId, Long roleId) {
-        User user = getUserById(userId);
-        Role role = roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-        user.getRoles().remove(role);
-        return userRepository.save(user);
+    public void delete(User user) {
+        super.delete(user);
     }
 }

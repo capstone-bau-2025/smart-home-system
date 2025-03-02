@@ -1,12 +1,10 @@
 package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.entity.Command;
+import com.capstonebau2025.centralhub.service.CommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/commands")
@@ -19,20 +17,17 @@ public class CommandController {
         this.commandService = commandService;
     }
 
-    // Execute Command
+    // Execute Command this is only a dummy method
     @PostMapping
     public ResponseEntity<Command> executeCommand(@RequestBody Command command) {
-        return ResponseEntity.ok(commandService.executeCommand(command));
+        return ResponseEntity.ok(command);
     }
 
     // Get Command by ID
     @GetMapping("/{id}")
     public ResponseEntity<Command> getCommandById(@PathVariable Long id) {
-        return ResponseEntity.ok(commandService.getCommandById(id));
+        return ResponseEntity.of(commandService.getById(id));
     }
 }
 
-
-
-//not sure need changes
 
