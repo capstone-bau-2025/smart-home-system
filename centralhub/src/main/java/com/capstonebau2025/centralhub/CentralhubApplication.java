@@ -14,6 +14,7 @@ public class CentralhubApplication {
 		try {
 			CloudWebSocketClient client = new CloudWebSocketClient(new URI("ws://localhost:8082/hub-connection"));
 			client.connect();
+			// TODO: what should happen if could not connect to cloud server?
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
