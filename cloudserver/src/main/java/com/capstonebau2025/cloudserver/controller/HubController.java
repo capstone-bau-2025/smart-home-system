@@ -1,5 +1,9 @@
 package com.capstonebau2025.cloudserver.controller;
 
+import com.capstonebau2025.cloudserver.dto.HubRegistrationRequest;
+import com.capstonebau2025.cloudserver.helper.KeyGenerator;
+import com.capstonebau2025.cloudserver.entity.Hub;
+import com.capstonebau2025.cloudserver.repository.HubRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,19 +15,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/hub")
 @RequiredArgsConstructor
 public class HubController {
-
+    private final HubRepository hubRepository;
     @PostMapping("/registerHub")
-    public ResponseEntity<String> registerHub(@RequestBody String id) {
+    public ResponseEntity<?> registerHub(@RequestBody HubRegistrationRequest request) {
+        // Check if the hub already exists
+        if (hubRepository.findBySerialNumber(request.getSerialNumber()).isPresent()) {
+            return ResponseEntity.badRequest().body("Hub with this serial number already exists.");
+        }
 
-        /*
-         * TODO: Implement hub registration
-         * this method should allow a hub to register itself
-         * to the cloud server (create hub profile), after hub is registered to the
-         * cloud hub should be able to establish websocket connection with the cloud server.
-         * this method should be implemented after hub entity is created.
-         */
+        // Generate a secure key for the hub
+        String generatedKey = KeyGenerator.generateKey();
 
-        return ResponseEntity.ok("hub registered");
+        // Create and save the new Hub entity
+        Hub hub = Hub.builder()
+                .serialNumber(request.getSerialNumber())
+                .key(Long.valueOf(generatedKey))
+                .location(request.getLocation())
+                .build();
+
+        hub = hubRepository.save(hub);
+
+        return ResponseEntity.ok("Hub registered successfully with ID: " + hub.getId() + " and Key: " + generatedKey);
     }
 
     @PostMapping("/validateUser")
@@ -52,3 +64,7 @@ public class HubController {
         return ResponseEntity.ok("User is linked");
     }
 }
+
+
+
+
