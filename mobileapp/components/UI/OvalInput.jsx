@@ -10,9 +10,10 @@ export default function OvalInput({
   onChangeText,
   keyboardType = "default",
   password = false,
+
 }) {
   const [hidden, setHidden] = useState(password);
-
+  
   return (
     <View style={styles.container}>
       <Ionicons name={icon} size={20} color="#ffffff" style={styles.icon} />
@@ -21,11 +22,10 @@ export default function OvalInput({
         style={styles.input}
         placeholder={placeholder}
         placeholderTextColor="#ffffff"
-        value={value}
-        onChangeText={onChangeText}
         keyboardType={keyboardType}
         secureTextEntry={hidden}
-  
+        value={value} // Ensure this is set
+        onChangeText={onChangeText} // Add this to update state
       />
 
       {password && (
