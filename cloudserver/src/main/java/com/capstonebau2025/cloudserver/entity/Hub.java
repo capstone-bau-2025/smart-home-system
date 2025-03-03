@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
 
 import java.util.Set;
@@ -20,14 +21,19 @@ public class Hub {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @NotNull
+    @Column(unique = true, nullable = false)
+    private Long serialNumber;//like gmail it has unique id and notnullable
+
+    @NotNull
+    @Column(nullable = false)
+    private Long key;   //password notnullable
+
     private String location;
 
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
-    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<User> users;
+
+    @OneToMany(mappedBy = "hub_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserHub> userHubs;
 }

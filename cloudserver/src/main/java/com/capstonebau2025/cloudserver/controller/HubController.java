@@ -1,6 +1,7 @@
 package com.capstonebau2025.cloudserver.controller;
 
-
+import com.capstonebau2025.cloudserver.dto.HubRegistrationRequest;
+import com.capstonebau2025.cloudserver.helper.KeyGenerator;
 import com.capstonebau2025.cloudserver.entity.Hub;
 import com.capstonebau2025.cloudserver.repository.HubRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,52 +10,32 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.WebSocketClient;
-import org.springframework.web.socket.client.WebSocketConnectionManager;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.springframework.web.socket.WebSocketHttpHeaders;
-import java.net.URI;
+
 @RestController
 @RequestMapping("/api/hub")
 @RequiredArgsConstructor
 public class HubController {
     private final HubRepository hubRepository;
     @PostMapping("/registerHub")
-    public ResponseEntity<String> registerHub(@RequestBody Hub hub) {
-        try {
-            // Validate the Hub entity
-            if (hub.getName() == null || hub.getName().isEmpty()) {
-                return ResponseEntity.badRequest().body("Hub name is required");
-            }
-
-            // Save the Hub entity to the database
-            hubRepository.save(hub);
-
-            // Establish WebSocket connection
-            WebSocketClient client = new StandardWebSocketClient();
-            WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-            URI uri = new URI("ws://cloudserver/websocket");
-            WebSocketConnectionManager manager = new WebSocketConnectionManager(client, new TextWebSocketHandler() {
-                @Override
-                public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-                    session.sendMessage(new TextMessage("Hub registered: " + hub.getName()));
-                }
-            }, uri.toString());
-            manager.setHeaders(headers);
-            manager.start();
-
-            // Log the registration
-            System.out.println("Hub registered: " + hub.getName());
-
-            return ResponseEntity.ok("Hub registered and WebSocket connection established");
-        } catch (Exception e) {
-            // Handle errors
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error registering hub: " + e.getMessage());
+    public ResponseEntity<?> registerHub(@RequestBody HubRegistrationRequest request) {
+        // Check if the hub already exists
+        if (hubRepository.findBySerialNumber(request.getSerialNumber()).isPresent()) {
+            return ResponseEntity.badRequest().body("Hub with this serial number already exists.");
         }
+
+        // Generate a secure key for the hub
+        String generatedKey = KeyGenerator.generateKey();
+
+        // Create and save the new Hub entity
+        Hub hub = Hub.builder()
+                .serialNumber(request.getSerialNumber())
+                .key(Long.valueOf(generatedKey))
+                .location(request.getLocation())
+                .build();
+
+        hub = hubRepository.save(hub);
+
+        return ResponseEntity.ok("Hub registered successfully with ID: " + hub.getId() + " and Key: " + generatedKey);
     }
 
     @PostMapping("/validateUser")

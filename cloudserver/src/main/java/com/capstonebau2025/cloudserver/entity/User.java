@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,18 +24,20 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull
+    @Column(nullable = false)
+    private String username;    //notnullable
 
-    private String username;
-    private String email;
-    private String password;
+    @NotNull
+    @Column(unique = true, nullable = false)
+    private String email;       //notnullable and unique
 
+    @NotNull
+    @Column(nullable = false)
+    private String password;    //notnullable
 
-    @ManyToOne
-    @JoinColumn(name = "hub_id", nullable = false)
-    private Hub hub;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Hub> hubs;
+    @OneToMany(mappedBy = "user_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserHub> userHubs;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
