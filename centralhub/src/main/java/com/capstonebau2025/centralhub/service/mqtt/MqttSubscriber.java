@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.mqtt;
 
 import com.capstonebau2025.centralhub.helper.MqttDynControl;
 import com.capstonebau2025.centralhub.helper.PasswordGenerator;
@@ -10,6 +10,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -77,4 +79,45 @@ public class MqttSubscriber {
         });
         logger.info("Subscribed to devices OUT topics");
     }
+
+    public String getDeviceFeedback(long deviceId, long messageId) throws MqttException {
+        if (!mqttClient.isConnected()) {
+            logger.error("mqttClient not connected, could not subscribe to receive feedback with messageId: " + messageId + ", from device: " + deviceId);
+            return null;
+        }
+        AtomicReference<String> message = new AtomicReference<>();
+
+        mqttClient.subscribe("device/" + deviceId + "/out/" + messageId, (topic, mqttMessage) -> {
+            message.set(new String(mqttMessage.getPayload()));
+            synchronized (message) {
+                message.notify();
+            }
+        });
+
+        synchronized (message) {
+            try {
+                message.wait(5000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.error("Thread interrupted while waiting for message", e);
+            }
+        }
+
+        mqttClient.unsubscribe("device/" + deviceId + "/out/"+ messageId);
+
+        return message.get();
+    }
+
+    // method for testing (remove later)
+    @PostConstruct
+    private void testingFeedbackTopics() throws MqttException {
+        if(!mqttClient.isConnected()) {
+            logger.error("mqttClient not connected, could not subscribe to devices OUT topics.");
+            return;
+        }
+        mqttClient.subscribe("device/+/out/+", (topic, mqttMessage) -> {
+            logger.info("Received feedback message: {}", topic);
+        });
+    }
+
 }

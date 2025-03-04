@@ -1,7 +1,6 @@
 package com.capstonebau2025.centralhub.config;
 
 import com.capstonebau2025.centralhub.helper.MqttDynControl;
-import com.capstonebau2025.centralhub.service.MqttSubscriber;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -28,7 +27,7 @@ public class MqttConfig {
     @Value("${mqtt.password}")
     private String mqttPassword;
 
-    private final Logger logger = LoggerFactory.getLogger(MqttSubscriber.class);
+    private final Logger logger = LoggerFactory.getLogger(MqttConfig.class);
 
     @Bean
     public MqttClient mqttClient() throws MqttException, IOException, InterruptedException {

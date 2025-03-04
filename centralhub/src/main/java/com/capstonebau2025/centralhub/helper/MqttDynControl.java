@@ -44,11 +44,13 @@ public class MqttDynControl {
         // in and out from device prospective
         String inTopic = "device/" + username + "/in";
         String outTopic = "device/" + username + "/out";
+        String outFeedbackTopics = "device/" + username + "/out/+";
         String roleName = "role-" + username;
 
         if(
             createRole(roleName) &&
             grantWriteAccess(roleName, outTopic) &&
+            grantWriteAccess(roleName, outFeedbackTopics) &&
             grantReadAccess(roleName, inTopic) &&
             addRoleToUser(roleName, username)
         ) {
