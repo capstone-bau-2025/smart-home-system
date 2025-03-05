@@ -1,4 +1,4 @@
-package com.capstonebau2025.cloudserver.entity;
+package com.capstonebau2025.centralhub.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotNull;
 
-
-import java.util.Set;
 
 @Data
 @Builder
@@ -32,9 +30,12 @@ public class Hub {
 
     private String location;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-
-
-    @OneToMany(mappedBy = "hub_id", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserHub> userHubs;
+    public enum Status {
+        SETUP,
+        RUNNING,
+        ERROR
+    }
 }

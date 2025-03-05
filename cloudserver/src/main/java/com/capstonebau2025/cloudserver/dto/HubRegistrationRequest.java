@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class HubRegistrationRequest {
     private Long serialNumber;
     private String location;
+    private String name;
 }
