@@ -31,6 +31,7 @@ public class HubController {
                 .serialNumber(request.getSerialNumber())
                 .key(Long.valueOf(generatedKey))
                 .location(request.getLocation())
+                .name(request.getName())
                 .build();
 
         hub = hubRepository.save(hub);
