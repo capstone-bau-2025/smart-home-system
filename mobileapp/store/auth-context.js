@@ -32,9 +32,13 @@ function AuthContextProvider({ children }) {
 
     })
     .catch(e =>{
+      
       setAuthStatus(e.response?.status || 'error');
       
-      console.log(`Login Error ${authStatus}`);
+      useEffect(() => {
+        console.log(`Login Error ${authStatus}`);
+      }, [authStatus]); // Runs whenever authStatus changes
+      
 
     }) 
     setIsLoading(false)

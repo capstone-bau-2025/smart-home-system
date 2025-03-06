@@ -4,7 +4,7 @@ import React from 'react'
 export default function AutomationScreen() {
   return (
     <View style={styles.container}>
-      <Text>AutomationScreen</Text>
+      <Text>AutomationScreen</Text> 
     </View>
   )
 }

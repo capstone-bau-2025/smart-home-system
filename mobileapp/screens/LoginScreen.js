@@ -1,10 +1,15 @@
-import { StyleSheet, Text, View } from "react-native";
 import SVGS from "../components/svg/SVGS";
 import AuthForm from "../components/authentication/AuthForm";
-import AuthFooter from "../components/authentication/AuthFooter";
+import AuthFooter from "../components/authentication/AuthFooter"
 import DismissKeyboard from "../components/utils/DismissKeyboard";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../store/auth-context";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function LoginScreen({ navigation, screensHandler }) {
 
@@ -14,7 +19,7 @@ export default function LoginScreen({ navigation, screensHandler }) {
   
   return (
     <DismissKeyboard>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <SVGS />
         <View style={styles.formContainer}>
           <Text style={styles.appName}>Smart Home</Text>
@@ -22,7 +27,7 @@ export default function LoginScreen({ navigation, screensHandler }) {
         </View>
         <AuthForm screensHandler={screensHandler} login={login} authStatus={authStatus} />
         <AuthFooter navigation={navigation} />
-      </View>
+      </SafeAreaView>
     </DismissKeyboard>
   );
 }

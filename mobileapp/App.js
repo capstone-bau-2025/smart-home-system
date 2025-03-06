@@ -1,15 +1,15 @@
 import { StatusBar } from "expo-status-bar";
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/Tabs/HomeScreen";
 import AutomationScreen from "./screens/Tabs/AutomationScreen";
 import SurveillanceScreen from "./screens/Tabs/SurveillanceScreen";
 import ProfileScreen from "./screens/Tabs/ProfileScreen";
+import DiscoverDevice from "./screens/Homescreen/DiscoverDevice"; 
+import ManageDevice from "./screens/Homescreen/ManageDevice";
+import ManageHub from "./screens/Homescreen/ManageHub";
+import DiscoverHub from "./screens/Homescreen/DiscoverHub";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -23,7 +23,7 @@ const BottomTabs = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <AuthContextProvider> 
+    <AuthContextProvider>
       <RootApp />
     </AuthContextProvider>
   );
@@ -32,7 +32,7 @@ export default function App() {
 function RootApp() {
   const { isLoading, userToken, authStatus } = useContext(AuthContext);
 
-if (isLoading) {
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -55,14 +55,14 @@ if (isLoading) {
     );
   }
 
-  return ( //screens nav logic
+  return (
     <NavigationContainer>
       {userToken !== null ? <AuthenticatedStack /> : <AuthStack />}
     </NavigationContainer>
   );
 }
 
-function AuthStack() { //login + register screens
+function AuthStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" options={{ headerShown: false }}>
@@ -75,7 +75,7 @@ function AuthStack() { //login + register screens
   );
 }
 
-function AuthenticatedStack() { //actual app
+function AuthenticatedStack() {
   return (
     <BottomTabs.Navigator
       screenOptions={{
@@ -93,7 +93,7 @@ function AuthenticatedStack() { //actual app
           ),
         }}
       >
-        {(props) => <HomeScreen {...props} />}
+        {(props) => <HomeStackNavigator {...props} />}
       </BottomTabs.Screen>
 
       <BottomTabs.Screen
@@ -132,6 +132,38 @@ function AuthenticatedStack() { //actual app
         {(props) => <ProfileScreen {...props} />}
       </BottomTabs.Screen>
     </BottomTabs.Navigator>
+  );
+}
+
+function HomeStackNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Hub"
+        component={HomeScreen}
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen
+        name="DiscoverDevice"
+        component={DiscoverDevice}
+        options={{ headerShown: true, headerTitle: "Discover Device" }}
+      />
+            <Stack.Screen
+        name="DiscoverHub"
+        component={DiscoverHub}
+        options={{ headerShown: true, headerTitle: "Discover Hub" }}
+      />
+                <Stack.Screen
+        name="ManageHub"
+        component={ManageHub}
+        options={{ headerTransparent: true, headerTitle: "" }}
+      />
+                <Stack.Screen
+        name="ManageDevice"
+        component={ManageDevice}
+        options={{ headerShown: true, headerTitle: "Manage Device" }}
+      />
+    </Stack.Navigator>
   );
 }
 

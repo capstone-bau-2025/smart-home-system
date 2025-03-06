@@ -3,12 +3,20 @@ import React from 'react'
 import OvalButton from '../../components/UI/OvalButton'
 import { useContext } from 'react'
 import { AuthContext } from '../../store/auth-context'
+import SVGS from '../../components/svg/SVGS'
 
 export default function ProfileScreen({}) {
     const {logout} = useContext(AuthContext)
   
   return (
     <View style={styles.container}>
+    <SVGS/>
+    <View>
+      <Text>Userame</Text>
+      <Text>Email</Text>
+      <Text>Password? hidden</Text>
+      <Text>Role?</Text>
+    </View>
     <OvalButton text={"Logout"} color="black" onPress={logout}/>
     </View>
   )

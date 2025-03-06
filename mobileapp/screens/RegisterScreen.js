@@ -8,7 +8,7 @@ import RegForm from "../components/authentication/RegForm";
 import DismissKeyboard from "../components/utils/DismissKeyboard";
 import { useContext } from "react";
 import { AuthContext } from "../store/auth-context";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen({ navigation }) {
   const { register } = useContext(AuthContext);
@@ -16,11 +16,11 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <DismissKeyboard>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <SVGS/>
           <Text style={styles.appName}>Create an account</Text>
       <RegForm register={register} />
-      </View>
+      </SafeAreaView>
     </DismissKeyboard>
   );
 }

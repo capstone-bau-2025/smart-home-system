@@ -1,6 +1,6 @@
-import { useState,useEffect } from "react";
-import { View, Pressable, Text, StyleSheet,  } from "react-native";
-import OvalButton from "../UI/OvalButton";
+import { useState, useEffect } from "react";
+import { View, Pressable, Text, StyleSheet } from "react-native";
+import OvalButton from "../UI/OvalButton";  
 import AuthInput from "../UI/AuthInput";
 
 export default function AuthForm({ login, authStatus }) {
