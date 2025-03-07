@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.service.mqtt;
 
-import com.capstonebau2025.centralhub.helper.MqttDynControl;
+import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import com.capstonebau2025.centralhub.helper.PasswordGenerator;
 import com.capstonebau2025.centralhub.utility.MessageIdGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -22,6 +21,7 @@ public class MqttMessageProducer {
     private final ObjectMapper mapper;
     private final MqttAsyncClient mqttAsyncClient;
     private final MqttSubscriber subscriber;
+    private final MqttUserControl dynControl;
     private final Logger logger = LoggerFactory.getLogger(MqttMessageProducer.class);
 
     public boolean sendDeviceCredentials(long deviceUid) {
@@ -30,30 +30,26 @@ public class MqttMessageProducer {
         String password = PasswordGenerator.generate();
         String username = "device-" + deviceUid;
 
-        try {
-            if (MqttDynControl.createMqttUser(username, password) &&
-                    MqttDynControl.setupDeviceAccessControl(username, deviceUid)) {
+        if (dynControl.createDeviceUser(username, password, deviceUid)) {
 
-                ObjectNode message = mapper.createObjectNode()
-                        .put("message_type", "CONFIG")
-                        .put("username", username)
-                        .put("password", password)
-                        .put("uid", deviceUid);
+            ObjectNode message = mapper.createObjectNode()
+                    .put("message_type", "CONFIG")
+                    .put("username", username)
+                    .put("password", password)
+                    .put("uid", deviceUid);
 
-                String response = sendMessage(deviceUid, message, configTopic);
-                if(response != null) {
-                    logger.info("successfully paired with device: {} device responded with: {}", deviceUid, response);
-                    return true;
-                }
-                else {
-                    logger.error("couldn't pair, no response received from device: {}", deviceUid);
-                    // TODO: remove user from mqtt again
-                    return false;
-                }
+            String response = sendMessage(deviceUid, message, configTopic);
+            if(response != null) {
+                logger.info("successfully paired with device uid: {}", deviceUid);
+                return true;
             }
-        } catch (IOException | InterruptedException ignored) {}
-
-        logger.error("Failed to pair with device: {}", deviceUid);
+            else {
+                logger.warn("couldn't pair, device not responding: {}", deviceUid);
+                // TODO: remove user from mqtt again
+                return false;
+            }
+        }
+        logger.error("Failed to create device user: {}", deviceUid);
         return false;
     }
 

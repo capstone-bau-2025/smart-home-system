@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.config;
 
-import com.capstonebau2025.centralhub.helper.MqttDynControl;
+import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -28,23 +26,18 @@ public class MqttConfig {
     private String mqttPassword;
 
     private final Logger logger = LoggerFactory.getLogger(MqttConfig.class);
+    private final MqttUserControl mqttUserControl;
 
     @Bean
-    public MqttAsyncClient mqttAsyncClient() throws MqttException, IOException, InterruptedException {
+    public MqttAsyncClient mqttAsyncClient() throws MqttException {
 
         MqttAsyncClient client = new MqttAsyncClient(brokerUrl, clientId);
 
-        // Create an admin user with full access for the central hub to use
-        MqttDynControl.createMqttUser(mqttUsername, mqttPassword);
-        MqttDynControl.grantFullAccess(mqttUsername);
-
-        // Create a default user with limited access for discovering devices
-        MqttDynControl.createMqttUser("default-user", "password");
-        MqttDynControl.createRole("default-user-role");
-        MqttDynControl.grantWriteAccess("default-user-role", "discovery/+");
-        MqttDynControl.grantPatternReadAccess("default-user-role", "config/+");
-        MqttDynControl.denyReadAccess("default-user-role", "config/+");
-        MqttDynControl.addRoleToUser("default-user-role", "default-user");
+        // Create an admin user and default user
+        if(!mqttUserControl.createFullAccessUser(mqttUsername, mqttPassword))
+            logger.error("Failed to create MQTT Client for application");
+        if(!mqttUserControl.createDefaultUser("default-user", "password"))
+            logger.error("Failed to create default MQTT User");
 
         // Connect to the broker
         MqttConnectOptions options = new MqttConnectOptions();
