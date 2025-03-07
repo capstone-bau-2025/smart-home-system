@@ -45,6 +45,7 @@ Sent from device to central controller on topic: `discovery/device-uid`
 
 ```json
 {
+  "message_type": "DISCOVERY_REQUEST",
   "uid": 1234,
   "model": "string",
   "description": "string",
@@ -71,14 +72,7 @@ Sent from device to central controller on topic: `discovery/device-uid`
     {
       "number": 1,
       "name": "string",
-      "description": "string",
-      "parameters": [
-        {
-          "name": "string",
-          "type": "ENUM(ENUM, RANGE)",
-          // Add either "choices" or "min_range"/"max_range" based on type similar to states
-        }
-      ]
+      "description": "string"
     }
   ],
   "events": [
@@ -93,23 +87,14 @@ Sent from device to central controller on topic: `discovery/device-uid`
 
 #### Configuration Reply
 Sent from central controller to device on topic: `config/device-uid` as reply to discovery message after user approve.
-
+IMPORTANT NOTE: after the device receives this message, it should send a [ping message](#Ping-Device) with same message_id to confirm the configuration.
 ```json
 {
   "message_type": "CONFIG",
+  "message_id": 1,
   "uid": "string",
   "username": "string",
   "password": "string"
-}
-```
-
-#### Discovery Ping
-Used to verify device is still waiting for discovery. Sent between topics `discovery/device-uid` and `config/device-uid`.
-device should reply with same message.
-```json
-{
-  "message_type": "PING",
-  "uid": "string"
 }
 ```
 
@@ -200,14 +185,16 @@ Used for health monitoring. Topic: `device/device-uid/in`
 ```json
 {
   "message_type": "PING",
+  "message_id": 1,
   "uid": "string"
 }
 ```
 
-**Response:** `device/device-uid/out`
+**Response:** `device/device-uid/out/message-id`
 ```json
 {
   "message_type": "PING",
+  "message_id": 1,
   "uid": "string"
 }
 ```

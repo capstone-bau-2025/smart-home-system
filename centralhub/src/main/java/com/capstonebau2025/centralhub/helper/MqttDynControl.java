@@ -10,6 +10,7 @@ import java.io.IOException;
 
 @Component
 public class MqttDynControl {
+    //TODO: encapsulate command
 
     private static final Logger logger = LoggerFactory.getLogger(MqttDynControl.class);
 
@@ -32,20 +33,18 @@ public class MqttDynControl {
                 username, "-p", password
         ).start().waitFor();
 
-        if (exitCode == 0)
-            logger.info("Mqtt user created: {}", username);
-        else
+        if (exitCode != 0)
             logger.error("Failed to create user: {}", username);
         return exitCode == 0;
     }
 
-    public static boolean setupDeviceAccessControl(String username) throws IOException, InterruptedException {
+    public static boolean setupDeviceAccessControl(String username, long deviceUid) throws IOException, InterruptedException {
 
         // in and out from device prospective
-        String inTopic = "device/" + username + "/in";
-        String outTopic = "device/" + username + "/out";
-        String outFeedbackTopics = "device/" + username + "/out/+";
-        String roleName = "role-" + username;
+        String inTopic = "device/" + deviceUid + "/in";
+        String outTopic = "device/" + deviceUid + "/out";
+        String outFeedbackTopics = "device/" + deviceUid + "/out/+";
+        String roleName = "role-" + deviceUid;
 
         if(
             createRole(roleName) &&
@@ -54,10 +53,10 @@ public class MqttDynControl {
             grantReadAccess(roleName, inTopic) &&
             addRoleToUser(roleName, username)
         ) {
-            logger.info("Device topics created for device: {}", username);
+            logger.info("mqtt user created and topics permissions assigned for device: {}", username);
             return true;
         }
-        logger.error("Failed to create device topics for device: {}", username);
+        logger.error("Failed to assign topics permissions for device: {}", username);
         return false;
     }
 

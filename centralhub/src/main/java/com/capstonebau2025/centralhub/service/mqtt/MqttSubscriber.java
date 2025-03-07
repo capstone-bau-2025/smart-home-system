@@ -1,10 +1,8 @@
 package com.capstonebau2025.centralhub.service.mqtt;
 
-import com.capstonebau2025.centralhub.helper.MqttDynControl;
-import com.capstonebau2025.centralhub.helper.PasswordGenerator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
@@ -17,107 +15,65 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class MqttSubscriber {
 
-    private final MqttClient mqttClient;
+    private final MqttAsyncClient mqttAsyncClient;
+    private final MqttMessageHandler messageHandler;
     private final Logger logger = LoggerFactory.getLogger(MqttSubscriber.class);
 
     @PostConstruct
     private void subscribeToDiscovery() throws MqttException {
-        if(!mqttClient.isConnected()) {
+        if(!mqttAsyncClient.isConnected()) {
             logger.error("mqttClient not connected, could not subscribe to discovery topics");
             return;
         }
 
-        mqttClient.subscribe("discovery/+", (topic, mqttMessage) -> {
-
-            // extract message
+        mqttAsyncClient.subscribe("discovery/+", 0, (topic, mqttMessage) -> {
             String message = new String(mqttMessage.getPayload());
-            // build config topic from discovery topic, ex. discovery/XYZ -> config/XYZ
-            String configTempTopic = "config/" + topic.split("/")[1];
-
-            String password = PasswordGenerator.generate();
-            String username = "device-" + message; //temporary username for testing
-            String response;
-
-            // create new user for device and setup access control
-            if(
-                MqttDynControl.createMqttUser(username, password) &&
-                MqttDynControl.setupDeviceAccessControl(username)
-            )
-                response = "status: true , username: " + username + " , password: " + password;
-            else
-                response = "status: false";
-
-            mqttClient.publish(configTempTopic, new MqttMessage(response.getBytes()));
-
-            // TODO: Implement device discovery logic
-
-            logger.info("Received discovery message: {} responded through: {} topic", message, configTempTopic);
+            messageHandler.handleDiscoveryRequest(message);
         });
+
         logger.info("Subscribed to discovery topic");
     }
 
     @PostConstruct
     private void subscribeToDeviceOut() throws MqttException {
-        if(!mqttClient.isConnected()) {
+        if(!mqttAsyncClient.isConnected()) {
             logger.error("mqttClient not connected, could not subscribe to devices OUT topics.");
             return;
         }
 
-        mqttClient.subscribe("device/+/out", (topic, mqttMessage) -> {
+        mqttAsyncClient.subscribe("device/+/out", 0, (topic, mqttMessage) -> {
 
             // extract message
             String message = new String(mqttMessage.getPayload());
-            String deviceId = topic.split("/")[1];
+            String deviceUid = topic.split("/")[1];
 
             // TODO: Implement receiving message from device logic
 
             // sends a message back to the device for testing
-            String response = "Received your message device: " + deviceId;
-            mqttClient.publish("device/"+ deviceId +"/in", new MqttMessage(response.getBytes()));
+            String response = "Received your message device: " + deviceUid;
+            mqttAsyncClient.publish("device/"+ deviceUid +"/in", new MqttMessage(response.getBytes()));
 
-            logger.info("Received message from device with id: {}", deviceId);
+            logger.info("Received message from device with uid: {}", deviceUid);
         });
         logger.info("Subscribed to devices OUT topics");
     }
 
-    public String getDeviceFeedback(long deviceId, long messageId) throws MqttException {
-        if (!mqttClient.isConnected()) {
-            logger.error("mqttClient not connected, could not subscribe to receive feedback with messageId: " + messageId + ", from device: " + deviceId);
-            return null;
-        }
+    public AtomicReference<String> subscribeToResponse(long deviceUid, long messageId) throws MqttException {
+        if (!mqttAsyncClient.isConnected()) return null;
+
         AtomicReference<String> message = new AtomicReference<>();
 
-        mqttClient.subscribe("device/" + deviceId + "/out/" + messageId, (topic, mqttMessage) -> {
+        mqttAsyncClient.subscribe("device/" + deviceUid + "/out/" + messageId, 0, (topic, mqttMessage) -> {
             message.set(new String(mqttMessage.getPayload()));
             synchronized (message) {
                 message.notify();
             }
         });
-
-        synchronized (message) {
-            try {
-                message.wait(5000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.error("Thread interrupted while waiting for message", e);
-            }
-        }
-
-        mqttClient.unsubscribe("device/" + deviceId + "/out/"+ messageId);
-
-        return message.get();
+        return message;
     }
 
-    // method for testing (remove later)
-    @PostConstruct
-    private void testingFeedbackTopics() throws MqttException {
-        if(!mqttClient.isConnected()) {
-            logger.error("mqttClient not connected, could not subscribe to devices OUT topics.");
-            return;
-        }
-        mqttClient.subscribe("device/+/out/+", (topic, mqttMessage) -> {
-            logger.info("Received feedback message: {}", topic);
-        });
+    public void unsubscribeToResponse(long deviceUid, long messageId) throws MqttException {
+        if (mqttAsyncClient.isConnected())
+            mqttAsyncClient.unsubscribe("device/" + deviceUid + "/out/"+ messageId);
     }
-
 }

@@ -8,13 +8,18 @@ sudo apt-get install mosquitto
 sudo mosquitto_ctrl dynsec init /etc/mosquitto/dynamic-security.json admin-central-hub central-hub-password
 
 # set permissions of the dynamic security file
-sudo chmod 666 dynamic-security.json
+sudo chmod 666 /etc/mosquitto/dynamic-security.json
 
 # restart mosquitto broker to appy changes
 systemctl restart mosquitto
+```
 
-# in case we want to reset users, remove dynamic securty file and repeat the above steps
+### reset mosquitto users
+```bash
 sudo rm /etc/mosquitto/dynamic-security.json
+sudo mosquitto_ctrl dynsec init /etc/mosquitto/dynamic-security.json admin-central-hub central-hub-password
+sudo chmod 666 /etc/mosquitto/dynamic-security.json
+systemctl restart mosquitto
 ```
 
 ### mosquitto.conf file format
