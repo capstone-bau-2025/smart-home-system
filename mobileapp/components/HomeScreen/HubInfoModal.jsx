@@ -24,6 +24,9 @@ export default function HubInfoModal({ visible, onClose }) {
                 Hub Name: <Text style={styles.value}>Home</Text>
               </Text>
               <Text style={styles.title}>
+                Currently Connected: <Text style={styles.value}>Locally</Text>
+              </Text>
+              <Text style={styles.title}>
                 Hub ID: <Text style={styles.value}>21ba92</Text>
               </Text>
               <Text style={styles.title}>
@@ -38,6 +41,7 @@ export default function HubInfoModal({ visible, onClose }) {
               <Text style={styles.title}>
                 Date Added: <Text style={styles.value}>12.2.24</Text>
               </Text>
+              
 
               <Pressable onPress={onClose} style={styles.closeButton}>
                 <Text style={styles.closeButtonText}>Close</Text>

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
-export default function HubsTabs({ hubs, setSelectedTab, selectedTab }) {
+export default function HubsTabs({ hubs, setSelectedTab, selectedTab, color = "orange" }) {
   return (
     <FlatList
       data={hubs}
@@ -10,10 +10,15 @@ export default function HubsTabs({ hubs, setSelectedTab, selectedTab }) {
       showsHorizontalScrollIndicator={false}
       renderItem={({ item }) => (
         <TouchableOpacity onPress={() => setSelectedTab(item)} style={styles.hubItem}>
-          <Text style={[styles.hubText, selectedTab.id === item.id && styles.selectedTab]}>
+          <Text
+            style={[
+              styles.hubText,
+              selectedTab.id === item.id && { color, fontWeight: "bold" }, // Apply color only to selected tab
+            ]}
+          >
             {item.name}
           </Text>
-          {selectedTab.id === item.id && <View style={styles.underline} />}
+          {selectedTab.id === item.id && <View style={[styles.underline, { backgroundColor: color }]} />}
         </TouchableOpacity>
       )}
     />
@@ -28,16 +33,11 @@ const styles = StyleSheet.create({
   },
   hubText: {
     fontSize: 25,
-    color: "black",
-  },
-  selectedTab: {
-    color: "orange",
-    fontWeight: "bold",
+    color: "black", // Default color for unselected tabs
   },
   underline: {
     height: 2,
     width: "100%",
-    backgroundColor: "orange",
     marginTop: 5,
   },
 });

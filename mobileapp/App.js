@@ -161,7 +161,7 @@ function HomeStackNavigator() {
                 <Stack.Screen
         name="ManageDevice"
         component={ManageDevice}
-        options={{ headerShown: true, headerTitle: "Manage Device" }}
+        options={{ headerTransparent: true, headerTitle: ""  }}
       />
     </Stack.Navigator>
   );

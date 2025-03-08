@@ -3,93 +3,39 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import HubsTabs from "../../components/ManageHub/HubsTabs";
 import { useState } from "react";
 import UsersList from "../../components/ManageHub/UsersList";
-import TokenGeneration from "../../components/ManageHub/TokenGeneration";
+import { hubs } from "../../Data/Hubs";
 
 export default function ManageHub() {
-  const hubs = [
-    {
-      id: "1",
-      name: "hub1",
-      users: [
-        {
-          id: "101",
-          name: "user1",
-          role: "admin",
-          perms: {
-            livingroom: true,
-            bedroom: true,
-            kitchen: true,
-            bathroom: true,
-          },
-        },
-        {
-          id: "102",
-          name: "user2",
-          role: "guest",
-          perms: {
-            livingroom: true,
-            bedroom: false,
-            kitchen: false,
-            bathroom: false,
-          },
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "hub2",
-      users: [
-        {
-          id: "103",
-          name: "user1",
-          role: "user",
-          perms: {
-            livingroom: true,
-            bedroom: true,
-            kitchen: false,
-            bathroom: false,
-          },
-        },
-        {
-          id: "104",
-          name: "user2",
-          role: "user",
-          perms: {
-            livingroom: true,
-            bedroom: false,
-            kitchen: true,
-            bathroom: false,
-          },
-        },
-        {
-          id: "105",
-          name: "user3",
-          role: "guest",
-          perms: {
-            livingroom: true,
-            bedroom: true,
-            kitchen: false,
-            bathroom: false,
-          },
-        },
-      ],
-    },
-  ];
+  const [selectedTab, setSelectedTab] = useState(hubs[0]); 
 
-  const [selectedTab, setSelectedTab] = useState(hubs[0]); // Store the selected hub
+
+  const userCount = selectedTab.users.length;
+  
+
+  const roleCounts = selectedTab.users.reduce((acc, user) => {
+    acc[user.role] = (acc[user.role] || 0) + 1;
+    return acc;
+  }, {});
 
   return (
     <GestureHandlerRootView>
       <SafeAreaView style={styles.safeContainer}>
         <StatusBar barStyle="dark-content" backgroundColor="white" />
 
-        {/* Tabs for selecting different hubs */}
+    
         <HubsTabs hubs={hubs} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
-        {/* Pass only the selected hub's users */}
+        <View style={styles.countContainer}>
+          <Text style={styles.countText}>Total Users: {userCount}</Text>
+          {Object.entries(roleCounts).map(([role, count]) => (
+            <Text key={role} style={styles.countText}>
+              {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
+            </Text>
+          ))}
+        </View>
+
+        {/* 🔹 Users List */}
         <UsersList users={selectedTab.users} />
-
-
       </SafeAreaView>
     </GestureHandlerRootView>
   );
@@ -101,5 +47,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  countContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "90%",
+    marginVertical: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  countText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#e19b19",
   },
 });

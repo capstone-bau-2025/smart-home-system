@@ -10,14 +10,14 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Clipboard from "@react-native-clipboard/clipboard";
+import * as Clipboard from "expo-clipboard";
 
 export default function TokenModal({ visible, onClose }) {
   const [selectedRole, setSelectedRole] = useState(null);
   
   // Function to copy invite code
   const copyToClipboard = () => {
-    Clipboard.setString("codebasedonrole");
+    Clipboard.setStringAsync("codebasedonrole");
     Alert.alert("Copied!", "Invite code copied to clipboard.");
   };
 
