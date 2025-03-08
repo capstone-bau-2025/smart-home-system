@@ -62,7 +62,7 @@ public class MqttSubscriber {
         if (!mqttAsyncClient.isConnected()) return null;
 
         AtomicReference<String> message = new AtomicReference<>();
-
+        // device/1111/out/1
         mqttAsyncClient.subscribe("device/" + deviceUid + "/out/" + messageId, 0, (topic, mqttMessage) -> {
             message.set(new String(mqttMessage.getPayload()));
             synchronized (message) {

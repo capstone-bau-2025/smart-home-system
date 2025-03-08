@@ -2,10 +2,7 @@ package com.capstonebau2025.centralhub.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
@@ -20,6 +17,8 @@ public class StateChoice {
 
     @NotNull
     @ManyToOne
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "state_id", nullable = false)
     private State state;
 

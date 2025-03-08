@@ -68,7 +68,8 @@ public class MqttMessageProducer {
             // wait for response
             synchronized (response) {
                 try {
-                    response.wait(120000);
+                    logger.info("Waiting for response from device: {}", deviceUid);
+                    response.wait(5000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     logger.error("Thread interrupted while waiting for message", e);

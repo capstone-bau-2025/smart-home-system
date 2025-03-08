@@ -1,7 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.dto.DeviceDetails;
-import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
+import com.capstonebau2025.centralhub.service.DeviceService;
 import com.capstonebau2025.centralhub.service.mqtt.PendingDiscoveryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class DeviceDiscoveryController {
 
     private final PendingDiscoveryService pendingDiscoveryService;
-    private final MqttMessageProducer mqttMessageProducer;
+    private final DeviceService deviceService;
 
     // get all the devices pending for discovery
     @GetMapping
@@ -25,15 +25,11 @@ public class DeviceDiscoveryController {
 
     // approves pairing with device
     @PostMapping("/{deviceUid}")
-    public ResponseEntity<String> approveDevice(@PathVariable Long deviceUid) {
-        DeviceDetails device = pendingDiscoveryService.removePendingDevice(deviceUid);
+    public ResponseEntity<DeviceDetails> approveDevice(@PathVariable Long deviceUid) {
+        DeviceDetails device = deviceService.registerDevice(deviceUid);
         if (device == null)
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
 
-        boolean status = mqttMessageProducer.sendDeviceCredentials(device.getUid());
-
-        // TODO: save device details to db.
-
-        return ResponseEntity.ok("operation status:" + status);
+        return ResponseEntity.ok(device);
     }
 }

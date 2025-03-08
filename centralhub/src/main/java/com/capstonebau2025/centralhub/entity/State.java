@@ -2,10 +2,7 @@ package com.capstonebau2025.centralhub.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
@@ -22,6 +19,7 @@ public class State {
 
     @NotNull
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "model_id", nullable = false)
     private DeviceModel model;
 

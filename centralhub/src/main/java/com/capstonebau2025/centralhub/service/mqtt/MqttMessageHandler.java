@@ -19,7 +19,7 @@ public class MqttMessageHandler {
         try {
             DeviceDetails deviceDetails = mapper.readValue(message, DeviceDetails.class);
             pendingDiscoveryService.addPendingDevice(deviceDetails.getUid(), deviceDetails);
-
+            logger.info("Device pending discovery with uid: {}", deviceDetails);
         } catch (JsonProcessingException e) {
             logger.error("Error parsing device details: {}", e.getMessage());
         }
@@ -28,4 +28,8 @@ public class MqttMessageHandler {
     public void deliverMessageToUser(String message) {}
 
     public void handlePingMessage(String message) {}
+
+    public void handleEvent() {}
+
+    public void handleStateUpdate() {}
 }

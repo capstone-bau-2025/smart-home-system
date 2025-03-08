@@ -18,6 +18,7 @@ public class DeviceDetails {
     @JsonProperty(value = "model", required = true)
     private String model;
 
+    private String name;
     private String description;
 
     @NotNull

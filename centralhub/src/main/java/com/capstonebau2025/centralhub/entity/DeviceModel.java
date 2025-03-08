@@ -2,10 +2,9 @@ package com.capstonebau2025.centralhub.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -30,6 +29,18 @@ public class DeviceModel {
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean supportStreaming;
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<State> states;
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Command> commands;
+
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Event> events;
 
     public enum DeviceModelType {
         LIGHT, SWITCH, CAMERA, SENSOR, OTHER
