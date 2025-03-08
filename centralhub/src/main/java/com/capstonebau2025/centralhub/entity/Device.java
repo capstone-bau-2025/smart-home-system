@@ -21,6 +21,10 @@ public class Device {
     private Long id;
 
     @NotNull
+    @Column(nullable = false)
+    private String name;
+
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "model_id", nullable = false)
     private DeviceModel model;

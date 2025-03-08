@@ -31,7 +31,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll() // TODO: Change to authenticated
                 )
                 .sessionManagement(session -> session // Lambda for session management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

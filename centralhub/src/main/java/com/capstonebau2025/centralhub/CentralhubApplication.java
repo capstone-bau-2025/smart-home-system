@@ -2,9 +2,11 @@ package com.capstonebau2025.centralhub;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.net.URI;
 
+@EnableScheduling
 @SpringBootApplication
 public class CentralhubApplication {
 
