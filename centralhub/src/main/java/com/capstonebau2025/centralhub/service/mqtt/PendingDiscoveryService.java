@@ -12,21 +12,38 @@ import java.util.stream.Collectors;
 @Service
 public class PendingDiscoveryService {
     
-    // Store device details with timestamp
+    /**
+     * A thread-safe map storing devices pending for discovery with their unique IDs and timestamps.
+     */
     private final Map<Long, PendingDevice> pendingDevices = new ConcurrentHashMap<>();
     
     // Time-to-live in milliseconds (3 minutes)
     private static final long TTL = 3 * 60 * 1000;
     
+    /**
+     * Adds a device to the pending discovery list with its unique ID and details.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param details the details of the device
+     */
     public void addPendingDevice(Long deviceUid, DeviceDetails details) {
         pendingDevices.put(deviceUid, new PendingDevice(details, Instant.now()));
     }
-    
+
+    /**
+     * Returns a map of all the devices pending discovery.
+     */
     public Map<Long, DeviceDetails> getAllPendingDevices() {
         return pendingDevices.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().details));
     }
-    
+
+    /**
+     * Removes a device from the pending discovery list by its unique ID.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @return the details of the removed device, or null if the device was not found
+     */
     public DeviceDetails removePendingDevice(Long deviceUid) {
         PendingDevice device = pendingDevices.remove(deviceUid);
         return device != null ? device.details : null;

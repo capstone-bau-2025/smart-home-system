@@ -15,6 +15,12 @@ public class MqttMessageHandler {
     private final Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
     private final PendingDiscoveryService pendingDiscoveryService;
 
+    /**
+     * Handles the discovery request message by parsing the device details
+     * and adding the device to the pending discovery service.
+     *
+     * @param message the JSON message containing device details
+     */
     public void handleDiscoveryRequest(String message) {
         try {
             DeviceDetails deviceDetails = mapper.readValue(message, DeviceDetails.class);
@@ -25,7 +31,7 @@ public class MqttMessageHandler {
         }
     }
 
-    public void deliverMessageToUser(String message) {}
+    public void handleNotification(String message) {}
 
     public void handlePingMessage(String message) {}
 

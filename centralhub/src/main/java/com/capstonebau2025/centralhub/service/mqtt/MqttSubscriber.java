@@ -58,6 +58,15 @@ public class MqttSubscriber {
         logger.info("Subscribed to devices OUT topics");
     }
 
+    /**
+     * Subscribes to a specific response topic for a given device and message ID,
+     * and returns the message payload if satisfied.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param messageId the unique identifier of the message
+     * @return an AtomicReference containing the message payload
+     * @throws MqttException if an error occurs during subscription
+     */
     public AtomicReference<String> subscribeToResponse(long deviceUid, long messageId) throws MqttException {
         if (!mqttAsyncClient.isConnected()) return null;
 
@@ -72,6 +81,14 @@ public class MqttSubscriber {
         return message;
     }
 
+    /**
+     * Unsubscribes from a specific response topic for a given device and message ID.
+     * Should be called after waiting sometime to receive the response.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param messageId the unique identifier of the message
+     * @throws MqttException if an error occurs during unsubscription
+     */
     public void unsubscribeToResponse(long deviceUid, long messageId) throws MqttException {
         if (mqttAsyncClient.isConnected())
             mqttAsyncClient.unsubscribe("device/" + deviceUid + "/out/"+ messageId);

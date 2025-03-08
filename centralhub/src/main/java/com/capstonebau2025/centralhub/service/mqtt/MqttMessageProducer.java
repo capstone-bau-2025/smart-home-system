@@ -24,6 +24,12 @@ public class MqttMessageProducer {
     private final MqttUserControl dynControl;
     private final Logger logger = LoggerFactory.getLogger(MqttMessageProducer.class);
 
+    /**
+     * create mqtt user and sends device credentials to the specified device via MQTT.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @return true if the credentials were successfully sent, false otherwise
+     */
     public boolean sendDeviceCredentials(long deviceUid) {
 
         String configTopic = "config/" + deviceUid;
@@ -53,6 +59,14 @@ public class MqttMessageProducer {
         return false;
     }
 
+    /**
+     * Sends a message to a specified topic for a given device UID and waits for a response.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param message the message to be sent
+     * @param topic the topic to which the message will be published
+     * @return the response from the device, or null if an error occurred
+     */
     public String sendMessage(long deviceUid, ObjectNode message, String topic) {
         try {
             //prepare message

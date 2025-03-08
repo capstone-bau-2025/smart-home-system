@@ -27,6 +27,16 @@ public class DeviceService{
     private final CommandRepository commandRepository;
     private final EventRepository eventRepository;
 
+    /**
+     * Registers a pending device by its unique identifier.
+     * <p>
+     * removes the device from pending,
+     * creates a new device in the database,
+     * and sends the credentials to the device
+     *
+     * @param deviceUid the unique identifier of the device
+     * @return the details of the registered device, or null if registration fails
+     */
     public DeviceDetails registerDevice(Long deviceUid) {
 
         DeviceDetails deviceDetails = pendingDiscoveryService.removePendingDevice(deviceUid);
@@ -141,7 +151,7 @@ public class DeviceService{
     }
 
     public void deleteById(Long id) {
-
+        deviceRepository.deleteById(id);
     }
 
 }
