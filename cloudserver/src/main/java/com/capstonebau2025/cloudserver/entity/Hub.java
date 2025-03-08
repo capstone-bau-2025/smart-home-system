@@ -27,7 +27,7 @@ public class Hub {
     private Long serialNumber;//like gmail it has unique id and notnullable
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name="hub_key", nullable = false)
     private Long key;   //password notnullable
 
     private String location;
@@ -35,6 +35,6 @@ public class Hub {
 
 
 
-    @OneToMany(mappedBy = "hub_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "hub", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHub> userHubs;
 }
