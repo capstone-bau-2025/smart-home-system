@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class LinkUserRequest {
-    private String token;
-    private String hubSerialNumber;
-    private String email;
+@NoArgsConstructor
+public class HubRegistrationResponse {
+    private Long serialNumber;
+    private String location;
+    private String name;
 }

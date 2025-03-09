@@ -1,8 +1,6 @@
 package com.capstonebau2025.cloudserver.controller;
 
-import com.capstonebau2025.cloudserver.dto.HubRegistrationRequest;
-import com.capstonebau2025.cloudserver.dto.UserValidationRequest;
-import com.capstonebau2025.cloudserver.dto.UserValidationResponse;
+import com.capstonebau2025.cloudserver.dto.*;
 import com.capstonebau2025.cloudserver.helper.KeyGenerator;
 import com.capstonebau2025.cloudserver.entity.Hub;
 import com.capstonebau2025.cloudserver.repository.HubRepository;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.capstonebau2025.cloudserver.dto.LinkUserRequest;
 
 @RestController
 @RequestMapping("/api/hub")
@@ -37,26 +34,33 @@ public class HubController {
         // Create and save the new Hub entity
         Hub hub = Hub.builder()
                 .serialNumber(request.getSerialNumber())
-                .key(Long.valueOf(generatedKey))
+                .key(generatedKey)
                 .location(request.getLocation())
                 .name(request.getName())
                 .build();
 
         hub = hubRepository.save(hub);
 
-        return ResponseEntity.ok("Hub registered successfully with ID: " + hub.getId() + " and Key: " + generatedKey);
+        HubRegistrationResponse response = HubRegistrationResponse.builder()
+                .serialNumber(hub.getSerialNumber())
+                .location(hub.getLocation())
+                .name(hub.getName())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/validateUser")
     public ResponseEntity<UserValidationResponse> validateUser(@RequestBody UserValidationRequest request) {
-        if (request.getToken() == null || request.getToken().isEmpty()) {
+        if (request.getToken() == null || request.getToken().isEmpty() ||
+                request.getEmail() == null || request.getEmail().isEmpty()) {
             return ResponseEntity.badRequest().body(UserValidationResponse.builder()
                     .valid(false)
-                    .message("Token is required")
+                    .message("Token and email are required")
                     .build());
         }
 
-        UserValidationResponse response = userService.validateUser(request.getToken());
+        UserValidationResponse response = userService.validateUser(request.getToken(), request.getEmail());
         return response.isValid()
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.status(401).body(response);
