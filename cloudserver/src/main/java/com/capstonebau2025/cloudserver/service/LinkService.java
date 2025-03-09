@@ -28,9 +28,12 @@ public class LinkService {
         if (request.getHubSerialNumber() == null || request.getHubSerialNumber().isEmpty()) {
             return ResponseEntity.badRequest().body("Hub serial number is required");
         }
+        if (request.getEmail() == null || request.getEmail().isEmpty()) {
+            return ResponseEntity.badRequest().body("Email is required");
+        }
 
         // Validate user token
-        UserValidationResponse userValidation = userService.validateUser(request.getToken());
+        UserValidationResponse userValidation = userService.validateUser(request.getToken(), request.getEmail());
         if (!userValidation.isValid()) {
             return ResponseEntity.status(401).body("Invalid or expired token");
         }

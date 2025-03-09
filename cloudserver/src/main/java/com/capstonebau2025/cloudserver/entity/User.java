@@ -36,7 +36,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;    //notnullable
 
-    @OneToMany(mappedBy = "user_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHub> userHubs;
 
     @Override
@@ -48,6 +48,9 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email; // Use email as the username
+    }
+
+    public String getRealUsername() { return username; // Use username as the real username
     }
 
     @Override

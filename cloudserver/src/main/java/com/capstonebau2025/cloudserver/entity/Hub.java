@@ -28,7 +28,7 @@ public class Hub {
 
     @NotNull
     @Column(name="hub_key", nullable = false)
-    private Long key;   //password notnullable
+    private String key;   //password notnullable
 
     private String location;
 

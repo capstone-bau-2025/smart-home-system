@@ -25,8 +25,8 @@ public class Hub {
     private Long serialNumber;//like gmail it has unique id and notnullable
 
     @NotNull
-    @Column(nullable = false)
-    private Long key;   //password notnullable
+    @Column(name="hub_key", nullable = false)
+    private String key;   //password notnullable
 
     private String location;
 

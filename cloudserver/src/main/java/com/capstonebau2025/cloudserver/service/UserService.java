@@ -12,17 +12,10 @@ public class UserService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-    public UserValidationResponse validateUser(String token) {
+    public UserValidationResponse validateUser(String token, String email) {
         try {
-            String username = jwtService.extractUsername(token);
-            if (username == null) {
-                return UserValidationResponse.builder()
-                        .valid(false)
-                        .message("Invalid token")
-                        .build();
-            }
-
-            UserDetails userDetails = userRepository.findByEmail(username)
+            // Find user by provided email instead of extracting from token
+            var userDetails = userRepository.findByEmail(email)
                     .orElse(null);
 
             if (userDetails == null) {
@@ -32,6 +25,7 @@ public class UserService {
                         .build();
             }
 
+            // Still validate the token for security
             if (!jwtService.isTokenValid(token, userDetails)) {
                 return UserValidationResponse.builder()
                         .valid(false)
@@ -39,11 +33,15 @@ public class UserService {
                         .build();
             }
 
+            // Cast to User to access username field
+            var user = (com.capstonebau2025.cloudserver.entity.User) userDetails;
+
             return UserValidationResponse.builder()
                     .valid(true)
                     .message("User is valid")
                     .userInfo(UserValidationResponse.UserInfo.builder()
-                            .email(userDetails.getUsername())
+                            .email(user.getEmail())
+                            .username(user.getRealUsername())
                             .build())
                     .build();
         } catch (Exception e) {
@@ -55,57 +53,3 @@ public class UserService {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//package com.capstonebau2025.cloudserver.service;
-//
-//import com.capstonebau2025.cloudserver.repository.UserRepository;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.stereotype.Service;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class UserService {
-//    private final JwtService jwtService;
-//    private final UserRepository userRepository;
-//
-//    public boolean validateUser(String token) {
-//        try {
-//            String username = jwtService.extractUsername(token);
-//            if (username == null) {
-//                return false;
-//            }
-//
-//            UserDetails userDetails = userRepository.findByEmail(username)
-//                    .orElse(null);
-//
-//            if (userDetails == null) {
-//                return false;
-//            }
-//
-//            return jwtService.isTokenValid(token, userDetails);
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
-//}
