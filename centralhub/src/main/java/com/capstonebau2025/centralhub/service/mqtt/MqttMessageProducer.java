@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service.mqtt;
 import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import com.capstonebau2025.centralhub.helper.PasswordGenerator;
 import com.capstonebau2025.centralhub.utility.MessageIdGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class MqttMessageProducer {
                     .put("password", password)
                     .put("uid", deviceUid);
 
-            String response = sendMessage(deviceUid, message, configTopic);
+            ObjectNode response = sendMessage(deviceUid, message, configTopic);
             if(response != null) {
                 logger.info("successfully paired with device uid: {}", deviceUid);
                 return true;
@@ -60,6 +61,76 @@ public class MqttMessageProducer {
     }
 
     /**
+     * Retrieves the current value of a specified state for a given device.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param stateNumber the number of the state to retrieve
+     * @return the current value of the state, or null if an error occurred
+     */
+    public String getStateValue(long deviceUid, int stateNumber) {
+        ObjectNode message = mapper.createObjectNode()
+                .put("message_type", "GET_STATE")
+                .put("device_uid", deviceUid)
+                .put("state_number", stateNumber);
+
+        ObjectNode response = sendMessage(deviceUid, message);
+        if(response == null) return null;
+
+        return response.get("value").asText();
+    }
+
+    /**
+     * Sets the value of a specified state for a given device.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param stateNumber the number of the state to set
+     * @param value the value to set for the state
+     * @return true if the state value was successfully set, false otherwise
+     */
+    public boolean setStateValue(long deviceUid, int stateNumber, String value) {
+        ObjectNode message = mapper.createObjectNode()
+                .put("message_type", "SET_STATE")
+                .put("device_uid", deviceUid)
+                .put("state_number", stateNumber)
+                .put("value", value);
+
+        ObjectNode response = sendMessage(deviceUid, message);
+        return response != null;
+    }
+
+    /**
+     * Sends a command to a specified device.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @param commandNumber the number of the command to send
+     * @return true if the command was successfully sent, false otherwise
+     */
+    public boolean sendCommand(long deviceUid, int commandNumber) {
+        ObjectNode message = mapper.createObjectNode()
+                .put("message_type", "COMMAND")
+                .put("device_uid", deviceUid)
+                .put("command_number", commandNumber);
+
+        ObjectNode response = sendMessage(deviceUid, message);
+        return response != null;
+    }
+
+    /**
+     * Pings a specified device to check if it is online.
+     *
+     * @param deviceUid the unique identifier of the device
+     * @return true if the device is online, false otherwise
+     */
+    public boolean pingDevice(long deviceUid) {
+        ObjectNode message = mapper.createObjectNode()
+                .put("message_type", "PING")
+                .put("device_uid", deviceUid);
+
+        ObjectNode response = sendMessage(deviceUid, message);
+        return response != null;
+    }
+
+    /**
      * Sends a message to a specified topic for a given device UID and waits for a response.
      *
      * @param deviceUid the unique identifier of the device
@@ -67,7 +138,7 @@ public class MqttMessageProducer {
      * @param topic the topic to which the message will be published
      * @return the response from the device, or null if an error occurred
      */
-    public String sendMessage(long deviceUid, ObjectNode message, String topic) {
+    public ObjectNode sendMessage(long deviceUid, ObjectNode message, String topic) {
         try {
             //prepare message
             int messageId = MessageIdGenerator.generateMessageId();
@@ -87,21 +158,34 @@ public class MqttMessageProducer {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     logger.error("Thread interrupted while waiting for message", e);
+                    return null;
                 }
             }
 
             // unsubscribe from response topic
             subscriber.unsubscribeToResponse(deviceUid, messageId);
 
-            // return response if exists
-            return response.get();
+            if(response.get() == null) {
+                logger.warn("No response from device: {}", deviceUid);
+            }
+
+            try {
+                // Process the jsonResponse as needed
+                ObjectNode jsonResponse = (ObjectNode) mapper.readTree(response.get());
+                if(jsonResponse.get("status") != null && jsonResponse.get("status").asText().equals("SUCCESS"))
+                    return jsonResponse;
+                logger.error("device response status not success: {}", jsonResponse);
+            } catch (JsonProcessingException e) {
+                logger.error("Error parsing JSON response: {}", e.getMessage());
+            }
+            return null;
 
         } catch (MqttException e) {
             logger.error("Error sending message to device: {}", e.getMessage());
             return null;
         }
     }
-    public String sendMessage(long deviceUid, ObjectNode message) {
+    public ObjectNode sendMessage(long deviceUid, ObjectNode message) {
         return sendMessage(deviceUid, message, "device/" + deviceUid + "/in");
     }
 }
