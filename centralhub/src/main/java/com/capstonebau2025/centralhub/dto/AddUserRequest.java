@@ -14,5 +14,4 @@ public class AddUserRequest {
     private Invitation invitation;
     private String email;
     private String cloudToken;
-    private String hubSerialNumber;
 }
