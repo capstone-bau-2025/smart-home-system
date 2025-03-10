@@ -19,7 +19,7 @@ def get_device_config():
 
     return {
         "uid": uid,
-        "model": f"TestDevice-{uid}",
+        "model": "test model",
         "description": "Test device for MQTT communication",
         "type": DeviceType.SENSOR,
         "support_streaming": False,

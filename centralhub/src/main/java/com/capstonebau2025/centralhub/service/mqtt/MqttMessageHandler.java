@@ -31,11 +31,11 @@ public class MqttMessageHandler {
         }
     }
 
-    public void handleNotification(String message) {}
+    public void handleInfo(String message) {}
 
-    public void handlePingMessage(String message) {}
+    public void handlePing(String message) {}
 
-    public void handleEvent() {}
+    public void handleEvent(String message) {}
 
-    public void handleStateUpdate() {}
+    public void handleStateUpdate(String message) {}
 }

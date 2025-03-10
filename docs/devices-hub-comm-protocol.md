@@ -7,7 +7,8 @@ This document outlines the communication protocol between devices and the centra
 - [Message Flow](#message-flow-and-topics)
 - [Message Types](#message-types)
   - [Discovery Messages](#discovery-messages)
-  - [Communication Messages](#communication-messages)
+  - [Communication Messages Hub](#Communication-Messages-from-hub-to-device)
+  - [Communication Messages Device](#Communication-Messages-from-device-to-hub)
 
 ## Overview
 
@@ -94,11 +95,12 @@ IMPORTANT NOTE: after the device receives this message, it should send a [ping m
   "message_id": 1,
   "uid": "string",
   "username": "string",
-  "password": "string"
+  "password": "string",
+  "status": "SUCCESS"  // or "FAILURE"
 }
 ```
 
-### Communication Messages
+### Communication Messages from hub to device
 
 #### Set State Value
 Sent from central controller to device on topic: `device/device-uid/in`
@@ -142,7 +144,8 @@ Sent from central controller to device on topic: `device/device-uid/in`
   "message_type": "RESPONSE",
   "message_id": 20,
   "state_number": 1,
-  "value": "the current value of the state"
+  "value": "the current value of the state",
+  "status": "SUCCESS"  // or "FAILURE"
 }
 ```
 
@@ -155,17 +158,7 @@ Sent from central controller to device on topic: `device/device-uid/in`
   "message_type": "COMMAND",
   "message_id": 22,
   "device_uid": 1234,
-  "command_number": 1,
-  "parameters": [
-    {
-      "name": "param1",
-      "value": "value1"
-    },
-    {
-      "name": "param2",
-      "value": "value2"
-    }
-  ]
+  "command_number": 1
 }
 ```
 
@@ -195,9 +188,12 @@ Used for health monitoring. Topic: `device/device-uid/in`
 {
   "message_type": "PING",
   "message_id": 1,
-  "uid": "string"
+  "uid": "string",
+  "status": "SUCCESS"  // or "FAILURE"
 }
 ```
+
+### Communication Messages from device to hub
 
 #### Event Notification
 Sent from device to central controller on topic: `device/device-uid/out`
@@ -219,5 +215,16 @@ Sent from device to central controller on topic: `device/device-uid/out`
   "device_uid": 1234,
   "state_number": 3,
   "state_value": "the new value"
+}
+```
+
+#### info Notification
+Sent from device to central controller on topic: `device/device-uid/out`
+
+```json
+{
+  "message_type": "INFO",
+  "device_uid": 1234,
+  "message": "maybe approve opperation that takes time, like door closed"
 }
 ```

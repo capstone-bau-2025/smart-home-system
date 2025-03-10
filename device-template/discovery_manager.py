@@ -58,7 +58,7 @@ class DiscoveryManager:
         response_topic = f"{self.out_topic}/{message_id}"
         response = {
             "message_id": message_id,
-            "status": "PAIRED",
+            "status": "SUCCESS",
             "uid": self.device_uid,
             "timestamp": datetime.now().isoformat()
         }
