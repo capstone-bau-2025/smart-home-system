@@ -1,7 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.entity.Area;
-import com.capstonebau2025.centralhub.service.AreaService;
+import com.capstonebau2025.centralhub.service.crud.AreaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

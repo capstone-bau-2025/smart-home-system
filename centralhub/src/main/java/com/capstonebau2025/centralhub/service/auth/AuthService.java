@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.auth;
 
 import com.capstonebau2025.centralhub.dto.AuthRequest;
 import com.capstonebau2025.centralhub.dto.AuthResponse;
@@ -19,8 +19,9 @@ public class AuthService {
     public AuthResponse register(User user) {
 
         /*
-         * TODO: Register user in hub
-         * this method should register user in hub after he has been linked with hub in cloud,
+         * TODO: Register user in hub (note the parameter should not be user, this is just a placeholder)
+         * this method should take invitation and more (create dto)
+         * this method should register user in hub and link him with hub in cloud,
          * then return local token for user to use in hub directly.
          *
          * should be used in another service that link user with hub in cloud.

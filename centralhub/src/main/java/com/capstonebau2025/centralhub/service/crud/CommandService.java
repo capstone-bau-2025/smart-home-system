@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.crud;
 
 import com.capstonebau2025.centralhub.entity.Command;
 import com.capstonebau2025.centralhub.repository.CommandRepository;

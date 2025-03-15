@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.config;
 
-import com.capstonebau2025.centralhub.service.JwtService;
+import com.capstonebau2025.centralhub.service.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

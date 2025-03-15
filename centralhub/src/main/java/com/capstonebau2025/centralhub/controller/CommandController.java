@@ -1,7 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.entity.Command;
-import com.capstonebau2025.centralhub.service.CommandService;
+import com.capstonebau2025.centralhub.service.crud.CommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
