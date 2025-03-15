@@ -1,11 +1,10 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.entity.AutomationAction;
 import com.capstonebau2025.centralhub.entity.AutomationRule;
 import com.capstonebau2025.centralhub.entity.AutomationTrigger;
-import com.capstonebau2025.centralhub.service.AutomationActionService;
-import com.capstonebau2025.centralhub.service.AutomationRuleService;
-import com.capstonebau2025.centralhub.service.AutomationTriggerService;
+import com.capstonebau2025.centralhub.service.crud.AutomationActionService;
+import com.capstonebau2025.centralhub.service.crud.AutomationRuleService;
+import com.capstonebau2025.centralhub.service.crud.AutomationTriggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.crud;
 
 // PermissionService.java
 

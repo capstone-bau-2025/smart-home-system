@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.auth;
 
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

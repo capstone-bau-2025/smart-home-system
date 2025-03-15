@@ -1,11 +1,8 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
-import com.capstonebau2025.centralhub.service.PermissionService;
 import com.capstonebau2025.centralhub.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

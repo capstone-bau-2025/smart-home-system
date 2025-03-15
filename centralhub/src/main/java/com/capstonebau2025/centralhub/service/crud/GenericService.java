@@ -1,7 +1,5 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.crud;
 // GenericService.java
-
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.auth;
 
 import com.capstonebau2025.centralhub.entity.Invitation;
 import com.capstonebau2025.centralhub.entity.Role;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -32,6 +31,7 @@ public class InvitationService {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
 
+        //TODO: use password generator instead of UUID
         String code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
         Invitation invitation = Invitation.builder()
@@ -43,6 +43,7 @@ public class InvitationService {
         return code;
     }
 
+    // TODO: instead of passing invitation object, pass invitation code
     @Transactional
     public Role validateInvitation(Invitation invitation) {
         return invitationRepository.findByCode(invitation.getCode())

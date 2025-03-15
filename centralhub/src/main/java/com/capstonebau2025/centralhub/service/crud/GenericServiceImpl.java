@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.crud;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
