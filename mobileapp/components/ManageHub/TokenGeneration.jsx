@@ -14,20 +14,14 @@ export default function TokenGeneration() {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleTokenModal}>
-        <LinearGradient
-          colors={["#edc47d", "#dc970d"]} 
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientButton}
-        >
-          <View style={styles.buttonContent}>
-            <Text style={styles.buttonText}>Add User</Text>
-            <Ionicons name="person-add-outline" size={20} color="white" style={styles.icon} />
-          </View>
-        </LinearGradient>
+
+    <View style={styles.buttonContainer}>
+              <Ionicons name="person-add-outline" size={20} color="#000000"  />
+    </View>
+
       </TouchableOpacity>
 
-  {tokenVisible && <TokenModal visible={tokenVisible} onClose={handleTokenModal} />}
+  <TokenModal visible={tokenVisible} onClose={handleTokenModal} />
 
     </View>
   );
@@ -36,24 +30,22 @@ export default function TokenGeneration() {
 const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "flex-end",
     margin: 20, 
   },
   button: {
     borderRadius: 12, 
     overflow: "hidden", 
   },
-  gradientButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
+  buttonContainer: {
+    backgroundColor:'#f9b930',
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12, 
+    padding:12
   },
   buttonContent: { 
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+
   },
   buttonText: {
     color: "white",

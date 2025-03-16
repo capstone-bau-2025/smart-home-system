@@ -34,7 +34,6 @@ export default function ManageHub() {
           ))}
         </View>
 
-        {/* 🔹 Users List */}
         <UsersList users={selectedTab.users} />
       </SafeAreaView>
     </GestureHandlerRootView>

@@ -1,7 +1,7 @@
 import { View, Pressable, StyleSheet, TouchableOpacity} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function HeaderIcons({ onInfoPress, onCogPress, onAddPress }) {
+export default function HeaderIcons({ onInfoPress, onCogPress, onAddPress,  }) {
   return (
     <View style={styles.iconsContainer}>
       <TouchableOpacity onPress={onAddPress} style={({ pressed }) => [pressed && styles.pressed]}>

@@ -1,16 +1,16 @@
-import { StyleSheet, Text, TouchableOpacity, View,  Alert, } from "react-native";
 import React, { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { FlatList } from "react-native-gesture-handler";
 import { LinearGradient } from "expo-linear-gradient";
-import RemoveUser from "./RemoveUser";
+import ConfirmationModal from "../UI/ConfirmationModal";
 import PermsModal from "./PermsModal";
 import TokenGeneration from "./TokenGeneration";
 
 export default function UsersList({ users }) {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [modalType, setModalType] = useState(null);
-  const [usersPerms,setUsersPerms] = useState(users);
+  const [usersPerms, setUsersPerms] = useState(users);
+
   const handleOpenModal = (type, userId) => {
     setSelectedUserId(userId);
     setModalType(type);
@@ -22,6 +22,12 @@ export default function UsersList({ users }) {
       setSelectedUserId(null);
     }, 300);
   };
+
+  const handleRemoveUser = () => {
+    console.log(`User ${selectedUserId} removed`);
+    handleCloseModal();
+  };
+
   const updatePermissions = (userId, updatedPerms) => {
     setUsersPerms((prevUsers) =>
       prevUsers.map((user) =>
@@ -29,12 +35,11 @@ export default function UsersList({ users }) {
       )
     );
   };
+
   return (
     <>
       <FlatList
-      ListHeaderComponent={
-        <TokenGeneration  />
-      }
+        ListHeaderComponent={<TokenGeneration />}
         data={users}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
@@ -71,17 +76,21 @@ export default function UsersList({ users }) {
         )}
       />
 
-      {/* Remove User Modal */}
-      {modalType === "remove" && (
-        <RemoveUser
+
+        <ConfirmationModal
           visible={modalType === "remove"}
           onClose={handleCloseModal}
-          userId={selectedUserId}
+          onConfirm={handleRemoveUser}
+          title="Remove User"
+          message="Are you sure you want to remove this user?"
+          iconName="alert-circle-outline"
+          iconColor="red"
+          confirmLabel="Yes"
+          cancelLabel="No"
         />
-      )}
+    
 
-      {/* Permissions Modal */}
-      {modalType === "edit" && (
+
         <PermsModal
           visible={modalType === "edit"}
           onClose={handleCloseModal}
@@ -89,57 +98,29 @@ export default function UsersList({ users }) {
           users={users}
           updatePermissions={updatePermissions}
         />
-      )}
+
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  listContainer: {
-    flexGrow: 1,
-    paddingBottom: 80,
-  },
-  itemWrapper: {
-    alignItems: "center",
-  },
+  listContainer: { flexGrow: 1, paddingBottom: 80 },
+  itemWrapper: { alignItems: "center" },
   container: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: 300,
+    width: '97%',
     height: 70,
     borderRadius: 10,
     marginVertical: 8,
     paddingHorizontal: 15,
     overflow: "hidden",
   },
-  textContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  userText: {
-    fontSize: 27,
-    fontWeight: "bold",
-    color: "white",
-  },
-  roleText: {
-    fontSize: 27,
-    fontWeight: "normal",
-    color: "white",
-  },
-  iconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  editIcon: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    padding: 6,
-    borderRadius: 50,
-    marginRight: 10,
-  },
-  removeIcon: {
-    padding: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-      borderRadius: 50,
-  },
+  textContainer: { flexDirection: "row", alignItems: "center" },
+  userText: { fontSize: 27, fontWeight: "bold", color: "white" },
+  roleText: { fontSize: 27, fontWeight: "normal", color: "white" },
+  iconContainer: { flexDirection: "row", alignItems: "center" },
+  editIcon: { backgroundColor: "rgba(255, 255, 255, 0.3)", padding: 6, borderRadius: 50, marginRight: 10 },
+  removeIcon: { padding: 6, backgroundColor: "rgba(255, 255, 255, 0.3)", borderRadius: 50 },
 });

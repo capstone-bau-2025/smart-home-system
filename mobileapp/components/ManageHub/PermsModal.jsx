@@ -4,92 +4,92 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   TouchableWithoutFeedback,
   ScrollView,
   TouchableOpacity,
-  Alert
 } from "react-native";
+import Toast from "react-native-toast-message"; 
+import CustomToast from "../UI/CustomToast";
 
 export default function PermsModal({ visible, onClose, userId, users, updatePermissions }) {
-  // Find the selected user
   const selectedUser = users.find((user) => user.id === userId);
+  const [userPerms, setUserPerms] = useState({});
 
-  // Local state to track changes
-  const [userPerms, setUserPerms] = useState(selectedUser?.perms || {});
-
-  // Update local permissions when user changes
   useEffect(() => {
     if (selectedUser) {
-      setUserPerms(selectedUser.perms);
+      setUserPerms(selectedUser.perms || {});
     }
   }, [selectedUser]);
 
-  // Function to toggle permission
   const togglePermission = (room) => {
     setUserPerms((prev) => ({
       ...prev,
-      [room]: !prev[room], // Toggle true/false
+      [room]: !prev[room],
     }));
   };
 
-  // Save changes and close
   const handleSave = () => {
     updatePermissions(userId, userPerms);
-    Alert.alert("Permissions Updated", "User permissions have been updated.");
+
+    Toast.show({
+      type: "success",
+      text1: "✅ Permissions Updated",
+      text2: `${selectedUser?.name}'s permissions have been saved.`,
+      position: "top",
+      visibilityTime: 4000,
+      autoHide: true,
+    });
+
     onClose();
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onClose}
-      hideModalContentWhileAnimating={true}
-    >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.title}>{selectedUser?.name}'s Permissions</Text>
+    <>
+      <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.title}>{selectedUser?.name}'s Permissions</Text>
 
-              <ScrollView style={styles.scrollContainer}>
-                {selectedUser?.perms ? (
-                  Object.entries(userPerms).map(([room, access]) => (
-                    <View key={room} style={styles.permItem}>
-                      <Text style={styles.roomText}>{room}</Text>
+                <ScrollView style={styles.scrollContainer}>
+                  {selectedUser?.perms ? (
+                    Object.entries(userPerms).map(([room, access]) => (
+                      <View key={room} style={styles.permItem}>
+                        <Text style={styles.roomText}>{room}</Text>
+                        <TouchableOpacity
+                          style={[styles.toggleButton, access ? styles.allowed : styles.denied]}
+                          onPress={() => togglePermission(room)}
+                        >
+                          <Text style={styles.toggleButtonText}>
+                            {access ? "✅ Allowed" : "❌ Denied"}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={styles.noPerms}>No permissions found.</Text>
+                  )}
+                </ScrollView>
 
-                      {/* Toggle Button */}
-                      <TouchableOpacity
-                        style={[styles.toggleButton, access ? styles.allowed : styles.denied]}
-                        onPress={() => togglePermission(room)}
-                      >
-                        <Text style={styles.toggleButtonText}>
-                          {access ? "✅ Allowed" : "❌ Denied"}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))
-                ) : (
-                  <Text style={styles.noPerms}>No permissions found.</Text>
-                )}
-              </ScrollView>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                    <Text style={styles.closeButtonText}>Cancel</Text>
+                  </TouchableOpacity>
 
-              <View style={styles.buttonRow}>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                  <Text style={styles.closeButtonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-                  <Text style={styles.saveButtonText}>Save</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+  
+<Toast/>
+    </>
   );
 }
 
@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-
   },
   modalContainer: {
     width: 350,
@@ -108,7 +107,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     elevation: 5,
-    height:600
+    height: 600,
   },
   title: {
     fontSize: 20,
@@ -118,7 +117,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: "100%",
-    maxHeight: 600,
+    maxHeight: 500,
   },
   permItem: {
     flexDirection: "row",
@@ -127,7 +126,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
-    
   },
   roomText: {
     fontSize: 16,
@@ -140,10 +138,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   allowed: {
-    backgroundColor: "#4CAF50", // Green
+    backgroundColor: "#4CAF50",
   },
   denied: {
-    backgroundColor: "#FF3B30", // Red
+    backgroundColor: "#FF3B30",
   },
   toggleButtonText: {
     color: "white",

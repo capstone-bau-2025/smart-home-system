@@ -10,7 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import HubsTabs from "../../components/ManageHub/HubsTabs";
 import { useState } from "react";
 import { hubs } from "../../Data/Hubs";
-import RoomsList from "../../components/ManageDevices/RoomsList";
+import MainRoomList from "../../components/ManageDevices/MainRoomList";
 
 export default function ManageDevice() {
   const [selectedTab, setSelectedTab] = useState(hubs[0]);
@@ -33,7 +33,7 @@ export default function ManageDevice() {
         </View>
 
         <HubsTabs hubs={hubs} selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-        <RoomsList selectedTab={selectedTab} setSelectedTab={setSelectedTab} hubs={hubs} />
+        <MainRoomList selectedTab={selectedTab} setSelectedTab={setSelectedTab} hubs={hubs} />
       </SafeAreaView>
     </GestureHandlerRootView>
   );

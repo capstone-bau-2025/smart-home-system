@@ -5,35 +5,28 @@ import HeaderIcons from "./HeaderIcons";
 import AddDropdown from "./AddDropdown";
 import SettingsDropdown from "./SettingsDropdown";
 
-export default function Header({ setModalVisible }) {
-  const [selectedHub, setselectedHub] = useState("Hub1");
+export default function Header({ setModalVisible, setCurrentHub, currentHub }) {
   const [addValue, setAddValue] = useState(null);
   const [settingsValue, setSettingsValue] = useState(null);
   const [addVisible, setAddVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [shouldRenderSettings, setShouldRenderSettings] = useState(false);
 
-  // Handle settings modal visibility with delayed unmounting
-  useEffect(() => {
-    if (settingsVisible) {
-      setShouldRenderSettings(true);
-    } else {
-      setTimeout(() => setShouldRenderSettings(false), 1); // Delay unmounting to prevent flickering
-    }
-  }, [settingsVisible]);
 
   return (
     <View style={styles.container}>
-      <HubDropdown selectedHub={selectedHub} setselectedHub={setselectedHub} />
+      <HubDropdown
+        setCurrentHub={setCurrentHub}
+        currentHub={currentHub}
+      />
 
-      {/* Icons with press handlers */}
+
       <HeaderIcons
         onInfoPress={() => setModalVisible(true)}
         onAddPress={() => setAddVisible((prev) => !prev)}
-        onCogPress={() => setSettingsVisible((prev) => !prev)} // Fix flicker issue
+        onCogPress={() => setSettingsVisible((prev) => !prev)}
       />
 
-      {/* Add dropdown */}
+    
       <AddDropdown
         addValue={addValue}
         setAddValue={setAddValue}
@@ -41,15 +34,14 @@ export default function Header({ setModalVisible }) {
         setAddVisible={setAddVisible}
       />
 
-      {/* Settings dropdown with smooth close effect */}
-      {shouldRenderSettings && (
+
         <SettingsDropdown
           settingsValue={settingsValue}
           setSettingsValue={setSettingsValue}
           settingsVisible={settingsVisible}
           setSettingsVisible={setSettingsVisible}
         />
-      )}
+
     </View>
   );
 }

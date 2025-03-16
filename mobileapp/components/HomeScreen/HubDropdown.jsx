@@ -2,7 +2,7 @@ import { View, StyleSheet, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Dropdown } from "react-native-element-dropdown";
 
-export default function HubDropdown({ selectedHub, setselectedHub }) {
+export default function HubDropdown({currentHub, setCurrentHub }) {
   const hubData = [
     { label: "Hub1", value: "Hub1" },
     { label: "Hub2", value: "Hub2" },
@@ -16,8 +16,8 @@ export default function HubDropdown({ selectedHub, setselectedHub }) {
         data={hubData}
         labelField="label"
         valueField="value"
-        value={selectedHub}
-        onChange={(item) => setselectedHub(item.value)}
+        value={currentHub}
+        onChange={(item) => setCurrentHub(item.value)}
         style={styles.dropdown}
         placeholder={null}
         selectedTextStyle={styles.selectedText}

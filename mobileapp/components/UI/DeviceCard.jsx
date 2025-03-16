@@ -10,7 +10,7 @@ export default function DeviceCard({ device, onPress }) {
       onPress={onPress}
     >
       <LinearGradient
-        colors={["#e19b19", "#ffae75"]} // Gold to Orange Gradient
+        colors={["#e19b19", "#ffae75"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}

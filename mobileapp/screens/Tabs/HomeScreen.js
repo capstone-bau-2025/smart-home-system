@@ -5,14 +5,14 @@ import Header from "../../components/HomeScreen/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HubInfoModal from "../../components/HomeScreen/HubInfoModal";
 
-export default function HomeScreen() {
+export default function HomeScreen({setCurrentHub, currentHub}) {
   const [modalVisible, setModalVisible] = useState(false);
 
 
   return (
     <SafeAreaView style={styles.container}>
       <TopRightBlob />
-      <Header setModalVisible={setModalVisible} />
+      <Header setModalVisible={setModalVisible} setCurrentHub={setCurrentHub} currentHub={currentHub}/>
       <HubInfoModal visible={modalVisible} onClose={() => setModalVisible(false)} />
     </SafeAreaView>
   );
