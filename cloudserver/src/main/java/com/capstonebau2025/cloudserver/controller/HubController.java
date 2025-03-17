@@ -68,10 +68,8 @@ public class HubController {
 
 
     @PostMapping("/linkUser")
-    public ResponseEntity<?> linkUser(@RequestBody LinkUserRequest request) {
+    public ResponseEntity<LinkUserResponse> linkUser(@RequestBody LinkUserRequest request) {
         return hubService.linkUser(request);
     }
-
 }
-
 
