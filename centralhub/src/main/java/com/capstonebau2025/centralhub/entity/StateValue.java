@@ -21,6 +21,8 @@ public class StateValue {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @NotNull
     @ManyToOne
     @JoinColumn(name = "device_id", nullable = false)
