@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service;
 import com.capstonebau2025.centralhub.dto.DeviceDetails;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.*;
+import com.capstonebau2025.centralhub.service.crud.StateService;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import com.capstonebau2025.centralhub.service.mqtt.PendingDiscoveryService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class DeviceService{
 
     private final PendingDiscoveryService pendingDiscoveryService;
     private final MqttMessageProducer mqttMessageProducer;
+    private final StateService stateService;
     private final DeviceModelRepository deviceModelRepository;
     private final DeviceRepository deviceRepository;
     private final AreaRepository areaRepository;
@@ -39,6 +41,7 @@ public class DeviceService{
      */
     public DeviceDetails registerDevice(Long deviceUid) {
 
+        // get device details from pending discovery service
         DeviceDetails deviceDetails = pendingDiscoveryService.removePendingDevice(deviceUid);
         if (deviceDetails == null) return null;
 
@@ -48,88 +51,19 @@ public class DeviceService{
                 .area(areaRepository.findGeneralArea())
                 .status(Device.DeviceStatus.CONNECTED);
 
+        // get device model
         Optional<DeviceModel> deviceModel = deviceModelRepository.findByModel(deviceDetails.getModel());
+
+        // use device model if exists, otherwise create a new one
         if (deviceModel.isPresent()) {
             deviceBuilder.model(deviceModel.get());
         }
         else {
-
-            // Create the DeviceModel first (without states)
-            DeviceModel newDeviceModel = DeviceModel.builder()
-                    .model(deviceDetails.getModel())
-                    .type(deviceDetails.getType())
-                    .supportStreaming(deviceDetails.isSupportStreaming())
-                    .name(deviceDetails.getName())
-                    .description(deviceDetails.getDescription())
-                    .build();
-
-            // Save the DeviceModel to get an ID
-            deviceModelRepository.save(newDeviceModel);
-
-            // Create states with reference to the saved DeviceModel
-            List<State> states = new ArrayList<>();
-            if (deviceDetails.getStates() != null && !deviceDetails.getStates().isEmpty()) {
-                states = deviceDetails.getStates().stream().map(stateDetails -> {
-                    State state = State.builder()
-                            .number(stateDetails.getNumber())
-                            .isMutable(stateDetails.isMutable())
-                            .name(stateDetails.getName())
-                            .type(stateDetails.getType())
-                            .minRange(stateDetails.getMinRange())
-                            .maxRange(stateDetails.getMaxRange())
-                            .model(newDeviceModel)
-                            .build();
-
-                    // Handle choices separately since they need the state reference
-                    if (stateDetails.getChoices() != null && stateDetails.getType() == State.StateType.ENUM) {
-                        Set<StateChoice> choices = stateDetails.getChoices().stream()
-                                .map(choiceName -> StateChoice.builder()
-                                        .name(choiceName)
-                                        .state(state)
-                                        .build())
-                                .collect(Collectors.toSet());
-                        state.setChoices(choices);
-                    }
-
-                    return state;
-                }).toList();
-            }
-
-            List<Command> commands = new ArrayList<>();
-            if (deviceDetails.getCommands() != null && !deviceDetails.getCommands().isEmpty()) {
-                commands = deviceDetails.getCommands().stream().map(commandDetails -> Command.builder()
-                        .model(newDeviceModel)
-                        .number(commandDetails.getNumber())
-                        .name(commandDetails.getName())
-                        .description(commandDetails.getDescription())
-                        .build()).toList();
-            }
-
-            List<Event> events = new ArrayList<>();
-            if (deviceDetails.getEvents() != null && !deviceDetails.getEvents().isEmpty()) {
-                events = deviceDetails.getEvents().stream().map(eventDetails -> Event.builder()
-                        .model(newDeviceModel)
-                        .number(eventDetails.getNumber())
-                        .name(eventDetails.getName())
-                        .description(eventDetails.getDescription())
-                        .build()).toList();
-            }
-
-            // Save states, commands, and events
-            List<State> savedStates = stateRepository.saveAll(states);
-            List<Command> savedCommands = commandRepository.saveAll(commands);
-            List<Event> savedEvents = eventRepository.saveAll(events);
-
-            // Set the saved states back to the DeviceModel
-            newDeviceModel.setStates(savedStates);
-            newDeviceModel.setCommands(savedCommands);
-            newDeviceModel.setEvents(savedEvents);
-
-            // Update the DeviceModel
-            deviceModelRepository.save(newDeviceModel);
+            DeviceModel newDeviceModel = createDeviceModel(deviceDetails);
             deviceBuilder.model(newDeviceModel);
         }
 
+        // save the new device
         Device newDevice = deviceRepository.save(deviceBuilder.build());
 
         // send credentials to the device and delete the device again if the credentials could not be sent
@@ -138,9 +72,105 @@ public class DeviceService{
             return null;
         }
 
+        // create device StateValue entities and fetch state from device
+        stateService.initializeDeviceStates(newDevice);
+
         return deviceDetails;
     }
 
+    public DeviceModel createDeviceModel(DeviceDetails deviceDetails) {
+
+        // Create the DeviceModel first (without states)
+        DeviceModel newDeviceModel = DeviceModel.builder()
+                .model(deviceDetails.getModel())
+                .type(deviceDetails.getType())
+                .supportStreaming(deviceDetails.isSupportStreaming())
+                .name(deviceDetails.getName())
+                .description(deviceDetails.getDescription())
+                .build();
+
+        // Save the DeviceModel to get an ID
+        deviceModelRepository.save(newDeviceModel);
+
+        // Create states with reference to the saved DeviceModel
+        List<State> states = new ArrayList<>();
+        if (deviceDetails.getStates() != null && !deviceDetails.getStates().isEmpty()) {
+            states = deviceDetails.getStates().stream().map(stateDetails -> {
+                State state = State.builder()
+                        .number(stateDetails.getNumber())
+                        .isMutable(stateDetails.isMutable())
+                        .name(stateDetails.getName())
+                        .type(stateDetails.getType())
+                        .minRange(stateDetails.getMinRange())
+                        .maxRange(stateDetails.getMaxRange())
+                        .model(newDeviceModel)
+                        .build();
+
+                // Handle choices separately since they need the state reference
+                if (stateDetails.getChoices() != null && stateDetails.getType() == State.StateType.ENUM) {
+                    Set<StateChoice> choices = stateDetails.getChoices().stream()
+                            .map(choiceName -> StateChoice.builder()
+                                    .name(choiceName)
+                                    .state(state)
+                                    .build())
+                            .collect(Collectors.toSet());
+                    state.setChoices(choices);
+                }
+
+                return state;
+            }).toList();
+        }
+
+        List<Command> commands = new ArrayList<>();
+        if (deviceDetails.getCommands() != null && !deviceDetails.getCommands().isEmpty()) {
+            commands = deviceDetails.getCommands().stream().map(commandDetails -> Command.builder()
+                    .model(newDeviceModel)
+                    .number(commandDetails.getNumber())
+                    .name(commandDetails.getName())
+                    .description(commandDetails.getDescription())
+                    .build()).toList();
+        }
+
+        List<Event> events = new ArrayList<>();
+        if (deviceDetails.getEvents() != null && !deviceDetails.getEvents().isEmpty()) {
+            events = deviceDetails.getEvents().stream().map(eventDetails -> Event.builder()
+                    .model(newDeviceModel)
+                    .number(eventDetails.getNumber())
+                    .name(eventDetails.getName())
+                    .description(eventDetails.getDescription())
+                    .build()).toList();
+        }
+
+        // Save states, commands, and events
+        List<State> savedStates = stateRepository.saveAll(states);
+        List<Command> savedCommands = commandRepository.saveAll(commands);
+        List<Event> savedEvents = eventRepository.saveAll(events);
+
+        // Set the saved states back to the DeviceModel
+        newDeviceModel.setStates(savedStates);
+        newDeviceModel.setCommands(savedCommands);
+        newDeviceModel.setEvents(savedEvents);
+
+        // Update the DeviceModel and return it
+        return deviceModelRepository.save(newDeviceModel);
+    }
+
+    public void setDeviceName(Long id, String name) {
+        Optional<Device> device = deviceRepository.findById(id);
+        device.ifPresent(value -> {
+            value.setName(name);
+            deviceRepository.save(value);
+        });
+    }
+
+    public void setDeviceArea(Long id, Long areaId) {
+        Optional<Device> device = deviceRepository.findById(id);
+        Optional<Area> area = areaRepository.findById(areaId);
+        if (device.isPresent() && area.isPresent()) {
+            device.get().setArea(area.get());
+            deviceRepository.save(device.get());
+        }
+    }
 
     public Optional<Device> getById(Long id) {
         return deviceRepository.findById(id);
