@@ -1,7 +1,5 @@
 package com.capstonebau2025.centralhub.service;
 
-// UserService.java
-
 import com.capstonebau2025.centralhub.dto.*;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
@@ -9,63 +7,24 @@ import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.repository.InvitationRepository;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import com.capstonebau2025.centralhub.service.auth.JwtService;
-import com.capstonebau2025.centralhub.service.crud.GenericServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Optional;
-
 @Service
-public class UserService extends GenericServiceImpl<User, Long> {
+@RequiredArgsConstructor
+public class UserService {
 
     private final UserRepository userRepository;
     private final InvitationService invitationService;
     private final InvitationRepository invitationRepository;
     private final JwtService jwtService;
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${cloud.server.url}")
     private String cloudServerUrl;
-
-    @Autowired
-    public UserService(UserRepository userRepository,
-                       InvitationService invitationService,
-                       InvitationRepository invitationRepository,
-                       JwtService jwtService) {
-        setRepository(userRepository);
-        this.userRepository = userRepository;
-        this.invitationService = invitationService;
-        this.invitationRepository = invitationRepository;
-        this.jwtService = jwtService;
-        this.restTemplate = new RestTemplate();
-    }
-
-    public User create(User user) {
-        return super.create(user);
-    }
-
-    public User update(User user) {
-        return super.update(user);
-    }
-
-    public Optional<User> getById(Long id) {
-        return super.getById(id);
-    }
-
-    public Iterable<User> getAll() {
-        return super.getAll();
-    }
-
-    public void deleteById(Long id) {
-        super.deleteById(id);
-    }
-
-    public void delete(User user) {
-        super.delete(user);
-    }
 
     // TODO: move this method from here to the AuthService in register method
     @Transactional
@@ -110,7 +69,7 @@ public class UserService extends GenericServiceImpl<User, Long> {
                 .role(role)
                 .build();
 
-        user = create(user);
+        user = userRepository.save(user);
 
         // 5. Delete the used invitation
         invitationRepository.delete(request.getInvitation());

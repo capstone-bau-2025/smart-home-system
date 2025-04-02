@@ -1,9 +1,8 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.service.device;
 
 import com.capstonebau2025.centralhub.dto.DeviceDetails;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.*;
-import com.capstonebau2025.centralhub.service.crud.StateService;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import com.capstonebau2025.centralhub.service.mqtt.PendingDiscoveryService;
 import lombok.RequiredArgsConstructor;
@@ -171,17 +170,4 @@ public class DeviceService{
             deviceRepository.save(device.get());
         }
     }
-
-    public Optional<Device> getById(Long id) {
-        return deviceRepository.findById(id);
-    }
-
-    public Iterable<Device> getAll() {
-        return deviceRepository.findAll();
-    }
-
-    public void deleteById(Long id) {
-        deviceRepository.deleteById(id);
-    }
-
 }

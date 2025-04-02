@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service.crud;
+package com.capstonebau2025.centralhub.service.device;
 
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.State;
@@ -85,7 +85,7 @@ public class StateService {
         int stateNumber = state.getNumber();
 
         // Send device the new value and update in database
-        if(mqttMessageProducer.setStateValue(deviceUid, stateNumber, newValue)) {;
+        if(mqttMessageProducer.setStateValue(deviceUid, stateNumber, newValue)) {
             stateValue.setStateValue(newValue);
             stateValue.setLastUpdate(LocalDateTime.now());
             stateValueRepository.save(stateValue);
