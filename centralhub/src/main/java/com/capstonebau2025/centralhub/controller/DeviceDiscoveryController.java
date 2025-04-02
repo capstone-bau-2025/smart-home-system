@@ -1,7 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.dto.DeviceDetails;
-import com.capstonebau2025.centralhub.service.DeviceService;
+import com.capstonebau2025.centralhub.service.device.DeviceService;
 import com.capstonebau2025.centralhub.service.mqtt.PendingDiscoveryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
