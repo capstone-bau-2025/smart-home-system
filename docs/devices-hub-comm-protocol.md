@@ -218,7 +218,7 @@ Sent from device to central controller on topic: `device/device-uid/out`
 }
 ```
 
-#### info Notification
+#### Info Notification
 Sent from device to central controller on topic: `device/device-uid/out`
 
 ```json
@@ -226,5 +226,14 @@ Sent from device to central controller on topic: `device/device-uid/out`
   "message_type": "INFO",
   "device_uid": 1234,
   "message": "maybe approve opperation that takes time, like door closed"
+}
+```
+#### Ping From Device
+Sent from device to central controller on topic: `device/device-uid/out`
+
+```json
+{
+  "message_type": "PING",
+  "device_uid": 1234
 }
 ```

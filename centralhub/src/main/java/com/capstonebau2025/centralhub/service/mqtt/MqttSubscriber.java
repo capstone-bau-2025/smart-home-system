@@ -1,5 +1,8 @@
 package com.capstonebau2025.centralhub.service.mqtt;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -42,18 +45,43 @@ public class MqttSubscriber {
         }
 
         mqttAsyncClient.subscribe("device/+/out", 0, (topic, mqttMessage) -> {
+            try {
+                // extract message
+                String payload = new String(mqttMessage.getPayload());
+                String deviceUid = topic.split("/")[1];
 
-            // extract message
-            String message = new String(mqttMessage.getPayload());
-            String deviceUid = topic.split("/")[1];
+                // Parse JSON message
+                ObjectNode message = (ObjectNode) new ObjectMapper().readTree(payload);
+                String messageType = message.get("message_type").asText();
 
-            // TODO: Implement receiving message from device logic
+                // Route message to appropriate handler based on message_type
+                switch (messageType) {
+                    case "EVENT":
+                        messageHandler.handleEvent(message);
+                        break;
+                    case "STATE_UPDATED":
+                        messageHandler.handleStateUpdate(message);
+                        break;
+                    case "INFO":
+                        messageHandler.handleInfo(message);
+                        break;
+                    case "PING":
+                        messageHandler.handlePing(message);
+                        break;
+                    default:
+                        logger.warn("Received unknown message type: {} from device: {}", messageType, deviceUid);
+                }
 
-            // sends a message back to the device for testing
-            String response = "Received your message device: " + deviceUid;
-            mqttAsyncClient.publish("device/"+ deviceUid +"/in", new MqttMessage(response.getBytes()));
+                logger.info("Processed message of type {} from device with uid: {}", messageType, deviceUid);
 
-            logger.info("Received message from device with uid: {}", deviceUid);
+                String response = "{\"message_type\": \"RESPONSE\", \"device_uid\": " + deviceUid + ", \"status\": \"SUCCESS\"}";
+                mqttAsyncClient.publish("device/"+ deviceUid +"/in", new MqttMessage(response.getBytes()));
+
+            } catch (JsonProcessingException e) {
+                logger.error("Error parsing message from device: {}", e.getMessage());
+            } catch (Exception e) {
+                logger.error("Error handling device message: {}", e.getMessage());
+            }
         });
         logger.info("Subscribed to devices OUT topics");
     }

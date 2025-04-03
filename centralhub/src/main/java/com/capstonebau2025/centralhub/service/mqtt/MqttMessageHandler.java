@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service.mqtt;
 import com.capstonebau2025.centralhub.dto.DeviceDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +32,11 @@ public class MqttMessageHandler {
         }
     }
 
-    public void handleInfo(String message) {}
+    public void handleInfo(ObjectNode message) {}
 
-    public void handlePing(String message) {}
+    public void handlePing(ObjectNode message) {}
 
-    public void handleEvent(String message) {}
+    public void handleEvent(ObjectNode message) {}
 
-    public void handleStateUpdate(String message) {}
+    public void handleStateUpdate(ObjectNode message) {}
 }
