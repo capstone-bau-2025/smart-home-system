@@ -1,13 +1,17 @@
 package com.capstonebau2025.centralhub.service.auth;
 
-import com.capstonebau2025.centralhub.dto.AuthRequest;
-import com.capstonebau2025.centralhub.dto.AuthResponse;
+import com.capstonebau2025.centralhub.dto.*;
+import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
+import com.capstonebau2025.centralhub.repository.InvitationRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
+import com.capstonebau2025.centralhub.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -15,24 +19,63 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final InvitationService invitationService;
+    private final InvitationRepository invitationRepository;
+    private final RestTemplate restTemplate;
+    private final UserService userService;
 
-    public AuthResponse register(User user) {
+    @Value("${cloud.server.url}")
+    private String cloudServerUrl;
 
-        /*
-         * TODO: Register user in hub (note the parameter should not be user, this is just a placeholder)
-         * this method should take invitation and more (create dto)
-         * this method should register user in hub and link him with hub in cloud,
-         * then return local token for user to use in hub directly.
-         *
-         * should be used in another service that link user with hub in cloud.
-         */
 
-        userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .build();
-    }
+    public AuthResponse register(AddUserRequest request) {
+            // 1. Validate invitation and get role
+            Role role = invitationService.validateInvitation(request.getInvitation());
+
+            // 2. Check if user is valid from cloud
+            UserValidationRequest validationRequest = UserValidationRequest.builder()
+                    .token(request.getCloudToken())
+                    .build();
+
+            restTemplate.postForObject(
+                    cloudServerUrl + "/api/hub/validateUser",
+                    validationRequest,
+                    Void.class
+            );
+
+            // 3. Link user with cloud and get user info
+            LinkUserRequest linkRequest = LinkUserRequest.builder()
+                    .token(request.getCloudToken())
+                    .hubSerialNumber(request.getHubSerialNumber())
+                    .build();
+
+            User cloudUser = restTemplate.postForObject(
+                    cloudServerUrl + "/api/hub/linkUser",
+                    linkRequest,
+                    User.class
+            );
+
+            // 4. Create user in hub db with the role
+            User user = User.builder()
+                    .email(cloudUser.getEmail())
+                    .username(cloudUser.getEmail())
+                    .role(role)
+                    .build();
+
+            user = userRepository.save(user);
+
+            // 5. Delete the used invitation
+            // invitationRepository.delete(invitationRepository.findByCode(request.getInvitation()));
+            invitationRepository.findByCode(request.getInvitation())
+                    .ifPresent(invitation -> invitationRepository.delete(invitation));
+
+            // 6. Return auth response with token
+            var jwtToken = jwtService.generateToken(user);
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+
 
     public AuthResponse authenticate(AuthRequest request) {
 
