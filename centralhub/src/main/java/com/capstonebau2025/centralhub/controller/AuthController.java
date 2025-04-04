@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.controller;
 
+import com.capstonebau2025.centralhub.dto.AddUserRequest;
 import com.capstonebau2025.centralhub.dto.AuthRequest;
 import com.capstonebau2025.centralhub.dto.AuthResponse;
 import com.capstonebau2025.centralhub.entity.User;
@@ -18,12 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> registerWithInvitation(@RequestBody User request) {
-
-        // TODO: adding user with invitation should be through this controller
-        // request should not be user it is just placeholder
-        // add necessary request dto, return should be the same
-
+    public ResponseEntity<AuthResponse> registerWithInvitation(@RequestBody AddUserRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 

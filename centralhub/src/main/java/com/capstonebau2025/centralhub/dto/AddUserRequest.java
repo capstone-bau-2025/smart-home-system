@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddUserRequest {
-    private Invitation invitation;
+    private String invitation;
     private String email;
     private String cloudToken;
     private String hubSerialNumber;
