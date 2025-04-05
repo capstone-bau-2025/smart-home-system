@@ -27,108 +27,56 @@ public class AuthService {
     @Value("${cloud.server.url}")
     private String cloudServerUrl;
 
+
     public AuthResponse register(AddUserRequest request) {
-        // 1. Validate invitation and get role
-        Role role = invitationService.validateInvitation(request.getInvitation());
+            // 1. Validate invitation and get role
+            Role role = invitationService.validateInvitation(request.getInvitation());
 
-        // 🚫 Skip cloud validation call
-    /*
-    UserValidationRequest validationRequest = UserValidationRequest.builder()
-            .token(request.getCloudToken())
-            .build();
+            // 2. Check if user is valid from cloud
+            UserValidationRequest validationRequest = UserValidationRequest.builder()
+                    .token(request.getCloudToken())
+                    .email(request.getEmail())
+                    .build();
 
-    restTemplate.postForObject(
-            cloudServerUrl + "/api/hub/validateUser",
-            validationRequest,
-            Void.class
-    );
-    */
+            restTemplate.postForObject(
+                    cloudServerUrl + "/api/hub/validateUser",
+                    validationRequest,
+                    Void.class
+            );
 
-        // ✅ Fake the response of cloud user linking
-    /*
-    LinkUserRequest linkRequest = LinkUserRequest.builder()
-            .token(request.getCloudToken())
-            .hubSerialNumber(request.getHubSerialNumber())
-            .build();
+            // 3. Link user with cloud and get user info
+            LinkUserRequest linkRequest = LinkUserRequest.builder()
+                    .token(request.getCloudToken())
+                    .hubSerialNumber(request.getHubSerialNumber())
+                    .email(request.getEmail())
+                    .build();
 
-    User cloudUser = restTemplate.postForObject(
-            cloudServerUrl + "/api/hub/linkUser",
-            linkRequest,
-            User.class
-    );
-    */
+            User cloudUser = restTemplate.postForObject(
+                    cloudServerUrl + "/api/hub/linkUser",
+                    linkRequest,
+                    User.class
+            );
 
-        // Fake cloud user for testing
-        User cloudUser = User.builder()
-                .email("test@example.com")
-                .build();
+            // 4. Create user in hub db with the role
+            User user = User.builder()
+                    .email(cloudUser.getEmail())
+                    .username(cloudUser.getEmail())
+                    .role(cloudUser.getRole())
+                    .build();
 
-        // 4. Create user in hub db with the role
-        User user = User.builder()
-                .email(cloudUser.getEmail())
-                .username(cloudUser.getEmail())
-                .role(role)
-                .build();
+            user = userRepository.save(user);
 
-        user = userRepository.save(user);
+            // 5. Delete the used invitation
+            // invitationRepository.delete(invitationRepository.findByCode(request.getInvitation()));
+            invitationRepository.findByCode(request.getInvitation())
+                    .ifPresent(invitation -> invitationRepository.delete(invitation));
 
-        // 5. Delete used invitation
-        invitationRepository.findByCode(request.getInvitation())
-                .ifPresent(invitation -> invitationRepository.delete(invitation));
-
-        // 6. Return auth response with token
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .build();
-    }
-//    public AuthResponse register(AddUserRequest request) {
-//            // 1. Validate invitation and get role
-//            Role role = invitationService.validateInvitation(request.getInvitation());
-//
-//            // 2. Check if user is valid from cloud
-//            UserValidationRequest validationRequest = UserValidationRequest.builder()
-//                    .token(request.getCloudToken())
-//                    .build();
-//
-//            restTemplate.postForObject(
-//                    cloudServerUrl + "/api/hub/validateUser",
-//                    validationRequest,
-//                    Void.class
-//            );
-//
-//            // 3. Link user with cloud and get user info
-//            LinkUserRequest linkRequest = LinkUserRequest.builder()
-//                    .token(request.getCloudToken())
-//                    .hubSerialNumber(request.getHubSerialNumber())
-//                    .build();
-//
-//            User cloudUser = restTemplate.postForObject(
-//                    cloudServerUrl + "/api/hub/linkUser",
-//                    linkRequest,
-//                    User.class
-//            );
-//
-//            // 4. Create user in hub db with the role
-//            User user = User.builder()
-//                    .email(cloudUser.getEmail())
-//                    .username(cloudUser.getEmail())
-//                    .role(role)
-//                    .build();
-//
-//            user = userRepository.save(user);
-//
-//            // 5. Delete the used invitation
-//            // invitationRepository.delete(invitationRepository.findByCode(request.getInvitation()));
-//            invitationRepository.findByCode(request.getInvitation())
-//                    .ifPresent(invitation -> invitationRepository.delete(invitation));
-//
-//            // 6. Return auth response with token
-//            var jwtToken = jwtService.generateToken(user);
-//            return AuthResponse.builder()
-//                    .token(jwtToken)
-//                    .build();
-//        }
+            // 6. Return auth response with token
+            var jwtToken = jwtService.generateToken(user);
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
 
 
     public AuthResponse authenticate(AuthRequest request) {
