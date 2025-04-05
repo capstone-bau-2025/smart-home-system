@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/automation")
 @RequiredArgsConstructor
 public class AutomationController {
-
     private final AutomationService automationService;
 
 }
