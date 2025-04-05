@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class LinkUserRequest {
     private String token;
     private String hubSerialNumber;
+    private String email;
+
 }
