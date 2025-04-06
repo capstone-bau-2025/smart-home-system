@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -28,6 +29,7 @@ public class AuthService {
     private String cloudServerUrl;
 
 
+    @Transactional
     public AuthResponse register(AddUserRequest request) {
             // 1. Validate invitation and get role
             Role role = invitationService.validateInvitation(request.getInvitation());
