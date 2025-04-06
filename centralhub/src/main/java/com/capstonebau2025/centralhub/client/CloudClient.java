@@ -1,5 +1,7 @@
-package com.capstonebau2025.centralhub.service;
+package com.capstonebau2025.centralhub.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,11 +11,13 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JwtClient {
+public class CloudClient {
+    private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
+
     private final String apiUrl;
     private final RestTemplate restTemplate;
 
-    public JwtClient(String apiUrl) {
+    public CloudClient(String apiUrl) {
         this.apiUrl = apiUrl;
         this.restTemplate = new RestTemplate();
     }
@@ -21,7 +25,7 @@ public class JwtClient {
     public String getToken(String hubId) {
         try {
             String url = apiUrl + "/api/auth/hub-token";
-            System.out.println("Requesting token from: " + url);
+            logger.info("Requesting token from: {}", url);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -35,8 +39,8 @@ public class JwtClient {
                     url, request, TokenResponse.class);
 
             String token = response.getBody().getToken();
-            System.out.println("Received token: " + (token != null ?
-                    (token.substring(0, Math.min(10, token.length())) + "...") : "null"));
+            logger.info("Received token: {}", token != null ?
+                    (token.substring(0, Math.min(10, token.length())) + "...") : "null");
 
             if (token == null || token.isEmpty()) {
                 throw new RuntimeException("Empty token received from server");
@@ -44,7 +48,7 @@ public class JwtClient {
 
             return token;
         } catch (Exception e) {
-            System.err.println("Error getting token: " + e.getMessage());
+            logger.error("Error getting token: {}", e.getMessage());
             throw new RuntimeException("Failed to get authentication token", e);
         }
     }
