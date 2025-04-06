@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.service.mqtt;
+package com.capstonebau2025.centralhub.service.device;
 
 import com.capstonebau2025.centralhub.dto.DeviceDetails;
 import org.springframework.scheduling.annotation.Scheduled;
