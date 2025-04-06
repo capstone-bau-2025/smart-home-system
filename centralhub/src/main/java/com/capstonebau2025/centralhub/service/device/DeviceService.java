@@ -22,6 +22,7 @@ public class DeviceService {
             value.setName(name);
             deviceRepository.save(value);
         });
+        // TODO: update its state value names too
     }
 
     public void setDeviceArea(Long id, Long areaId) {
