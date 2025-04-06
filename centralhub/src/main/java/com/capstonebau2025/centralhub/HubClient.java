@@ -1,0 +1,157 @@
+package com.capstonebau2025.centralhub;
+
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.simp.stomp.*;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.socket.messaging.WebSocketStompClient;
+import org.springframework.web.socket.sockjs.client.SockJsClient;
+import org.springframework.web.socket.sockjs.client.Transport;
+import org.springframework.web.socket.sockjs.client.WebSocketTransport;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+public class HubClient {
+    private final String hubId;
+    private final String token;
+    private StompSession session;
+
+    public HubClient(String hubId, String token) {
+        this.hubId = hubId;
+        this.token = token;
+    }
+
+    public void connectToCloud(String serverUrl) {
+        // Add token to URL for authentication
+        String connectionUrl = serverUrl + "?token=" + token;
+        System.out.println("Connecting with URL: " + connectionUrl);
+
+        // Setup WebSocket client
+        List<Transport> transports = new ArrayList<>();
+        transports.add(new WebSocketTransport(new StandardWebSocketClient()));
+        WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(transports));
+        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+
+        try {
+            // Connect and establish session
+            session = stompClient.connectAsync(connectionUrl, new StompSessionHandler() {
+                @Override
+                public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+                    System.out.println("Connected to Cloud Server");
+
+                    // Subscribe to hub-specific topic
+                    session.subscribe("/topic/messages/" + hubId, new StompFrameHandler() {
+                        @Override
+                        public Type getPayloadType(StompHeaders headers) {
+                            return Message.class;
+                        }
+
+                        @Override
+                        public void handleFrame(StompHeaders headers, Object payload) {
+                            Message msg = (Message) payload;
+                            System.out.println("Received from Cloud: " + msg.getContent());
+                        }
+                    });
+
+                    // Send a test message
+                    session.send("/app/message", new Message("Hello from " + hubId, hubId));
+                }
+
+                @Override
+                public void handleException(StompSession session, StompCommand command,
+                                            StompHeaders headers, byte[] payload, Throwable exception) {
+                    System.err.println("Error: " + exception.getMessage());
+                }
+
+                @Override
+                public void handleTransportError(StompSession session, Throwable exception) {
+                    System.err.println("Transport error: " + exception.getMessage());
+                }
+
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return Message.class;
+                }
+
+                @Override
+                public void handleFrame(StompHeaders headers, Object payload) {
+                    // Not used in this implementation
+                }
+            }).get();
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Message class matching the server-side model
+    private static class Message {
+        private String content;
+        private String sender;
+
+        public Message() {}
+
+        public Message(String content, String sender) {
+            this.content = content;
+            this.sender = sender;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public String getSender() {
+            return sender;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public void setSender(String sender) {
+            this.sender = sender;
+        }
+    }
+}
+
+
+
+//package com.capstonebau2025.centralhub;
+//
+//import org.java_websocket.client.WebSocketClient;
+//import org.java_websocket.handshake.ServerHandshake;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+//
+//import java.net.URI;
+//
+//public class CloudWebSocketClient extends WebSocketClient {
+//    private static final Logger logger = LoggerFactory.getLogger(CloudWebSocketClient.class);
+//
+//    public CloudWebSocketClient(URI serverUri) {
+//        super(serverUri);
+//    }
+//
+//    @Override
+//    public void onOpen(ServerHandshake handshakedata) {
+//        logger.info("Connected to Cloud Server");
+//        send("Hello from Central Hub");
+//    }
+//
+//    @Override
+//    public void onMessage(String message) {
+//        logger.info("Received from Cloud: " + message);
+//    }
+//
+//    @Override
+//    public void onClose(int code, String reason, boolean remote) {
+//        logger.info("Connection closed: " + reason);
+//    }
+//
+//    @Override
+//    public void onError(Exception e) {
+//        logger.error("Error: {}", e.getMessage());
+//    }
+//}
