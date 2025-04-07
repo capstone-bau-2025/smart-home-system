@@ -37,6 +37,12 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
+	// new dependencies for new websocket implementation
+	implementation("org.springframework.boot:spring-boot-starter-websocket")
+	implementation ("org.springframework:spring-messaging")
+	implementation ("org.springframework:spring-websocket")
+	implementation ("com.fasterxml.jackson.core:jackson-databind")
+
 	// JWT Library
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
