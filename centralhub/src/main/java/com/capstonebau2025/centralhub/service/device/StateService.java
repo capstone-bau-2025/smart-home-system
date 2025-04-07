@@ -31,7 +31,7 @@ public class StateService {
 
         for (State state : states) {
             StateValue stateValue = StateValue.builder()
-                    .name(state.getName())
+                    .name(device.getName() + "." +state.getName())
                     .device(device)
                     .state(state)
                     .stateValue("undefined")
@@ -45,6 +45,13 @@ public class StateService {
         fetchDeviceStatesAsync(device.getId());
     }
 
+    /*
+    * Update the state value of a device.
+    *
+    * @param id the ID of the StateValue to update
+    * @param newValue the new value to set
+    * @throws IllegalArgumentException if the StateValue is not found, or if the state is not mutable
+    * */
     public void updateStateValue(Long id, String newValue) {
         // Find StateValue by id
         StateValue stateValue = stateValueRepository.findById(id)

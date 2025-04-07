@@ -9,6 +9,7 @@ import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.repository.EventRepository;
 import com.capstonebau2025.centralhub.repository.StateValueRepository;
 import com.capstonebau2025.centralhub.service.NotificationService;
+import com.capstonebau2025.centralhub.service.device.PendingDiscoveryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
