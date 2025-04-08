@@ -1,9 +1,6 @@
 package com.capstonebau2025.centralhub.client;
 
-import com.capstonebau2025.centralhub.dto.cloudComm.GetTokenRequest;
-import com.capstonebau2025.centralhub.dto.cloudComm.GetTokenResponse;
-import com.capstonebau2025.centralhub.dto.cloudComm.HubRegistrationRequest;
-import com.capstonebau2025.centralhub.dto.cloudComm.HubRegistrationResponse;
+import com.capstonebau2025.centralhub.dto.cloudComm.*;
 import com.capstonebau2025.centralhub.entity.Hub;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -21,11 +18,12 @@ import org.springframework.web.client.RestTemplate;
 public class CloudClient {
     private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
     private final RestTemplate restTemplate;
+    private String hubToken;
 
     @Value("${cloud.server.url}")
     private String cloudUrl;
 
-    public String getToken(Hub hub) {
+    public String getHubToken(Hub hub) {
         try {
             String url = cloudUrl + "/api/hub/hub-token";
             logger.info("Requesting token from: {}", url);
@@ -51,6 +49,7 @@ public class CloudClient {
                 throw new RuntimeException("Empty token received from server");
             }
 
+            hubToken = token;
             return token;
         } catch (Exception e) {
             logger.error("Error getting token: {}", e.getMessage());
@@ -80,6 +79,55 @@ public class CloudClient {
         } catch (Exception e) {
             logger.error("Error registering hub: {}", e.getMessage());
             throw new RuntimeException("Failed to register hub", e);
+        }
+    }
+
+    public UserValidationResponse validateUser(String cloudToken, String email) {
+        try {
+            String url = cloudUrl + "/api/hub/validateUser";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            UserValidationRequest requestBody = UserValidationRequest.builder()
+                    .cloudToken(cloudToken)
+                    .token(hubToken)
+                    .email(email)
+                    .build();
+            HttpEntity<UserValidationRequest> request = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<UserValidationResponse> response = restTemplate.postForEntity(
+                    url, request, UserValidationResponse.class);
+
+            return response.getBody();
+        } catch (Exception e) {
+            logger.error("Error validating user: {}", e.getMessage());
+            throw new RuntimeException("Failed to validate user", e);
+        }
+    }
+
+    public LinkUserResponse linkUser(String cloudToken, String hubSerialNumber, String email) {
+        try {
+            String url = cloudUrl + "/api/hub/linkUser";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            LinkUserRequest requestBody = LinkUserRequest.builder()
+                    .cloudToken(cloudToken)
+                    .hubSerialNumber(hubSerialNumber)
+                    .token(hubToken)
+                    .email(email)
+                    .build();
+            HttpEntity<LinkUserRequest> request = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<LinkUserResponse> response = restTemplate.postForEntity(
+                    url, request, LinkUserResponse.class);
+
+            return response.getBody();
+        } catch (Exception e) {
+            logger.error("Error linking user: {}", e.getMessage());
+            throw new RuntimeException("Failed to link user", e);
         }
     }
 }

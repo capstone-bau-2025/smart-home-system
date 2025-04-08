@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserValidationRequest {
     private String token;
+    private String cloudToken;
     private String email;
 }

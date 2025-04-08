@@ -25,7 +25,7 @@ public class LinkService {
 
     public ResponseEntity<LinkUserResponse> linkUser(LinkUserRequest request) {
         // Validate request fields
-        if (request.getToken() == null || request.getToken().isEmpty()) {
+        if (request.getCloudToken() == null || request.getCloudToken().isEmpty()) {
             return ResponseEntity.badRequest().body(LinkUserResponse.builder()
                     .success(false)
                     .message("Token is required")
@@ -45,7 +45,7 @@ public class LinkService {
         }
 
         // Validate user token
-        UserValidationResponse userValidation = userService.validateUser(request.getToken(), request.getEmail());
+        UserValidationResponse userValidation = userService.validateUser(request.getCloudToken(), request.getEmail());
         if (!userValidation.isValid()) {
             return ResponseEntity.status(401).body(LinkUserResponse.builder()
                     .success(false)

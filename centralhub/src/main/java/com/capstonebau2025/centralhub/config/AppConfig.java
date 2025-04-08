@@ -38,7 +38,7 @@ public class AppConfig {
             Hub hub = hubService.getHub();
 
             // Connect to WebSocket using the token (fix the port)
-            String token = cloudClient.getToken(hub);
+            String token = cloudClient.getHubToken(hub);
             WebsocketClient hubClient = new WebsocketClient(hub.getSerialNumber(), token);
             hubClient.connectToCloud("ws://localhost:8082/hub-socket");
         };

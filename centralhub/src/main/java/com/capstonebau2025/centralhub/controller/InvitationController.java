@@ -1,9 +1,6 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.dto.AddUserRequest;
-import com.capstonebau2025.centralhub.dto.AuthRequest;
 import com.capstonebau2025.centralhub.dto.AuthResponse;
-import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +20,5 @@ public class InvitationController {
                 .token(code)
                 .build();
         return ResponseEntity.ok(response);
-    }
-    // GET /api/invitations/validate?code=XYZ123
-    @GetMapping("/validate")
-    public ResponseEntity<Role> validateInvitation(@RequestParam String code) {
-        Role role = invitationService.validateInvitation(code);
-        return ResponseEntity.ok(role);
     }
 }

@@ -73,15 +73,15 @@ public class HubController {
 
     @PostMapping("/validateUser")
     public ResponseEntity<UserValidationResponse> validateUser(@RequestBody UserValidationRequest request) {
-        if (request.getToken() == null || request.getToken().isEmpty() ||
-                request.getEmail() == null || request.getEmail().isEmpty()) {
+
+        if(!jwtService.validateToken(request.getToken()) || jwtService.extractHubId(request.getToken()) == null) {
             return ResponseEntity.badRequest().body(UserValidationResponse.builder()
                     .valid(false)
-                    .message("Token and email are required")
+                    .message("Invalid hub token")
                     .build());
         }
 
-        UserValidationResponse response = userService.validateUser(request.getToken(), request.getEmail());
+        UserValidationResponse response = userService.validateUser(request.getCloudToken(), request.getEmail());
         return response.isValid()
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.status(401).body(response);
@@ -89,6 +89,14 @@ public class HubController {
 
     @PostMapping("/linkUser")
     public ResponseEntity<LinkUserResponse> linkUser(@RequestBody LinkUserRequest request) {
+
+        if(!jwtService.validateToken(request.getToken()) || !jwtService.extractHubId(request.getToken()).equals(request.getHubSerialNumber())) {
+            return ResponseEntity.badRequest().body(LinkUserResponse.builder()
+                    .success(false)
+                    .message("Invalid hub token")
+                    .build());
+        }
+
         return hubService.linkUser(request);
     }
 }
