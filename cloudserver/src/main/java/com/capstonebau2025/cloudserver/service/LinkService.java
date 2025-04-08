@@ -55,7 +55,7 @@ public class LinkService {
 
         try {
             // Find the hub by serial number
-            Hub hub = hubRepository.findBySerialNumber(Long.valueOf(request.getHubSerialNumber()))
+            Hub hub = hubRepository.findBySerialNumber(request.getHubSerialNumber())
                     .orElse(null);
             if (hub == null) {
                 return ResponseEntity.badRequest().body(LinkUserResponse.builder()
