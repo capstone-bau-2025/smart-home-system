@@ -1,4 +1,5 @@
-package com.capstonebau2025.cloudserver.dto;
+package com.capstonebau2025.centralhub.dto.cloudComm;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class HubRegistrationResponse {
+public class HubRegistrationRequest {
     private String serialNumber;
     private String location;
     private String name;
-    private String key;
 }

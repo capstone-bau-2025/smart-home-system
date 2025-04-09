@@ -1,107 +1,79 @@
 package com.capstonebau2025.centralhub.service.auth;
 
+import com.capstonebau2025.centralhub.client.CloudClient;
 import com.capstonebau2025.centralhub.dto.*;
+import com.capstonebau2025.centralhub.dto.cloudComm.LinkUserResponse;
+import com.capstonebau2025.centralhub.dto.cloudComm.UserValidationResponse;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
-import com.capstonebau2025.centralhub.repository.InvitationRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
-import com.capstonebau2025.centralhub.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
     private final InvitationService invitationService;
-    private final InvitationRepository invitationRepository;
-    private final RestTemplate restTemplate;
-    private final UserService userService;
-
-    @Value("${cloud.server.url}")
-    private String cloudServerUrl;
-
+    private final CloudClient cloudClient;
 
     @Transactional
     public AuthResponse register(AddUserRequest request) {
-            // 1. Validate invitation and get role
-            Role role = invitationService.validateInvitation(request.getInvitation());
+        // 1. Validate invitation and get role
+        Role role = invitationService.validateInvitation(request.getInvitation());
 
-            // 2. Check if user is valid from cloud
-            UserValidationRequest validationRequest = UserValidationRequest.builder()
-                    .token(request.getCloudToken())
-                    .email(request.getEmail())
-                    .build();
+        // make sure user is valid from cloud
+        UserValidationResponse userValidationResponse = cloudClient.validateUser(
+                request.getCloudToken(),
+                request.getEmail());
 
-            restTemplate.postForObject(
-                    cloudServerUrl + "/api/hub/validateUser",
-                    validationRequest,
-                    Void.class
-            );
+        if(!userValidationResponse.isValid())
+            throw new IllegalArgumentException("User validation failed: " + userValidationResponse.getMessage());
 
-            // 3. Link user with cloud and get user info
-            LinkUserRequest linkRequest = LinkUserRequest.builder()
-                    .token(request.getCloudToken())
-                    .hubSerialNumber(request.getHubSerialNumber())
-                    .email(request.getEmail())
-                    .build();
+        // link user to hub in cloud
+        LinkUserResponse linkUserResponse = cloudClient.linkUser(
+                request.getCloudToken(),
+                request.getHubSerialNumber(),
+                request.getEmail());
 
-            User cloudUser = restTemplate.postForObject(
-                    cloudServerUrl + "/api/hub/linkUser",
-                    linkRequest,
-                    User.class
-            );
+        if(!linkUserResponse.isSuccess())
+            throw new RuntimeException("User linking failed: " + linkUserResponse.getMessage());
 
-            // 4. Create user in hub db with the role
-            User user = User.builder()
-                    .email(cloudUser.getEmail())
-                    .username(cloudUser.getEmail())
-                    .role(cloudUser.getRole())
-                    .build();
+        // create user and save it to the hub
+        User user = User.builder()
+                .email(linkUserResponse.getUserData().getEmail())
+                .username(linkUserResponse.getUserData().getUsername())
+                .role(role)
+                .build();
 
-            user = userRepository.save(user);
+        user = userRepository.save(user);
 
-            // 5. Delete the used invitation
-            // invitationRepository.delete(invitationRepository.findByCode(request.getInvitation()));
-            invitationRepository.findByCode(request.getInvitation())
-                    .ifPresent(invitation -> invitationRepository.delete(invitation));
+        // delete the invitation used
+        invitationService.deleteInvitation(request.getInvitation());
 
-            // 6. Return auth response with token
-            var jwtToken = jwtService.generateToken(user);
-            return AuthResponse.builder()
-                    .token(jwtToken)
-                    .build();
-        }
-
+        // generate local token and send it to the user
+        var jwtToken = jwtService.generateToken(user);
+        return AuthResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
 
     public AuthResponse authenticate(AuthRequest request) {
 
-        // MOCK to resolve compilation error, normally should be fetched from cloud by cloud token.
-        var mockUser = new User();
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        /*
-        * TODO: Implement user authentication (give local token) with cloud token
-        * this method should generate local token for user based on cloud token,
-        * but user must be already registered in hub and cloud, and linked with this hub in cloud,
-        * this method is used if user is logging in again in app or his local token has expired.
-        */
+        UserValidationResponse userValidationResponse = cloudClient.validateUser(
+                request.getCloudToken(),
+                request.getEmail());
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        mockUser.getEmail(),
-                        mockUser.getPassword()
-                )
-        );
-        var user = userRepository.findByEmail(mockUser.getEmail())
-                .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+        if(!userValidationResponse.isValid())
+            throw new IllegalArgumentException("User validation failed: " + userValidationResponse.getMessage());
+
+        String jwtToken = jwtService.generateToken(user);
+
         return AuthResponse.builder()
                 .token(jwtToken)
                 .build();

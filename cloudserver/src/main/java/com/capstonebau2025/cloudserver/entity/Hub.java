@@ -24,7 +24,7 @@ public class Hub {
 
     @NotNull
     @Column(unique = true, nullable = false)
-    private Long serialNumber;//like gmail it has unique id and notnullable
+    private String serialNumber;//like gmail it has unique id and notnullable
 
     @NotNull
     @Column(name="hub_key", nullable = false)

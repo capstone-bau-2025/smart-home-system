@@ -1,4 +1,4 @@
-package com.capstonebau2025.cloudserver.dto;
+package com.capstonebau2025.centralhub.dto.cloudComm;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class LinkUserRequest {
+@NoArgsConstructor
+public class UserValidationRequest {
     private String token;
     private String cloudToken;
-    private String hubSerialNumber;
     private String email;
 }
