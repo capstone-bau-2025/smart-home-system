@@ -4,7 +4,9 @@ import com.capstonebau2025.centralhub.dto.ConfigureHubRequest;
 import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.dto.HubInfo;
 import com.capstonebau2025.centralhub.entity.Hub;
+import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.repository.HubRepository;
+import com.capstonebau2025.centralhub.repository.RoleRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HubService {
     private final HubRepository hubRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final InvitationService invitationService;
     private final Logger logger = LoggerFactory.getLogger(HubService.class);
 
@@ -36,6 +39,13 @@ public class HubService {
                 .location("Default Location")
                 .status(Hub.Status.INITIALIZING)
                 .build();
+
+            // Insert default roles
+            logger.info("Inserting default roles");
+            roleRepository.save(Role.builder().name("ADMIN").description("Administrator role").build());
+            roleRepository.save(Role.builder().name("USER").description("Default user role").build());
+            roleRepository.save(Role.builder().name("GUEST").description("Guest user role").build());
+
             return hubRepository.save(hub);
         }
         return getHub();
@@ -83,7 +93,9 @@ public class HubService {
         hub.setStatus(Hub.Status.RUNNING);
         hubRepository.save(hub);
 
-        return invitationService.generateInvitation(1L);
+        Role adminRole = roleRepository.findByName("ADMIN");
+
+        return invitationService.generateInvitation(adminRole.getId());
     }
 
     public void setHubStatusRunning() {
