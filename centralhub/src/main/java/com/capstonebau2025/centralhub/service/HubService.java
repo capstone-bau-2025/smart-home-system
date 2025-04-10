@@ -1,7 +1,12 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.dto.ConfigureHubRequest;
+import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
+import com.capstonebau2025.centralhub.dto.HubInfo;
 import com.capstonebau2025.centralhub.entity.Hub;
 import com.capstonebau2025.centralhub.repository.HubRepository;
+import com.capstonebau2025.centralhub.repository.UserRepository;
+import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class HubService {
     private final HubRepository hubRepository;
+    private final UserRepository userRepository;
+    private final InvitationService invitationService;
     private final Logger logger = LoggerFactory.getLogger(HubService.class);
 
     public Hub getHub() {
@@ -27,17 +34,61 @@ public class HubService {
                 .name("Central Hub")
                 .serialNumber("123456789")
                 .location("Default Location")
-                .status(Hub.Status.SETUP)
+                .status(Hub.Status.INITIALIZING)
                 .build();
             return hubRepository.save(hub);
         }
         return getHub();
     }
 
-    public Hub setHubKey(String key) {
+    public void setHubKey(String key) {
         Hub hub = getHub();
         hub.setKey(key);
+
+        if(userRepository.count() == 0) {
+            hub.setStatus(Hub.Status.SETUP);
+            logger.warn("Hub is ready for setup.");
+        }
+        else {
+            hub.setStatus(Hub.Status.RUNNING);
+            logger.error("Hub was already setup but missing key. (should not happen)");
+        }
+
+        hubRepository.save(hub);
+    }
+
+    public void setHubName(String name) {
+        Hub hub = getHub();
+        hub.setName(name);
+        hubRepository.save(hub);
+    }
+
+    public HubInfo getHubInfo() {
+        Hub hub = getHub();
+        return HubInfo.builder()
+            .serialNumber(hub.getSerialNumber())
+            .name(hub.getName())
+            .location(hub.getLocation())
+            .status(hub.getStatus().toString())
+            .build();
+    }
+
+    public GetInvitationResponse configureHub(ConfigureHubRequest request) {
+
+        if(userRepository.count() != 0)
+            throw new IllegalArgumentException("Hub already configured.");
+
+        Hub hub = getHub();
+        hub.setName(request.getHubName());
         hub.setStatus(Hub.Status.RUNNING);
-        return hubRepository.save(hub);
+        hubRepository.save(hub);
+
+        return invitationService.generateInvitation(1L);
+    }
+
+    public void setHubStatusRunning() {
+        Hub hub = getHub();
+        hub.setStatus(Hub.Status.RUNNING);
+        hubRepository.save(hub);
     }
 }

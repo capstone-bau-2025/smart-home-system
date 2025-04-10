@@ -1,5 +1,5 @@
 
 -- add default roles
-INSERT INTO roles (name, description) VALUES ('USER', 'Default user role');
-INSERT INTO roles (name, description) VALUES ('ADMIN', 'Administrator role');
-INSERT INTO roles (name, description) VALUES ('GUEST', 'Guest user role');
+MERGE INTO roles (id, name, description) KEY (id) VALUES (1, 'ADMIN', 'Administrator role');
+MERGE INTO roles (id, name, description) KEY (id) VALUES (2, 'USER', 'Default user role');
+MERGE INTO roles (id, name, description) KEY (id) VALUES (3, 'GUEST', 'Guest user role');

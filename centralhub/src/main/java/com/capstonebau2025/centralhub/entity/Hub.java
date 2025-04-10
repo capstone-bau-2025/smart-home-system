@@ -35,6 +35,7 @@ public class Hub {
     public enum Status {
         SETUP,
         RUNNING,
+        INITIALIZING,
         ERROR
     }
 }
