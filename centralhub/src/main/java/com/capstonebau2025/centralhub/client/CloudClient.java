@@ -24,61 +24,74 @@ public class CloudClient {
     private String cloudUrl;
 
     public String getHubToken(Hub hub) {
-        try {
-            String url = cloudUrl + "/api/hub/hub-token";
-            logger.info("Requesting token from: {}", url);
+        String url = cloudUrl + "/api/hub/hub-token";
+        logger.info("Requesting token from: {}", url);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            GetTokenRequest requestBody = GetTokenRequest.builder()
-                    .serialNumber(hub.getSerialNumber())
-                    .key(hub.getKey())
-                    .build();
+        GetTokenRequest requestBody = GetTokenRequest.builder()
+                .serialNumber(hub.getSerialNumber())
+                .key(hub.getKey())
+                .build();
 
-            HttpEntity<GetTokenRequest> request = new HttpEntity<>(requestBody, headers);
+        HttpEntity<GetTokenRequest> request = new HttpEntity<>(requestBody, headers);
 
-            ResponseEntity<GetTokenResponse> response = restTemplate.postForEntity(
-                    url, request, GetTokenResponse.class);
+        while (true) {
+            try {
+                ResponseEntity<GetTokenResponse> response = restTemplate.postForEntity(
+                        url, request, GetTokenResponse.class);
 
-            String token = response.getBody().getToken();
-            logger.info("Received token: {}", token != null ?
-                    (token.substring(0, Math.min(10, token.length())) + "...") : "null");
+                String token = response.getBody().getToken();
+                logger.info("Received token: {}", token != null ?
+                        (token.substring(0, Math.min(10, token.length())) + "...") : "null");
 
-            if (token == null || token.isEmpty()) {
-                throw new RuntimeException("Empty token received from server");
+                if (token == null || token.isEmpty()) {
+                    throw new RuntimeException("Empty token received from server");
+                }
+
+                hubToken = token;
+                return token;
+            } catch (Exception e) {
+                logger.error("failed to get hub token from cloud (retrying in 5 seconds): {}", e.getMessage());
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Thread interrupted while retrying to get token", interruptedException);
+                }
             }
-
-            hubToken = token;
-            return token;
-        } catch (Exception e) {
-            logger.error("Error getting token: {}", e.getMessage());
-            throw new RuntimeException("Failed to get authentication token", e);
         }
     }
 
-    public HubRegistrationResponse RegisterHub(Hub hub) {
-        try {
-            String url = cloudUrl + "/api/hub/registerHub";
-            logger.info("Registering hub at: {}", url);
+    public HubRegistrationResponse registerHub(Hub hub) {
+        String url = cloudUrl + "/api/hub/registerHub";
+        logger.info("Registering hub at: {}", url);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HubRegistrationRequest requestBody = HubRegistrationRequest.builder()
-                    .serialNumber(hub.getSerialNumber())
-                    .location(hub.getLocation())
-                    .name(hub.getName())
-                    .build();
-            HttpEntity<HubRegistrationRequest> request = new HttpEntity<>(requestBody, headers);
+        HubRegistrationRequest requestBody = HubRegistrationRequest.builder()
+                .serialNumber(hub.getSerialNumber())
+                .location(hub.getLocation())
+                .name(hub.getName())
+                .build();
+        HttpEntity<HubRegistrationRequest> request = new HttpEntity<>(requestBody, headers);
 
-            ResponseEntity<HubRegistrationResponse> response = restTemplate.postForEntity(
-                    url, request, HubRegistrationResponse.class);
-
-            return response.getBody();
-        } catch (Exception e) {
-            logger.error("Error registering hub: {}", e.getMessage());
-            throw new RuntimeException("Failed to register hub", e);
+        while (true) {
+            try {
+                ResponseEntity<HubRegistrationResponse> response = restTemplate.postForEntity(
+                        url, request, HubRegistrationResponse.class);
+                return response.getBody();
+            } catch (Exception e) {
+                logger.error("failed to register hub to cloud (retrying in 5 seconds): {}", e.getMessage());
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Thread interrupted while retrying hub registration", interruptedException);
+                }
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import com.capstonebau2025.centralhub.dto.cloudComm.UserValidationResponse;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
 import com.capstonebau2025.centralhub.repository.UserRepository;
+import com.capstonebau2025.centralhub.service.HubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final InvitationService invitationService;
+    private final HubService hubService;
     private final CloudClient cloudClient;
 
     @Transactional
@@ -52,6 +54,7 @@ public class AuthService {
 
         // delete the invitation used
         invitationService.deleteInvitation(request.getInvitation());
+        hubService.setHubStatusRunning();
 
         // generate local token and send it to the user
         var jwtToken = jwtService.generateToken(user);

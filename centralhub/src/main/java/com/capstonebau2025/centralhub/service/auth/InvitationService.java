@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service.auth;
 
+import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.entity.Invitation;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.helper.PasswordGenerator;
@@ -14,7 +15,7 @@ public class InvitationService {
     private final InvitationRepository invitationRepository;
     private final RoleRepository roleRepository;
 
-    public String generateInvitation(Long roleId) {
+    public GetInvitationResponse generateInvitation(Long roleId) {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
 
@@ -26,7 +27,10 @@ public class InvitationService {
                 .build();
 
         invitationRepository.save(invitation);
-        return code;
+        return GetInvitationResponse.builder()
+                .code(code)
+                .role(role.getName())
+                .build();
     }
 
     public Role validateInvitation(String invitationCode) {

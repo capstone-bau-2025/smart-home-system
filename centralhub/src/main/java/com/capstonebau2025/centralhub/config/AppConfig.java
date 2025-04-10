@@ -25,7 +25,7 @@ public class AppConfig {
             Hub hub = hubService.initializeHubIfNeeded();
 
             if(hub.getKey() == null) {
-                HubRegistrationResponse response = cloudClient.RegisterHub(hub);
+                HubRegistrationResponse response = cloudClient.registerHub(hub);
                 hubService.setHubKey(response.getKey());
             }
         };
