@@ -6,6 +6,7 @@ import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ public class DeviceDiscoveryService {
      * @param deviceUid the unique identifier of the device
      * @return the details of the registered device, or null if registration fails
      */
+    @Transactional
     public DeviceDetails pairDevice(Long deviceUid) {
 
         // get device details from pending discovery service
@@ -70,10 +72,9 @@ public class DeviceDiscoveryService {
         // save the new device
         Device newDevice = deviceRepository.save(deviceBuilder.build());
 
-        // send credentials to the device and delete the device again if the credentials could not be sent
+        // send credentials to the device through error in case device didn't respond
         if(!mqttMessageProducer.sendDeviceCredentials(deviceDetails.getUid())) {
-            deviceRepository.delete(newDevice);
-            return null;
+            throw new RuntimeException("device is not responding couldn't pair: " + deviceDetails.getUid());
         }
 
         // create device StateValue entities and fetch state from device
@@ -82,6 +83,7 @@ public class DeviceDiscoveryService {
         return deviceDetails;
     }
 
+    @Transactional
     public DeviceModel createDeviceModel(DeviceDetails deviceDetails) {
 
         // Create the DeviceModel first (without states)
