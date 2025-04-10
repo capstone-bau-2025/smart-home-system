@@ -9,6 +9,6 @@ public class NotificationService {
 
     public void sendNotification(Device device, NotificationDTO notificationDTO) {
         // only send to users with permission to that device
-        System.out.println("Sending notification: " + notificationDTO.getTitle() + " - " + notificationDTO.getBody());
+//        System.out.println("Sending notification: " + notificationDTO.getTitle() + " - " + notificationDTO.getBody());
     }
 }

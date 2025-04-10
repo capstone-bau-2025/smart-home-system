@@ -7,7 +7,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -71,11 +70,6 @@ public class MqttSubscriber {
                     default:
                         logger.warn("Received unknown message type: {} from device: {}", messageType, deviceUid);
                 }
-
-                logger.info("Processed message of type {} from device with uid: {}", messageType, deviceUid);
-
-                String response = "{\"message_type\": \"RESPONSE\", \"device_uid\": " + deviceUid + ", \"status\": \"SUCCESS\"}";
-                mqttAsyncClient.publish("device/"+ deviceUid +"/in", new MqttMessage(response.getBytes()));
 
             } catch (JsonProcessingException e) {
                 logger.error("Error parsing message from device: {}", e.getMessage());

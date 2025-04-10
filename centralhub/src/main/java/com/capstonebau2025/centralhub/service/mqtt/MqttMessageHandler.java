@@ -101,7 +101,7 @@ public class MqttMessageHandler {
                         .build();
                 notificationService.sendNotification(device, notification);
 
-                logger.info("Updated event {} to value {} for device {}", stateNumber, message.get("event_value").asText(), deviceUid);
+                logger.info("received event {} from device {}", stateNumber, deviceUid);
             } else {
                 logger.warn("Device or Event not found for UID: {} and Event number: {}", deviceUid, stateNumber);
             }

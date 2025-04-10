@@ -75,7 +75,7 @@ public class MqttMessageProducer {
 
         ObjectNode response = sendMessage(deviceUid, message);
         if(response == null) return null;
-
+        logger.info("retrieved state value for deviceUid: {}, stateNumber: {}, fetched value: {}", deviceUid, stateNumber, response.get("value").asText());
         return response.get("value").asText();
     }
 
@@ -95,6 +95,7 @@ public class MqttMessageProducer {
                 .put("value", value);
 
         ObjectNode response = sendMessage(deviceUid, message);
+        logger.info("Updated state value for deviceUid: {}, stateNumber: {}, value: {}", deviceUid, stateNumber, value);
         return response != null;
     }
 
@@ -112,6 +113,7 @@ public class MqttMessageProducer {
                 .put("command_number", commandNumber);
 
         ObjectNode response = sendMessage(deviceUid, message);
+        logger.info("sent command to deviceUid: {}, commandNumber: {}", deviceUid, commandNumber);
         return response != null;
     }
 
@@ -127,6 +129,7 @@ public class MqttMessageProducer {
                 .put("device_uid", deviceUid);
 
         ObjectNode response = sendMessage(deviceUid, message);
+        logger.info("pinged deviceUid: {}", deviceUid);
         return response != null;
     }
 
@@ -153,7 +156,6 @@ public class MqttMessageProducer {
             // wait for response
             synchronized (response) {
                 try {
-                    logger.info("Waiting for response from device: {}", deviceUid);
                     response.wait(5000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
