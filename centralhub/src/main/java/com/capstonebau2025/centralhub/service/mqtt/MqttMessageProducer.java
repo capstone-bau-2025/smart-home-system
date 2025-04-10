@@ -167,6 +167,7 @@ public class MqttMessageProducer {
 
             if(response.get() == null) {
                 logger.warn("No response from device: {}", deviceUid);
+                return null;
             }
 
             try {
