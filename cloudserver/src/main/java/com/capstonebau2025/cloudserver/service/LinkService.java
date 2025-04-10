@@ -10,6 +10,8 @@ import com.capstonebau2025.cloudserver.repository.HubRepository;
 import com.capstonebau2025.cloudserver.repository.UserHubRepository;
 import com.capstonebau2025.cloudserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ public class LinkService {
     private final UserRepository userRepository;
     private final UserHubRepository userHubRepository;
     private final UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(LinkService.class);
 
     public ResponseEntity<LinkUserResponse> linkUser(LinkUserRequest request) {
         // Validate request fields
@@ -75,12 +78,8 @@ public class LinkService {
                         .build());
             }
 
-            // Check if user is already linked to this hub
-            boolean alreadyLinked = false;
-            if (hub.getUserHubs() != null) {
-                alreadyLinked = hub.getUserHubs().stream()
-                        .anyMatch(userHub -> userHub.getUser().getId().equals(user.getId()));
-            }
+            // Check if user is already linked to this hub - using repository query instead of collection iteration
+            boolean alreadyLinked = userHubRepository.existsByUserIdAndHubId(user.getId(), hub.getId());
 
             if (alreadyLinked) {
                 return ResponseEntity.ok(LinkUserResponse.builder()
@@ -102,6 +101,7 @@ public class LinkService {
                     .build();
 
             userHubRepository.save(userHub);
+            logger.info("User {} linked to hub {}", user.getEmail(), hub.getSerialNumber());
 
             return ResponseEntity.ok(LinkUserResponse.builder()
                     .success(true)
@@ -113,12 +113,8 @@ public class LinkService {
                             .build())
                     .linkTime(LocalDateTime.now())
                     .build());
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body(LinkUserResponse.builder()
-                    .success(false)
-                    .message("Invalid hub serial number format")
-                    .build());
         } catch (Exception e) {
+            logger.error("Error occurred while linking user to hub", e);
             return ResponseEntity.status(500).body(LinkUserResponse.builder()
                     .success(false)
                     .message("Error linking user to hub: " + e.getMessage())
