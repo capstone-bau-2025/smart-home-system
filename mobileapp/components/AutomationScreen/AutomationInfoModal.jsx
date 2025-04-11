@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import FooterButtons from "./FooterButtons";
 import AutomationDetails from "./AutomationDetails";
+import { FlatList } from "react-native";
 
 export default function AutomationInfoModal({
   modalVisible,
@@ -39,6 +40,7 @@ export default function AutomationInfoModal({
       visible={modalVisible}
       animationType="fade"
       onRequestClose={handleCloseModal}
+    
     >
       <TouchableWithoutFeedback onPress={handleCloseModal}>
         <View style={styles.modalOverlay}>
@@ -46,7 +48,7 @@ export default function AutomationInfoModal({
             <View style={styles.modalContainer}>
               <Text style={styles.autoName}>{currentAutomation.name}</Text>
 
-              <ScrollView style={styles.scrollContainer}>
+              <ScrollView style={styles.scrollContainer}  >
                 <AutomationDetails currentAutomation={currentAutomation} />
               </ScrollView>
               <FooterButtons

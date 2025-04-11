@@ -5,8 +5,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import PermsModal from "./PermsModal";
 import TokenGeneration from "./TokenGeneration";
-
-export default function UsersList({ users }) {
+import ScrollableList from "../UI/ScrollableList";
+export default function UsersList({ users,setRenameModal }) {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [usersPerms, setUsersPerms] = useState(users);
@@ -38,43 +38,15 @@ export default function UsersList({ users }) {
 
   return (
     <>
-      <FlatList
-        ListHeaderComponent={<TokenGeneration />}
-        data={users}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={styles.itemWrapper}>
-            <LinearGradient
-              colors={["#FFAA33", "#FF7700"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.container}
-            >
-              <View style={styles.textContainer}>
-                <Text style={styles.userText}>{item.name}</Text>
-                <Text style={styles.roleText}> - {item.role}</Text>
-              </View>
-
-              <View style={styles.iconContainer}>
-                <TouchableOpacity
-                  style={styles.editIcon}
-                  onPress={() => handleOpenModal("edit", item.id)}
-                >
-                  <Ionicons name="create-outline" size={28} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.removeIcon}
-                  onPress={() => handleOpenModal("remove", item.id)}
-                >
-                  <Ionicons name="remove-circle-outline" size={28} color="red" />
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-          </View>
-        )}
-      />
+<ScrollableList
+  data={users}
+  textFields={["name", "role"]} 
+  buttonConfig={[
+    { icon: "key-outline", onPress: (user) => handleOpenModal("edit", user.id) },
+    { icon: "pencil-outline", onPress: () => setRenameModal(true) },
+    { icon: "remove-circle-outline", onPress: (user) => handleOpenModal("remove", user.id) },
+  ]}
+/>
 
 
         <ConfirmationModal
@@ -99,7 +71,7 @@ export default function UsersList({ users }) {
           updatePermissions={updatePermissions}
         />
 
-    </>
+</>
   );
 }
 
@@ -116,11 +88,18 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     paddingHorizontal: 15,
     overflow: "hidden",
+    backgroundColor:'#ffffff',
+        borderWidth:2,
+    borderColor:'orange',
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 0,
   },
   textContainer: { flexDirection: "row", alignItems: "center" },
-  userText: { fontSize: 27, fontWeight: "bold", color: "white" },
-  roleText: { fontSize: 27, fontWeight: "normal", color: "white" },
-  iconContainer: { flexDirection: "row", alignItems: "center" },
-  editIcon: { backgroundColor: "rgba(255, 255, 255, 0.3)", padding: 6, borderRadius: 50, marginRight: 10 },
-  removeIcon: { padding: 6, backgroundColor: "rgba(255, 255, 255, 0.3)", borderRadius: 50 },
+  userText: { fontSize: 27, fontWeight: "bold", color: "#000000" },
+  roleText: { fontSize: 27, fontWeight: "normal", color: "#000000" },
+  iconContainer: { flexDirection: "row", alignItems: "center",    backgroundColor:'#ffffff', },
+  editIcon: { backgroundColor: "rgba(255, 255, 255, 0.3)", padding: 6, borderRadius: 50, marginRight: 10, backgroundColor:'orange', },
+  removeIcon: { padding: 6, backgroundColor: "rgba(255, 255, 255, 0.3)", borderRadius: 50, backgroundColor:'orange',},
 });

@@ -16,7 +16,7 @@ export const hubs = [
       },
       {
         id: "102",
-        name: "user2",
+        name: "useraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2",
         role: "guest",
         perms: {
           livingroom: true,
@@ -36,7 +36,7 @@ export const hubs = [
           { id: "d2", name: "Smart Light", type: "lighting" },
           { id: "d3", name: "Smart Speaker", type: "audio" },
           { id: "d5", name: "Smart Thermostat", type: "climate" },
-        ], // 4 devices instead of 5
+        ], 
       },
       {
         id: "r2",
@@ -49,7 +49,7 @@ export const hubs = [
           { id: "d10", name: "Smart Security Camera", type: "security" },
           { id: "d7", name: "Smart Alarm Clock", type: "utility" },
           { id: "d11", name: "Smart Air Purifier", type: "climate" },
-        ], // 6 devices (max)
+        ], 
       },
       {
         id: "r3",
@@ -59,7 +59,7 @@ export const hubs = [
           { id: "d12", name: "Smart Oven", type: "appliance" },
           { id: "d14", name: "Smart Dishwasher", type: "appliance" },
           { id: "d15", name: "Smart Blender", type: "appliance" },
-        ], // Only 3 devices
+        ],
       },
       {
         id: "r4",
@@ -69,7 +69,7 @@ export const hubs = [
           { id: "d16", name: "Smart Mirror", type: "accessory" },
           { id: "d19", name: "Smart Toothbrush", type: "health" },
           { id: "d20", name: "Smart Shower System", type: "utility" },
-        ], // 3 devices
+        ],
       },
       {
         id: "r5",
@@ -80,7 +80,7 @@ export const hubs = [
           { id: "d22", name: "Smart Car Charger", type: "energy" },
           { id: "d23", name: "Smart Security Camera", type: "security" },
           { id: "d24", name: "Smart Lights", type: "lighting" },
-        ], // 4 devices
+        ],
       },
       {
         id: "r6",
@@ -89,7 +89,7 @@ export const hubs = [
         devices: [
           { id: "d26", name: "Smart Desk Lamp", type: "lighting" },
           { id: "d27", name: "Smart Monitor", type: "electronics" },
-        ], // Only 2 devices (min)
+        ], 
       },
     ],
   },
@@ -108,6 +108,7 @@ export const hubs = [
           bathroom: false,
         },
       },
+      
     ],
     rooms: [
       {
@@ -118,7 +119,7 @@ export const hubs = [
           { id: "d31", name: "Smart TV", type: "entertainment" },
           { id: "d32", name: "Smart Light", type: "lighting" },
           { id: "d35", name: "Smart Air Purifier", type: "climate" },
-        ], // 3 devices
+        ],
       },
       {
         id: "r8",
@@ -129,7 +130,7 @@ export const hubs = [
           { id: "d37", name: "Smart Lamp", type: "lighting" },
           { id: "d38", name: "Smart Air Conditioner", type: "climate" },
           { id: "d39", name: "Smart Humidifier", type: "climate" },
-        ], // 4 devices
+        ], 
       },
       {
         id: "r9",
@@ -141,7 +142,7 @@ export const hubs = [
           { id: "d43", name: "Smart Pressure Cooker", type: "appliance" },
           { id: "d45", name: "Smart Trash Bin", type: "utility" },
           { id: "d44", name: "Smart Stove", type: "appliance" },
-        ], // 5 devices
+        ], 
       },
       {
         id: "r10",
@@ -149,8 +150,9 @@ export const hubs = [
         icon: "water-outline",
         devices: [
     
-        ], // Only 2 devices
+        ], 
       },
     ],
   },
+
 ];

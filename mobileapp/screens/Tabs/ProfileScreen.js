@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FDF8F0",
+
   },
   profileCard: {
     width: "85%",

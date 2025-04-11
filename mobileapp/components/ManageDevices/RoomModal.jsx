@@ -1,32 +1,41 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View, Modal, TouchableOpacity, FlatList } from "react-native";
-import DeviceCard from "../UI/DeviceCard"
+import React, { use, useState } from "react";
+import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
+import DeviceCard from "../UI/DeviceCard";
 import MoveDevice from "./MoveDevice";
-import SelectRoom from "./SelectRoom"; // Import RoomListModal
+import SelectRoom from "./SelectRoom"; 
+import ScrollableList from "../UI/ScrollableList";
+import HeaderIcons from "../UI/HeaderIcons";
+import InfoModal from "../UI/InfoModal";
+import Colors from "../../constants/Colors";
 
-export default function RoomModal({ visible, onClose, room,selectedTab }) {
-  if (!room) return null; // Prevents errors if no room is selected
-  
+export default function RoomModal({ visible, onClose, room, selectedTab }) {
+  if (!room) return null; 
+
   const [moveDevice, setMoveDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
-
+  const [infoModal, setInfoModal] = useState(false)
   function handleDevicePress(device) {
     setSelectedDevice(device);
     setMoveDevice(true); 
   }
 
+  function handleMovePress() {
+
+    if (!selectedDevice && room.devices.length > 0) {
+      setSelectedDevice(room.devices[0]); 
+    }
+    setMoveDevice(true);
+  }
+
   function handleCloseRoomList() {
-    setMoveDevice(false); 
+    setMoveDevice(false);
     setSelectedDevice(null);
   }
 
   return (
     <Modal animationType="slide" transparent={false} visible={visible}>
       <View style={styles.modalContainer}>
-        
-
         <View style={styles.header}>
-          
           <Text style={styles.roomName}>{room.name}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>X</Text>
@@ -34,44 +43,43 @@ export default function RoomModal({ visible, onClose, room,selectedTab }) {
         </View>
 
 
-        <View style={styles.infoContainer}>
-            <Text style={styles.info}>Move a device to another room</Text>
-        </View>
-        {room.devices.length > 0 ? (
-          <FlatList
-            ListHeaderComponent={<MoveDevice room={room} selectedTab={selectedTab} selectedDevice={selectedDevice}  setSelectedDevice={setSelectedDevice } />}
-            data={room.devices}
-            keyExtractor={(device) => device.id}
-            contentContainerStyle={styles.listContainer}
-            numColumns={2}
-            renderItem={({ item: device }) => (
-              <DeviceCard device={device} onPress={() => handleDevicePress(device)} />
-            )}
-          />
-        ) : (
-          <Text style={styles.noDevices}>No devices available</Text>
-        )}
+      <View style={styles.headerIcons}>
+          <HeaderIcons  onInfoPress={() => setInfoModal(true)}/>
+        
+      </View>
 
-    
+        <ScrollableList 
+          data={room.devices}         
+          textFields={["name"]} 
+          buttonConfig={[
+            { icon: "repeat-outline", onPress: (device) => handleDevicePress(device) }, 
+            { icon: "pencil-outline", onPress: (device) => handleOpenModal("rename", device.id) },
+            { icon: "remove-circle-outline", onPress: (device) => handleOpenModal("remove", device.id) },
+          ]}
+        />
+      
         {moveDevice && (
           <SelectRoom 
             visible={moveDevice} 
             onClose={handleCloseRoomList} 
             room={room} 
             selectedTab={selectedTab}
-            selectedDevice={selectedDevice}
-            
+            selectedDevice={selectedDevice} 
           />
         )}
       </View>
+      <InfoModal visible={infoModal} onClose={() => setInfoModal(false)} cancelLabel="Close" iconName="help-outline" iconColor="orange"
+      message={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"} title={"Configuring a Room"}/>
     </Modal>
+
+
   );
 }
 
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: "#FDF8F0", 
+    backgroundColor: Colors.primaryBackground, 
     paddingTop: 50,
     alignItems: "center",
   },
@@ -83,7 +91,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: "#c1c1c1",
+  },
+  headerIcons: {
+    flexDirection: "row",
+    justifyContent: "flex-end", 
+    paddingVertical:10,
+    paddingHorizontal:15
+    
   },
   roomName: {
     fontSize: 24,
@@ -103,25 +118,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
-  listContainer: {
-    width: "90%",
-
-  },
-  noDevices: {
-    fontSize: 18,
-    fontStyle: "italic",
-    color: "gray",
-    marginTop: 20,
+  infoContainer: {
+    justifyContent: "flex-start",
   },
   info: {
     fontSize: 20,
     color: "#2aa8a8",
-    marginVertical:10,
+    marginVertical: 10,
     fontFamily: "Lexend-Regular",
-    
   },
-  infoContainer:{
-    justifyContent:'flex-start',
-    
-  }
 });

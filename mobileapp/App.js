@@ -118,7 +118,7 @@ function AuthenticatedStack({ currentHub, setCurrentHub }) {
           tabBarIcon: ({ color, size }) => <Ionicons name="alarm-outline" size={size} color={color} />,
         }}
       >
-        {(props) => <AutomationStackNavigator  {...props} currentHub={currentHub} />}
+        {(props) => <AutomationStackNavigator  {...props} currentHub={currentHub} setCurrentHub={setCurrentHub}/>}
       </BottomTabs.Screen>
 
       <BottomTabs.Screen

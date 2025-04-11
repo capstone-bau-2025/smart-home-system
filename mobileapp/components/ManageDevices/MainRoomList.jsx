@@ -21,7 +21,7 @@ export default function MainRoomList({ selectedTab }) {
       <RoomsGridList 
         rooms={selectedTab.rooms.map(room => ({
           ...room, 
-          colors: room.colors || ["#FFAA33", "#FF7700"], 
+          colors: room.colors || ["#FFA94D", "#ff9232"], 
           icon: room.icon || "home-outline"
         }))} 
         onRoomPress={clickHandler} 

@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import TokenModal from "./TokenModal";
 import { useState } from "react";
+
 export default function TokenGeneration() {
   const [tokenVisible, setTokenVisible] = useState(false);
   
@@ -38,10 +39,10 @@ const styles = StyleSheet.create({
     overflow: "hidden", 
   },
   buttonContainer: {
-    backgroundColor:'#f9b930',
+    backgroundColor:'#FEA220',
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12, 
+    borderRadius: 50, 
     padding:12
   },
   buttonContent: { 

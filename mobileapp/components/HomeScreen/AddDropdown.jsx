@@ -1,64 +1,92 @@
 import React, { useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, Modal, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import DropdownModal from "../UI/DropdownModal";
 
-export default function AddDropdown({ addValue, setAddValue, addVisible, setAddVisible }) {
-  const navigation = useNavigation(); // Use navigation hook
-  
+export default function AddDropdown({
+  addValue,
+  setAddValue,
+  addVisible,
+  setAddVisible,
+}) {
+  const navigation = useNavigation();
+
   const addData = [
     { label: "Discover Device", value: "DDevice", icon: "tv-outline" },
     { label: "Discover Hub", value: "DHub", icon: "cube-outline" },
   ];
 
-
   useEffect(() => {
     if (addValue === "DDevice") {
-      navigation.navigate("DiscoverDevice"); 
-      setAddValue(null); 
+      navigation.navigate("DiscoverDevice");
+      setAddValue(null);
     } else if (addValue === "DHub") {
-      navigation.navigate("DiscoverHub"); 
+      navigation.navigate("DiscoverHub");
       setAddValue(null);
     }
-  }, [addValue, navigation]); 
+  }, [addValue, navigation]);
 
   return (
-    <Modal visible={addVisible} transparent animationType="fade">
-      <TouchableWithoutFeedback onPress={() => setAddVisible(false)}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={styles.dropdownContainer}>
+    <DropdownModal
+      data={addData}
+      onSelect={(value) => setAddValue(value)}
+      setVisible={setAddVisible}
+      visible={addVisible}
+      position={
+        Platform.OS === "ios"
+          ? { right: 70, top: 55 }
+          : { right: 50, top: 0 }
+      }
+      triposition={
+        Platform.OS === "ios"
+          ? { right: 15, top: 55 }
+          : { right: 15, top: 0 }
+      }
+    />
 
-              <View style={styles.triangle} />
+    // <Modal visible={addVisible} transparent animationType="fade">
+    //   <TouchableWithoutFeedback onPress={() => setAddVisible(false)}>
+    //     <View style={styles.overlay}>
+    //       <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+    //         <View style={styles.dropdownContainer}>
 
-              <View style={styles.dropdown}>
-                {addData.map((item, index) => (
-                  <Pressable
-                    key={index}
-                    style={({ pressed }) => [styles.option, pressed && styles.pressedOption]}
-                    onPress={() => {
-                      setAddValue(item.value); // Update the state to trigger the effect
-                      setAddVisible(false); // Close dropdown after selection
-                    }}
-                  >
-                    <Ionicons name={item.icon} size={20} color="#333" style={styles.optionIcon} />
-                    <Text style={styles.optionText}>{item.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+    //           <View style={styles.triangle} />
+
+    //           <View style={styles.dropdown}>
+    //             {addData.map((item, index) => (
+    //               <Pressable
+    //                 key={index}
+    //                 style={({ pressed }) => [styles.option, pressed && styles.pressedOption]}
+    //                 onPress={() => {
+    //                   setAddValue(item.value);
+    //                 }}
+    //               >
+    //                 <Ionicons name={item.icon} size={20} color="#333" style={styles.optionIcon} />
+    //                 <Text style={styles.optionText}>{item.label}</Text>
+    //               </Pressable>
+    //             ))}
+    //           </View>
+    //         </View>
+    //       </TouchableWithoutFeedback>
+    //     </View>
+    //   </TouchableWithoutFeedback>
+    // </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.2)", // Adds a dim background effect
+    backgroundColor: "rgba(0,0,0,0.2)",
     justifyContent: "flex-start",
     alignItems: "flex-end",
     paddingTop: 60,
@@ -79,7 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
-    borderBottomColor: "white", // Match dropdown background
+    borderBottomColor: "white",
   },
   dropdown: {
     backgroundColor: "white",

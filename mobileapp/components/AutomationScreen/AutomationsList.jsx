@@ -3,24 +3,24 @@ import {
   StyleSheet,
   Text,
   View,
-  FlatList,
-  Pressable,
   Alert,
-  Platform
+  Platform,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import AutomationCard from "./AutomationCard";
+import ScrollableList from "../UI/ScrollableList";
 
 export default function AutomationsList({
   automations,
   currentHub,
-  modalVisible,
   setModalVisible,
-  setCurrentAutomation
+  setCurrentAutomation,
 }) {
   const [autoState, setAutoState] = useState(automations);
 
+  const handlePress = (item) => {
+    setCurrentAutomation(item);
+    setModalVisible(true);
+  };
 
   const handleToggleAutomation = (automationId) => {
     let updatedStatus = "";
@@ -43,27 +43,16 @@ export default function AutomationsList({
   return (
     <>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Your Automations</Text>
+        {/* <Text style={styles.headerText}>Your Automations</Text> */}
       </View>
 
-      <FlatList
+      <ScrollableList
         data={autoData}
-        ListFooterComponent={
-          <View style={styles.addContainer}>
-            <Ionicons name="add-outline" size={30} color="black"/>
-          </View>
-        }
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <AutomationCard
-            handleToggleAutomation={handleToggleAutomation}
-            item={item}
-            setModalVisible={setModalVisible}
-            setCurrentAutomation={setCurrentAutomation} 
-  
-          />
-          
-        )}
+        toggle={true}
+        toggleSwitch={handleToggleAutomation} 
+        handlePress={handlePress}
+        textFields={["name"]} 
+        pressableTab={true}
       />
     </>
   );
@@ -72,21 +61,12 @@ export default function AutomationsList({
 const styles = StyleSheet.create({
   header: {
     justifyContent: "center",
-    marginBottom: 10,
+    marginVertical: 10,
+    alignSelf: "center",
   },
   headerText: {
     fontSize: 24,
     fontFamily: "Lexend-Bold",
-    marginTop: Platform.OS === 'android' ? 35 : null, 
 
-  },
-
-  pressed: {
-    opacity: 0.7,
-  },
-
-  addContainer: {
-    right: 15,
-    alignSelf: "flex-end",
   },
 });

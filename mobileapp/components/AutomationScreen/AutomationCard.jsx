@@ -3,56 +3,64 @@ import {
   StyleSheet,
   Text,
   View,
-  FlatList,
   Pressable,
-  Alert,
+  Switch,
+  Platform
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 
 export default function AutomationCard({ handleToggleAutomation, item, setModalVisible, setCurrentAutomation }) {
+  const [isEnabled, setIsEnabled] = useState(item.status === "Active");
+
   function handlePress() {
-    setCurrentAutomation(item); 
+    setCurrentAutomation(item);
     setModalVisible(true);
   }
 
+  const toggleSwitch = () => {
+    setIsEnabled((prev) => !prev);
+    handleToggleAutomation(item.id); 
+  };
+
   return (
     <Pressable style={({ pressed }) => (pressed ? styles.pressed : null)} onPress={handlePress}>
-      <LinearGradient colors={["#b1cff5", "#56CCF2", "#BBE1FA"]}
- start={{ x: 0, y: 1 }} end={{ x: 1, y: 1 }} style={styles.listsContainer}>
+      <View  style={styles.listsContainer}>
+        
         <Text style={styles.text}>{item.name}</Text>
+
         <View style={styles.iconContainer}>
-          <Pressable style={({ pressed }) => (pressed ? styles.pressed : null)} onPress={() => handleToggleAutomation(item.id)}>
-            <Ionicons name="power-outline" size={30} color="black" style={styles.powerIcon} />
-          </Pressable>
-          <Ionicons name="ellipse-sharp" size={30} color={item.status === "Active" ? "green" : "red"} />
+
+          <Switch
+            trackColor={{ false: "#767577", true: "#34C759" }} 
+            thumbColor={isEnabled ? "#fff" : "#f4f3f4"}
+            ios_backgroundColor="#a3a3a3"
+            onValueChange={toggleSwitch}
+            value={isEnabled}
+            style={Platform.OS === "android" ? styles.switch : null}
+          />
         </View>
-      </LinearGradient>
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    justifyContent: "center",
-    marginBottom: 10,
-  },
-  headerText: {
-    fontSize: 24,
-    fontFamily: "Lexend-Bold",
-  },
   listsContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: 15,
     marginVertical: 10,
-    borderTopRightRadius: 0,  
-    borderBottomRightRadius: 20,  
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 20,
     borderTopLeftRadius: 30,
     borderBottomLeftRadius: 0,
-    width:'90%',
-    alignSelf: "center", 
+    width: '90%',
+    alignSelf: "center",
+    backgroundColor:'#ffffff',
+    borderWidth:2,
+    borderColor:'orange'
   },
   text: {
     color: "black",
@@ -67,11 +75,7 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
-  powerIcon: {
-    marginRight: 10,
-  },
-  addContainer: {
-    right: 10,
-    alignSelf: "flex-end",
+  switch: {
+    transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }],
   },
 });

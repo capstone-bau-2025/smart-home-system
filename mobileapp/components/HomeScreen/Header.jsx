@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import HubDropdown from "./HubDropdown";
-import HeaderIcons from "./HeaderIcons";
+import HeaderIcons from "../UI/HeaderIcons";
 import AddDropdown from "./AddDropdown";
 import SettingsDropdown from "./SettingsDropdown";
 
@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 27,
-    paddingVertical: 10,
+    paddingHorizontal: 15,
+    
     position: "relative",
   },
 });

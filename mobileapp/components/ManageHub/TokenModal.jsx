@@ -6,75 +6,101 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   TouchableOpacity,
-
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import InfoModal from "../UI/InfoModal";
 
 export default function TokenModal({ visible, onClose }) {
   const [selectedRole, setSelectedRole] = useState(null);
-  
-  // Function to copy invite code
+  const [infoModal, setInfoModal] = useState(false);
+
   const copyToClipboard = () => {
     Clipboard.setStringAsync("codebasedonrole");
     Alert.alert("Copied!", "Invite code copied to clipboard.");
   };
 
   return (
-    <Modal 
-      transparent 
-      visible={visible} 
-      animationType="fade"
-      hideModalContentWhileAnimating={true}
-      onRequestClose={onClose} 
-    >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={styles.modalContainer}>
-
-              {/* Invite Code Section */}
-              <Text style={styles.title}>Invite Code</Text>
-              <TouchableOpacity onPress={copyToClipboard} style={styles.codeContainer}>
-                <Text style={styles.inviteCode}>codebasedonrole</Text>
-                <Ionicons name="copy-outline" size={20} color="#FFA500" />
-              </TouchableOpacity>
-
-              {/* Role Selection Buttons */}
-              <Text style={styles.subtitle}>Select Role:</Text>
-              <View style={styles.roleButtonsContainer}>
-                {["Admin", "User", "Guest"].map((role) => (
+    <>
+      <Modal
+        transparent
+        visible={visible}
+        animationType="fade"
+        hideModalContentWhileAnimating={true}
+        onRequestClose={onClose}
+      >
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View style={styles.modalContainer}>
+                {/* Invite Code Section */}
+                <Text style={styles.title}>Invite Code</Text>
+                <View style={styles.inviteRow}>
                   <TouchableOpacity
-                    key={role}
-                    style={[
-                      styles.roleButton,
-                      selectedRole === role && styles.selectedRoleButton
-                    ]}
-                    onPress={() => setSelectedRole(role)}
+                    onPress={copyToClipboard}
+                    style={styles.codeContainer}
                   >
-                    <Text
-                      style={[
-                        styles.roleButtonText,
-                        selectedRole === role && styles.selectedRoleButtonText
-                      ]}
-                    >
-                      {role}
-                    </Text>
+                    <Text style={styles.inviteCode}>codebasedonrole</Text>
+                    <Ionicons name="copy-outline" size={20} color="#FFA500" />
                   </TouchableOpacity>
-                ))}
+                  <TouchableOpacity
+                    style={styles.infoContainer}
+                    onPress={() => setInfoModal(true)}
+                  >
+                    <Ionicons
+                      name="information-circle-outline"
+                      size={30}
+                      color="#FFA500"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Role Selection Buttons */}
+                <Text style={styles.subtitle}>Select Role:</Text>
+                <View style={styles.roleButtonsContainer}>
+                  {["Admin", "User", "Guest"].map((role) => (
+                    <TouchableOpacity
+                      key={role}
+                      style={[
+                        styles.roleButton,
+                        selectedRole === role && styles.selectedRoleButton,
+                      ]}
+                      onPress={() => setSelectedRole(role)}
+                    >
+                      <Text
+                        style={[
+                          styles.roleButtonText,
+                          selectedRole === role &&
+                            styles.selectedRoleButtonText,
+                        ]}
+                      >
+                        {role}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Close Button */}
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
               </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
 
-              {/* Close Button */}
-              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+        <InfoModal
+          visible={infoModal}
+          onClose={() => setInfoModal(false)}
+          cancelLabel="Close"
+          iconName="help-outline"
+          iconColor="orange"
+          message={"To add a user...."}
+          title={"Add a user"}
+        />
+      </Modal>
+    </>
   );
 }
 
@@ -119,11 +145,25 @@ const styles = StyleSheet.create({
     marginRight: 10,
     color: "#555",
   },
+  inviteRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
   roleButtonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
     marginVertical: 10,
+  },
+  infoContainer: {
+    alignItems: "center",
+    backgroundColor: "#f4f4f4",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    marginLeft: 10,
   },
   roleButton: {
     flex: 1,
@@ -158,4 +198,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-

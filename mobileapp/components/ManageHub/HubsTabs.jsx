@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { StyleSheet, Text, TouchableOpacity, View,FlatList} from "react-native";
+
 
 export default function HubsTabs({ hubs, setSelectedTab, selectedTab, color = "orange" }) {
   return (
@@ -13,7 +13,7 @@ export default function HubsTabs({ hubs, setSelectedTab, selectedTab, color = "o
           <Text
             style={[
               styles.hubText,
-              selectedTab.id === item.id && { color, fontWeight: "bold" }, // Apply color only to selected tab
+              selectedTab.id === item.id && { color, fontWeight: "bold" }, 
             ]}
           >
             {item.name}
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   },
   hubText: {
     fontSize: 25,
-    color: "black", // Default color for unselected tabs
+    color: "black", 
   },
   underline: {
     height: 2,
