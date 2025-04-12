@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.service;
 
-import com.capstonebau2025.centralhub.dto.InteractionAreaDTO;
+import com.capstonebau2025.centralhub.dto.AreaInteractionsDTO;
 import com.capstonebau2025.centralhub.dto.InteractionDTO;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
@@ -53,12 +53,12 @@ public class UserDeviceInteractionService {
     *
     * */
 
-    public InteractionAreaDTO[] getAllInteractions(Long userId) {
+    public AreaInteractionsDTO[] getAllInteractions(Long userId) {
         // Get all areas the user has permission to access
         List<Area> areas = permissionService.getPermittedAreas(userId);
 
         // Create list to hold the result
-        List<InteractionAreaDTO> interactionAreas = new ArrayList<>();
+        List<AreaInteractionsDTO> interactionAreas = new ArrayList<>();
 
         for (Area area : areas) {
 
@@ -131,14 +131,14 @@ public class UserDeviceInteractionService {
             }
 
             // Create area DTO with all interactions
-            interactionAreas.add(InteractionAreaDTO.builder()
+            interactionAreas.add(AreaInteractionsDTO.builder()
                     .areaName(area.getName())
                     .areaId(area.getId())
                     .interactions(interactions.toArray(new InteractionDTO[0]))
                     .build());
         }
 
-        return interactionAreas.toArray(new InteractionAreaDTO[0]);
+        return interactionAreas.toArray(new AreaInteractionsDTO[0]);
     }
 
     public void updateStateInteraction(Long userId, Long stateValueId, String value) {

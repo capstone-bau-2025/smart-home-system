@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class HubInfo {
+public class HubInfoResponse {
     private String serialNumber;
     private String name;
     private String location;

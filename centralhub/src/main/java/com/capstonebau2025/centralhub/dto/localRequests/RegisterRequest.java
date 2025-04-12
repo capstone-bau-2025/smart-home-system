@@ -1,6 +1,5 @@
-package com.capstonebau2025.centralhub.dto;
+package com.capstonebau2025.centralhub.dto.localRequests;
 
-import com.capstonebau2025.centralhub.entity.Invitation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddUserRequest {
+public class RegisterRequest {
     private String invitation;
     private String email;
     private String cloudToken;

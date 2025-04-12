@@ -1,8 +1,8 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.dto.CommandRequestDTO;
-import com.capstonebau2025.centralhub.dto.InteractionAreaDTO;
-import com.capstonebau2025.centralhub.dto.StateUpdateDTO;
+import com.capstonebau2025.centralhub.dto.RemoteRequests.ExecuteCommandRequest;
+import com.capstonebau2025.centralhub.dto.AreaInteractionsDTO;
+import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateStateRequest;
 import com.capstonebau2025.centralhub.entity.User;
 import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class InteractionController {
     private final UserDeviceInteractionService interactionService;
 
     @GetMapping
-    public ResponseEntity<InteractionAreaDTO[]> getAllInteractions() {
+    public ResponseEntity<AreaInteractionsDTO[]> getAllInteractions() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Long userId = user.getId();
@@ -28,7 +28,7 @@ public class InteractionController {
     }
 
     @PostMapping("/state")
-    public ResponseEntity<Void> updateStateInteraction(@RequestBody StateUpdateDTO dto) {
+    public ResponseEntity<Void> updateStateInteraction(@RequestBody UpdateStateRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Long userId = user.getId();
@@ -38,7 +38,7 @@ public class InteractionController {
     }
 
     @PostMapping("/command")
-    public ResponseEntity<Void> executeCommand(@RequestBody CommandRequestDTO dto) {
+    public ResponseEntity<Void> executeCommand(@RequestBody ExecuteCommandRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Long userId = user.getId();

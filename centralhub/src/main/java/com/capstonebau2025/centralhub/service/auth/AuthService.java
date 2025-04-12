@@ -1,9 +1,11 @@
 package com.capstonebau2025.centralhub.service.auth;
 
 import com.capstonebau2025.centralhub.client.CloudClient;
-import com.capstonebau2025.centralhub.dto.*;
 import com.capstonebau2025.centralhub.dto.cloudComm.LinkUserResponse;
 import com.capstonebau2025.centralhub.dto.cloudComm.UserValidationResponse;
+import com.capstonebau2025.centralhub.dto.localRequests.RegisterRequest;
+import com.capstonebau2025.centralhub.dto.localRequests.AuthRequest;
+import com.capstonebau2025.centralhub.dto.AuthResponse;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
 import com.capstonebau2025.centralhub.repository.UserRepository;
@@ -22,7 +24,7 @@ public class AuthService {
     private final CloudClient cloudClient;
 
     @Transactional
-    public AuthResponse register(AddUserRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         // 1. Validate invitation and get role
         Role role = invitationService.validateInvitation(request.getInvitation());
 

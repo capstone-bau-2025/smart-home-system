@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.service.device;
 
-import com.capstonebau2025.centralhub.dto.DeviceDetails;
+import com.capstonebau2025.centralhub.dto.DeviceDetailsDTO;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
@@ -30,7 +30,7 @@ public class DeviceDiscoveryService {
      *
      * @return a map of device unique identifiers to their details
      */
-    public Map<Long, DeviceDetails> getDiscoveredDevices() {
+    public Map<Long, DeviceDetailsDTO> getDiscoveredDevices() {
         return pendingDiscoveryService.getAllPendingDevices();
     }
 
@@ -45,10 +45,10 @@ public class DeviceDiscoveryService {
      * @return the details of the registered device, or null if registration fails
      */
     @Transactional
-    public DeviceDetails pairDevice(Long deviceUid) {
+    public DeviceDetailsDTO pairDevice(Long deviceUid) {
 
         // get device details from pending discovery service
-        DeviceDetails deviceDetails = pendingDiscoveryService.removePendingDevice(deviceUid);
+        DeviceDetailsDTO deviceDetails = pendingDiscoveryService.removePendingDevice(deviceUid);
         if (deviceDetails == null) return null;
 
         Device.DeviceBuilder deviceBuilder = Device.builder()
@@ -84,7 +84,7 @@ public class DeviceDiscoveryService {
     }
 
     @Transactional
-    public DeviceModel createDeviceModel(DeviceDetails deviceDetails) {
+    public DeviceModel createDeviceModel(DeviceDetailsDTO deviceDetails) {
 
         // Create the DeviceModel first (without states)
         DeviceModel newDeviceModel = DeviceModel.builder()

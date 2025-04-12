@@ -42,6 +42,12 @@ public class AutomationRule {
 
     private String description;
 
+    @NotNull
+    @Column(nullable = false)
+    private Integer cooldownDuration; // Cooldown duration in seconds
+
+    private LocalTime lastExecutedTime; // Last time the automation was executed
+
     public enum TriggerType {
         SCHEDULE, EVENT, STATUS_VALUE
     }

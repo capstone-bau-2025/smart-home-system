@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.service.device;
 
-import com.capstonebau2025.centralhub.dto.DeviceDetails;
+import com.capstonebau2025.centralhub.dto.DeviceDetailsDTO;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +26,14 @@ public class PendingDiscoveryService {
      * @param deviceUid the unique identifier of the device
      * @param details the details of the device
      */
-    public void addPendingDevice(Long deviceUid, DeviceDetails details) {
+    public void addPendingDevice(Long deviceUid, DeviceDetailsDTO details) {
         pendingDevices.put(deviceUid, new PendingDevice(details, Instant.now()));
     }
 
     /**
      * Returns a map of all the devices pending discovery.
      */
-    public Map<Long, DeviceDetails> getAllPendingDevices() {
+    public Map<Long, DeviceDetailsDTO> getAllPendingDevices() {
         return pendingDevices.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().details));
     }
@@ -44,7 +44,7 @@ public class PendingDiscoveryService {
      * @param deviceUid the unique identifier of the device
      * @return the details of the removed device, or null if the device was not found
      */
-    public DeviceDetails removePendingDevice(Long deviceUid) {
+    public DeviceDetailsDTO removePendingDevice(Long deviceUid) {
         PendingDevice device = pendingDevices.remove(deviceUid);
         return device != null ? device.details : null;
     }
@@ -57,10 +57,10 @@ public class PendingDiscoveryService {
     }
     
     private static class PendingDevice {
-        final DeviceDetails details;
+        final DeviceDetailsDTO details;
         final Instant timestamp;
         
-        PendingDevice(DeviceDetails details, Instant timestamp) {
+        PendingDevice(DeviceDetailsDTO details, Instant timestamp) {
             this.details = details;
             this.timestamp = timestamp;
         }

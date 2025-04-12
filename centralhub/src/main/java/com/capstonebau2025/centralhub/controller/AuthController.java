@@ -1,7 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.dto.AddUserRequest;
-import com.capstonebau2025.centralhub.dto.AuthRequest;
+import com.capstonebau2025.centralhub.dto.localRequests.RegisterRequest;
+import com.capstonebau2025.centralhub.dto.localRequests.AuthRequest;
 import com.capstonebau2025.centralhub.dto.AuthResponse;
 import com.capstonebau2025.centralhub.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> registerWithInvitation(@RequestBody AddUserRequest request) {
+    public ResponseEntity<AuthResponse> registerWithInvitation(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 

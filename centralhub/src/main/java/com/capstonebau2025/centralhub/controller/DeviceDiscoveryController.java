@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.dto.DeviceDetails;
+import com.capstonebau2025.centralhub.dto.DeviceDetailsDTO;
 import com.capstonebau2025.centralhub.service.device.DeviceDiscoveryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +17,14 @@ public class DeviceDiscoveryController {
 
     // get all the devices pending for discovery
     @GetMapping
-    public ResponseEntity<Map<Long, DeviceDetails>> getPendingDevices() {
+    public ResponseEntity<Map<Long, DeviceDetailsDTO>> getPendingDevices() {
         return ResponseEntity.ok(discoveryService.getDiscoveredDevices());
     }
 
     // approves pairing with device
     @PostMapping("/{deviceUid}")
-    public ResponseEntity<DeviceDetails> pairDevice(@PathVariable Long deviceUid) {
-        DeviceDetails device = discoveryService.pairDevice(deviceUid);
+    public ResponseEntity<DeviceDetailsDTO> pairDevice(@PathVariable Long deviceUid) {
+        DeviceDetailsDTO device = discoveryService.pairDevice(deviceUid);
         if (device == null)
             return ResponseEntity.badRequest().build();
 
