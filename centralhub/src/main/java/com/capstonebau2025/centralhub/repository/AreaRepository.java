@@ -29,4 +29,5 @@ public interface AreaRepository extends JpaRepository<Area, Long> {
 
     @Query("SELECT a FROM Area a WHERE a.id IN (SELECT p.area.id FROM Permission p WHERE p.user.id = :userId)")
     List<Area> findAreasByUserId(@Param("userId") Long userId);
+    boolean existsByName(String name);
 }
