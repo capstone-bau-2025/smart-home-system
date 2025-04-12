@@ -23,36 +23,6 @@ public class UserDeviceInteractionService {
     private final StateService stateService;
     private final CommandService commandService;
 
-    /*
-    * List
-    *
-    * 1-State preview
-    * 2-State Range
-    * 3-State enum
-    * 5-command -> name
-    *
-    * info
-    * choice
-    * range
-    * command
-    *
-    * {
-    *  room1: [
-    *   {type: "preview", name: "temp", value: 26},
-    *   {type: "range", name: "brightness", value: 26, min: 0, max: 100, device: "lamp1"},
-    *   {type: "enum", name: "status", value: "ON", choices: {ON, OFF} device: "lamp1", category: "lamp"},
-    *   {type: "command", name: "move up", device: "door"},
-    *   ],
-    *   room2: [
-    *   {type: "preview", name: "temp", value: 26},
-    *   {type: "range", name: "brightness", value: 26, min: 0, max: 100, device: "lamp1"},
-    *   ]
-    * }
-    *
-    *   Users -> Permission <- Areas --> Devices
-    *
-    * */
-
     public AreaInteractionsDTO[] getAllInteractions(Long userId) {
         // Get all areas the user has permission to access
         List<Area> areas = permissionService.getPermittedAreas(userId);
