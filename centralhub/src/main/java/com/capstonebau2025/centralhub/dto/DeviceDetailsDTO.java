@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class DeviceDetails {
+public class DeviceDetailsDTO {
 
     @NotNull
     @JsonProperty(value = "uid", required = true)

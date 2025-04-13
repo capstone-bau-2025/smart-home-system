@@ -1,13 +1,18 @@
 package com.capstonebau2025.centralhub.service.auth;
 
 import com.capstonebau2025.centralhub.client.CloudClient;
-import com.capstonebau2025.centralhub.dto.*;
 import com.capstonebau2025.centralhub.dto.cloudComm.LinkUserResponse;
 import com.capstonebau2025.centralhub.dto.cloudComm.UserValidationResponse;
+import com.capstonebau2025.centralhub.dto.localRequests.RegisterRequest;
+import com.capstonebau2025.centralhub.dto.localRequests.AuthRequest;
+import com.capstonebau2025.centralhub.dto.AuthResponse;
+import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
+import com.capstonebau2025.centralhub.repository.AreaRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.HubService;
+import com.capstonebau2025.centralhub.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +23,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final InvitationService invitationService;
+    private final UserService userService;
     private final HubService hubService;
     private final CloudClient cloudClient;
+    private final AreaRepository areaRepository;
 
     @Transactional
-    public AuthResponse register(AddUserRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         // 1. Validate invitation and get role
         Role role = invitationService.validateInvitation(request.getInvitation());
 
@@ -51,6 +58,10 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
+
+        // grant permission to GENERAL area
+        Area generalArea = areaRepository.findGeneralArea();
+        userService.grantPermission(user.getId(), generalArea.getId());
 
         // delete the invitation used
         invitationService.deleteInvitation(request.getInvitation());

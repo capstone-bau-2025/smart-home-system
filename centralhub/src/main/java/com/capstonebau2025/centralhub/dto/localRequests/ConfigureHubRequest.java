@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.dto;
+package com.capstonebau2025.centralhub.dto.localRequests;
 
 import lombok.Data;
 

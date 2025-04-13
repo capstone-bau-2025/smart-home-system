@@ -1,8 +1,8 @@
 package com.capstonebau2025.centralhub.service;
 
-import com.capstonebau2025.centralhub.dto.ConfigureHubRequest;
+import com.capstonebau2025.centralhub.dto.localRequests.ConfigureHubRequest;
 import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
-import com.capstonebau2025.centralhub.dto.HubInfo;
+import com.capstonebau2025.centralhub.dto.HubInfoResponse;
 import com.capstonebau2025.centralhub.entity.Hub;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.repository.HubRepository;
@@ -70,12 +70,13 @@ public class HubService {
     public void setHubName(String name) {
         Hub hub = getHub();
         hub.setName(name);
+        // TODO: update name in cloud too
         hubRepository.save(hub);
     }
 
-    public HubInfo getHubInfo() {
+    public HubInfoResponse getHubInfo() {
         Hub hub = getHub();
-        return HubInfo.builder()
+        return HubInfoResponse.builder()
             .serialNumber(hub.getSerialNumber())
             .name(hub.getName())
             .location(hub.getLocation())

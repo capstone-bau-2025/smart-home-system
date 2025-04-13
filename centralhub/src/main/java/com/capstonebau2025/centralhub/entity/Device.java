@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -42,6 +43,9 @@ public class Device {
     @ManyToOne
     @JoinColumn(name = "area_id", nullable = false)
     private Area area;
+
+    @OneToMany(mappedBy = "device", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<StateValue> stateValues;
 
     private LocalDateTime lastSeen = LocalDateTime.now();
     private LocalDateTime createdAt = LocalDateTime.now();

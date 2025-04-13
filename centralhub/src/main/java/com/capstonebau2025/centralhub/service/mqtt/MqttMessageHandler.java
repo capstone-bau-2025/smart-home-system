@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.service.mqtt;
 
-import com.capstonebau2025.centralhub.dto.DeviceDetails;
+import com.capstonebau2025.centralhub.dto.DeviceDetailsDTO;
 import com.capstonebau2025.centralhub.dto.NotificationDTO;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.Event;
@@ -40,9 +40,9 @@ public class MqttMessageHandler {
      */
     public void handleDiscoveryRequest(String message) {
         try {
-            DeviceDetails deviceDetails = mapper.readValue(message, DeviceDetails.class);
-            pendingDiscoveryService.addPendingDevice(deviceDetails.getUid(), deviceDetails);
-            logger.info("Device pending discovery with uid: {}", deviceDetails);
+            DeviceDetailsDTO deviceDetailsDTO = mapper.readValue(message, DeviceDetailsDTO.class);
+            pendingDiscoveryService.addPendingDevice(deviceDetailsDTO.getUid(), deviceDetailsDTO);
+            logger.info("Device pending discovery with uid: {}", deviceDetailsDTO);
         } catch (JsonProcessingException e) {
             logger.error("Error parsing device details: {}", e.getMessage());
         }
