@@ -39,6 +39,9 @@ public class User implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Permission> permissions;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.getName()));

@@ -79,4 +79,27 @@ public class UserService {
 
         permissionRepository.saveAll(newPermissions);
     }
+
+    public void grantPermission(Long userId, Long areaId) {
+        // Find the user by ID
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if the user already has permission for the area
+        boolean hasPermission = permissionRepository.existsByUserIdAndAreaId(userId, areaId);
+        if (hasPermission) {
+            throw new RuntimeException("User already has permission for this area");
+        }
+
+        // Find the area by ID
+        Area area = areaRepository.findById(areaId)
+            .orElseThrow(() -> new RuntimeException("Area not found"));
+
+        // Create and save the new permission
+        Permission permission = Permission.builder()
+            .user(user)
+            .area(area)
+            .build();
+        permissionRepository.save(permission);
+    }
 }

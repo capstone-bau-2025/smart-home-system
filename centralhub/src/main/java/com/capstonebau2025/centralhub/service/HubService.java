@@ -70,6 +70,7 @@ public class HubService {
     public void setHubName(String name) {
         Hub hub = getHub();
         hub.setName(name);
+        // TODO: update name in cloud too
         hubRepository.save(hub);
     }
 

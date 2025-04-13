@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/interaction")
+@RequestMapping("/api/interactions")
 @RequiredArgsConstructor
 public class InteractionController {
 
@@ -27,7 +27,7 @@ public class InteractionController {
         return ResponseEntity.ok(interactionService.getAllInteractions(userId));
     }
 
-    @PostMapping("/state")
+    @PostMapping("/update-state")
     public ResponseEntity<Void> updateStateInteraction(@RequestBody UpdateStateRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -37,7 +37,7 @@ public class InteractionController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/command")
+    @PostMapping("/execute-command")
     public ResponseEntity<Void> executeCommand(@RequestBody ExecuteCommandRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -47,7 +47,7 @@ public class InteractionController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/state/{stateValueId}")
+    @GetMapping("/fetch-state/{stateValueId}")
     public ResponseEntity<String> fetchStateInteraction(@PathVariable Long stateValueId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();

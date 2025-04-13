@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/areas")
+@RequestMapping("/api/areas")
 @RequiredArgsConstructor
 public class AreaController {
 
@@ -22,7 +22,7 @@ public class AreaController {
                 .body(areaService.addArea(areaName));
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/get-all")
     public ResponseEntity<List<Area>> getAllAreas() {
         return ResponseEntity.ok(areaService.getAllAreas());
     }

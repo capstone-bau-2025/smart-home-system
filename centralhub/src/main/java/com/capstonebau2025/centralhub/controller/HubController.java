@@ -20,8 +20,14 @@ public class HubController {
         return ResponseEntity.ok(hubInfoResponse);
     }
 
-    @PostMapping("/Configure")
+    @PostMapping("/configure")
     public ResponseEntity<GetInvitationResponse> configureHub(@RequestBody ConfigureHubRequest request) {
         return ResponseEntity.ok(hubService.configureHub(request));
+    }
+
+    @PutMapping("/update-name")
+    public ResponseEntity<Void> updateHubName(@RequestParam String name) {
+        hubService.setHubName(name);
+        return ResponseEntity.noContent().build();
     }
 }

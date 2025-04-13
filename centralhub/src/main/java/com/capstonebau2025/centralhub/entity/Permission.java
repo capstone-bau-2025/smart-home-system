@@ -19,12 +19,12 @@ public class Permission {
     private Long id;
 
     @NotNull
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "area_id", nullable = false)
     private Area area;
 
     @NotNull
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
