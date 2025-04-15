@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserHubRepository extends JpaRepository<UserHub, Long> {
     boolean existsByUserIdAndHubId(Long userId, Long hubId);
+
+    // Add this method
+    boolean existsByUser_EmailAndHub_SerialNumber(String email, String hubSerialNumber);
 }

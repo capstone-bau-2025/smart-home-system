@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.config;
 
+import com.capstonebau2025.centralhub.client.WebSocketCommandHandler;
 import com.capstonebau2025.centralhub.client.WebsocketClient;
 import com.capstonebau2025.centralhub.client.CloudClient;
 import com.capstonebau2025.centralhub.dto.cloudComm.HubRegistrationResponse;
@@ -33,13 +34,22 @@ public class AppConfig {
 
     @Bean
     @Order(2)
-    public CommandLineRunner connectToCloudServer(CloudClient cloudClient, HubService hubService) {
+    public CommandLineRunner connectToCloudServer(
+            CloudClient cloudClient,
+            HubService hubService,
+            WebSocketCommandHandler commandHandler) {  // Add this parameter
         return args -> {
             Hub hub = hubService.getHub();
 
-            // Connect to WebSocket using the token (fix the port)
+            // Connect to WebSocket using the token
             String token = cloudClient.getHubToken(hub);
-            WebsocketClient hubClient = new WebsocketClient(hub.getSerialNumber(), token);
+
+            // Create WebsocketClient and update it to use the correct topic path
+            WebsocketClient hubClient = new WebsocketClient(
+                    hub.getSerialNumber(),
+                    token,
+                    commandHandler);  // Pass the command handler
+
             hubClient.connectToCloud("ws://localhost:8082/hub-socket");
         };
     }
