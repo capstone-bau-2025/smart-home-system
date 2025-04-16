@@ -13,4 +13,5 @@ public class RemoteCommandMessage {
     private String commandType;
     private String email;
     private Object payload;
+    private String requestId;
 }

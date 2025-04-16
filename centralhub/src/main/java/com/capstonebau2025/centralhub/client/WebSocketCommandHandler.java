@@ -1,6 +1,7 @@
 package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.RemoteCommandMessage;
+import com.capstonebau2025.centralhub.dto.RemoteCommandResponse;
 import com.capstonebau2025.centralhub.dto.RemoteRequests.ExecuteCommandRequest;
 import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateStateRequest;
 import com.capstonebau2025.centralhub.entity.User;
@@ -9,23 +10,29 @@ import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.stereotype.Component;
 
-@Controller
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class WebSocketCommandHandler {
 
     private final UserDeviceInteractionService interactionService;
-    private final UserRepository userRepository; // For user lookup by email
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    @MessageMapping("/commands/{hubId}")
-    public void processCommand(@DestinationVariable String hubId, RemoteCommandMessage message) {
+    // Reference to the active WebSocket client session
+    private StompSession stompSession;
+
+    // Method to set the session from WebSocketClient
+    public void setStompSession(StompSession stompSession) {
+        this.stompSession = stompSession;
+    }
+
+    public void processCommand(String hubId, RemoteCommandMessage message) {
         log.info("Received command from cloud: {} for hub: {}", message, hubId);
+        RemoteCommandResponse response = null;
 
         try {
             // Verify the user exists
@@ -34,6 +41,7 @@ public class WebSocketCommandHandler {
 
             if (user == null) {
                 log.error("User with email {} not found", email);
+                sendErrorResponse(hubId, message, "User not found");
                 return;
             }
 
@@ -41,32 +49,47 @@ public class WebSocketCommandHandler {
 
             switch (message.getCommandType()) {
                 case "GET_ALL_INTERACTIONS":
-                    handleGetAllInteractions(userId, hubId, message);
+                    response = handleGetAllInteractions(userId, hubId, message);
                     break;
                 case "UPDATE_STATE":
-                    handleUpdateState(userId, hubId, message);
+                    response = handleUpdateState(userId, hubId, message);
                     break;
                 case "EXECUTE_COMMAND":
-                    handleExecuteCommand(userId, hubId, message);
+                    response = handleExecuteCommand(userId, hubId, message);
                     break;
                 case "FETCH_STATE":
-                    handleFetchState(userId, hubId, message);
+                    response = handleFetchState(userId, hubId, message);
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
+                    sendErrorResponse(hubId, message, "Unknown command type");
+                    return;
+            }
+
+            // Send success response
+            if (response != null) {
+                sendResponse(hubId, response);
             }
         } catch (Exception e) {
             log.error("Error processing command: {}", e.getMessage(), e);
+            sendErrorResponse(hubId, message, "Error processing command: " + e.getMessage());
         }
     }
 
-    private void handleGetAllInteractions(Long userId, String hubId, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGetAllInteractions(Long userId, String hubId, RemoteCommandMessage message) {
         log.info("Processing GET_ALL_INTERACTIONS command for user ID: {}", userId);
-         interactionService.getAllInteractions(userId);
-        // In a production implementation, you'd send the result back
+        var interactions = interactionService.getAllInteractions(userId);
+
+        return RemoteCommandResponse.builder()
+                .commandType(message.getCommandType())
+                .status("SUCCESS")
+                .message("Interactions retrieved successfully")
+                .payload(interactions)
+                .requestId(message.getRequestId())
+                .build();
     }
 
-    private void handleUpdateState(Long userId, String hubId, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleUpdateState(Long userId, String hubId, RemoteCommandMessage message) {
         try {
             // Convert payload to UpdateStateRequest
             UpdateStateRequest request = objectMapper.convertValue(
@@ -74,12 +97,20 @@ public class WebSocketCommandHandler {
 
             log.info("Processing UPDATE_STATE command: {}", request);
             interactionService.updateStateInteraction(userId, request.getStateValueId(), request.getValue());
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("State updated successfully")
+                    .requestId(message.getRequestId())
+                    .build();
         } catch (Exception e) {
             log.error("Error processing UPDATE_STATE command: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
-    private void handleExecuteCommand(Long userId, String hubId, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleExecuteCommand(Long userId, String hubId, RemoteCommandMessage message) {
         try {
             // Convert payload to ExecuteCommandRequest
             ExecuteCommandRequest request = objectMapper.convertValue(
@@ -87,26 +118,58 @@ public class WebSocketCommandHandler {
 
             log.info("Processing EXECUTE_COMMAND command: {}", request);
             interactionService.commandInteraction(userId, request.getDeviceId(), request.getCommandId());
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Command executed successfully")
+                    .requestId(message.getRequestId())
+                    .build();
         } catch (Exception e) {
             log.error("Error processing EXECUTE_COMMAND command: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
-    private void handleFetchState(Long userId, String hubId, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleFetchState(Long userId, String hubId, RemoteCommandMessage message) {
         try {
             // Get stateValueId from payload
             Long stateValueId = objectMapper.convertValue(message.getPayload(), Long.class);
 
             log.info("Processing FETCH_STATE command for stateValueId: {}", stateValueId);
             String currentValue = interactionService.fetchStateInteraction(userId, stateValueId);
-            // In a complete implementation, you'd send this back to the cloud
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("State fetched successfully")
+                    .payload(currentValue)
+                    .requestId(message.getRequestId())
+                    .build();
         } catch (Exception e) {
             log.error("Error processing FETCH_STATE command: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
-    @SubscribeMapping("/topic/commands/{hubId}")
-    public void onSubscribe(@DestinationVariable String hubId) {
-        log.info("Hub {} subscribed to commands topic", hubId);
+    private void sendResponse(String hubId, RemoteCommandResponse response) {
+        if (stompSession == null || !stompSession.isConnected()) {
+            log.error("Cannot send response - no active WebSocket connection");
+            return;
+        }
+
+        String destination = "/app/responses/" + hubId;
+        log.info("Sending response to cloud for hub {}: {}", hubId, response);
+        stompSession.send(destination, response);
+    }
+
+    private void sendErrorResponse(String hubId, RemoteCommandMessage message, String errorMessage) {
+        RemoteCommandResponse response = RemoteCommandResponse.builder()
+                .commandType(message.getCommandType())
+                .status("ERROR")
+                .message(errorMessage)
+                .requestId(message.getRequestId())
+                .build();
+        sendResponse(hubId, response);
     }
 }

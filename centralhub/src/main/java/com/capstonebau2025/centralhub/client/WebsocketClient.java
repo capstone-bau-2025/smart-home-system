@@ -1,13 +1,9 @@
 package com.capstonebau2025.centralhub.client;
 
-
 import com.capstonebau2025.centralhub.dto.RemoteCommandMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-
-
-
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -52,6 +48,9 @@ public class WebsocketClient {
                 public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
                     logger.info("Connected to Cloud Server");
 
+                    // Pass the session to the command handler
+                    commandHandler.setStompSession(session);
+
                     // Subscribe to hub-specific topic
                     session.subscribe("/topic/messages/" + hubId, new StompFrameHandler() {
                         @Override
@@ -84,7 +83,6 @@ public class WebsocketClient {
                     });
 
                     logger.info("Subscribed to /topic/commands/{}", hubId);
-
 
                     // Send a test message
                     session.send("/app/message", new Message("Hello from " + hubId, hubId));

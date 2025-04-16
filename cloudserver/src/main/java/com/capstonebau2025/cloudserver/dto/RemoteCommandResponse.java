@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RemoteCommandMessage {
+public class RemoteCommandResponse {
     private String commandType;
-    private String email;
-    private Object payload;
-    private String requestId;
+    private String status; // SUCCESS, ERROR
+    private String message;
+    private Object payload; // For returned data
+    private String requestId; // To correlate request and response
 }
