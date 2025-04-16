@@ -22,7 +22,7 @@ public class InteractionController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
-
+    // TODO: rename hubId to hubSerialNumber in all endpoints
     @GetMapping
     public ResponseEntity<?> getAllInteractions(@RequestParam String hubId) {
         try {
@@ -57,6 +57,7 @@ public class InteractionController {
             @RequestBody UpdateStateRequest dto) {
         try {
             User user = hubAccessService.validateUserHubAccess(hubId);
+            // TODO: remove user email from the DTOs as it is not needed anymore since we get user from validation
 
             // Create and send command to hub
             RemoteCommandMessage message = RemoteCommandMessage.builder()
