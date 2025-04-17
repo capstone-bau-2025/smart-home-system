@@ -3,8 +3,6 @@ package com.capstonebau2025.cloudserver.controller;
 
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
-import com.capstonebau2025.cloudserver.dto.ExecuteCommandRequest;
-import com.capstonebau2025.cloudserver.dto.UpdateStateRequest;
 import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
@@ -14,27 +12,99 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/interactions")
+@RequestMapping("/api/devices")
 @RequiredArgsConstructor
 @Slf4j
-public class InteractionController {
+public class DeviceController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
-    // TODO: rename hubId to hubSerialNumber in all endpoints
-    @GetMapping
-    public ResponseEntity<?> getAllInteractions(@RequestParam String hubSerialNumber) {
+
+    @PutMapping("/{id}/name")
+    public ResponseEntity<?> setDeviceName(
+            @PathVariable Long id,
+            @RequestParam String name,
+            @RequestParam String hubSerialNumber) {
         try {
             User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            // Send command to hub to get all interactions
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("deviceId", id);
+            payload.put("name", name);
+
             RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("GET_ALL_INTERACTIONS")
+                    .commandType("SET_DEVICE_NAME")
                     .email(user.getEmail())
+                    .payload(payload)
                     .build();
 
-            // Send command and wait for response (10 second timeout)
+            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                    hubSerialNumber, message, 5);
+
+            if ("SUCCESS".equals(response.getStatus())) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error: " + response.getMessage());
+            }
+        } catch (Exception e) {
+            log.error("Failed to set device name", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to set device name: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/area")
+    public ResponseEntity<?> setDeviceArea(
+            @PathVariable Long id,
+            @RequestParam Long areaId,
+            @RequestParam String hubSerialNumber) {
+        try {
+            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("deviceId", id);
+            payload.put("areaId", areaId);
+
+            RemoteCommandMessage message = RemoteCommandMessage.builder()
+                    .commandType("SET_DEVICE_AREA")
+                    .email(user.getEmail())
+                    .payload(payload)
+                    .build();
+
+            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                    hubSerialNumber, message, 5);
+
+            if ("SUCCESS".equals(response.getStatus())) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error: " + response.getMessage());
+            }
+        } catch (Exception e) {
+            log.error("Failed to set device area", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to set device area: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/ping")
+    public ResponseEntity<?> pingDevice(
+            @PathVariable Long id,
+            @RequestParam String hubSerialNumber) {
+        try {
+            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+            RemoteCommandMessage message = RemoteCommandMessage.builder()
+                    .commandType("PING_DEVICE")
+                    .email(user.getEmail())
+                    .payload(id)
+                    .build();
+
             RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                     hubSerialNumber, message, 10);
 
@@ -45,92 +115,27 @@ public class InteractionController {
                         .body("Error: " + response.getMessage());
             }
         } catch (Exception e) {
-            log.error("Failed to get all interactions", e);
+            log.error("Failed to ping device", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to get interactions: " + e.getMessage());
+                    .body("Failed to ping device: " + e.getMessage());
         }
     }
 
-    @PostMapping("/update-state")
-    public ResponseEntity<?> updateStateInteraction(
-            @RequestParam String hubSerialNumber,
-            @RequestBody UpdateStateRequest dto) {
-        try {
-            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-            // TODO: remove user email from the DTOs as it is not needed anymore since we get user from validation
-
-            // Create and send command to hub
-            RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("UPDATE_STATE")
-                    .email(user.getEmail())
-                    .payload(dto)
-                    .build();
-
-            // Send command and wait for response (5 second timeout)
-            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                    hubSerialNumber, message, 5);
-
-            if ("SUCCESS".equals(response.getStatus())) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Error: " + response.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("Failed to update state", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update state: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/execute-command")
-    public ResponseEntity<?> executeCommand(
-            @RequestParam String hubSerialNumber,
-            @RequestBody ExecuteCommandRequest dto) {
-        try {
-            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-
-            // Create and send command to hub
-            RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("EXECUTE_COMMAND")
-                    .email(user.getEmail())
-                    .payload(dto)
-                    .build();
-
-            // Send command and wait for response (5 second timeout)
-            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                    hubSerialNumber, message, 5);
-
-            if ("SUCCESS".equals(response.getStatus())) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Error: " + response.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("Failed to execute command", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to execute command: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/fetch-state/{stateValueId}")
-    public ResponseEntity<?> fetchStateInteraction(
-            @PathVariable Long stateValueId,
+    @GetMapping("/by-area/{areaId}")
+    public ResponseEntity<?> getDevicesByArea(
+            @PathVariable Long areaId,
             @RequestParam String hubSerialNumber) {
         try {
             User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            // Create and send command to hub
             RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("FETCH_STATE")
+                    .commandType("GET_DEVICES_BY_AREA")
                     .email(user.getEmail())
-                    .payload(stateValueId)
+                    .payload(areaId)
                     .build();
 
-            // Send command and wait for response (5 second timeout)
             RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                    hubSerialNumber, message, 5);
+                    hubSerialNumber, message, 10);
 
             if ("SUCCESS".equals(response.getStatus())) {
                 return ResponseEntity.ok(response.getPayload());
@@ -139,9 +144,38 @@ public class InteractionController {
                         .body("Error: " + response.getMessage());
             }
         } catch (Exception e) {
-            log.error("Failed to fetch state", e);
+            log.error("Failed to get devices by area", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to fetch state: " + e.getMessage());
+                    .body("Failed to get devices by area: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDevice(
+            @PathVariable Long id,
+            @RequestParam String hubSerialNumber) {
+        try {
+            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+            RemoteCommandMessage message = RemoteCommandMessage.builder()
+                    .commandType("DELETE_DEVICE")
+                    .email(user.getEmail())
+                    .payload(id)
+                    .build();
+
+            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                    hubSerialNumber, message, 5);
+
+            if ("SUCCESS".equals(response.getStatus())) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error: " + response.getMessage());
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete device", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete device: " + e.getMessage());
         }
     }
 }

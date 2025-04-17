@@ -19,23 +19,23 @@ public class HubAccessService {
     /**
      * Validates that the current user has access to the specified hub
      *
-     * @param hubId The hub serial number
+     * @param hubSerialNumber The hub serial number
      * @return The authenticated user if access is granted
      * @throws UnauthorizedException if user doesn't have access to the hub
      */
-    public User validateUserHubAccess(String hubId) {
+    public User validateUserHubAccess(String hubSerialNumber) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         String email = user.getEmail();
 
-        boolean hasAccess = userHubRepository.existsByUser_EmailAndHub_SerialNumber(email, hubId);
+        boolean hasAccess = userHubRepository.existsByUser_EmailAndHub_SerialNumber(email, hubSerialNumber);
 
         if (!hasAccess) {
-            log.warn("Access denied for user {} to hub {}", email, hubId);
+            log.warn("Access denied for user {} to hub {}", email, hubSerialNumber);
             throw new UnauthorizedException("You don't have access to this hub");
         }
 
-        log.debug("Access granted for user {} to hub {}", email, hubId);
+        log.debug("Access granted for user {} to hub {}", email, hubSerialNumber);
         return user;
     }
 }

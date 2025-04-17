@@ -6,5 +6,4 @@ import lombok.Data;
 public class ExecuteCommandRequest {
     private Long deviceId;
     private Long commandId;
-    private String email;
 }
