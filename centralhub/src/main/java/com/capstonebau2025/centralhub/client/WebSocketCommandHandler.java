@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.client;
 import com.capstonebau2025.centralhub.dto.*;
 import com.capstonebau2025.centralhub.dto.RemoteRequests.ExecuteCommandRequest;
 import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateStateRequest;
+import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateUserPermissionsRequest;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
@@ -420,12 +421,11 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleUpdateUserPermissions(String hubSerialNumber, RemoteCommandMessage message) {
         try {
-            Map<String, Object> payload = (Map<String, Object>) message.getPayload();
-            Long targetUserId = Long.valueOf(payload.get("targetUserId").toString());
-            List<Long> roomIds = (List<Long>) payload.get("roomIds");
+            UpdateUserPermissionsRequest request = objectMapper.convertValue(
+                    message.getPayload(), UpdateUserPermissionsRequest.class);
 
-            log.info("Processing UPDATE_USER_PERMISSIONS command for targetUserId: {}", targetUserId);
-            userService.updateUserPermissions(targetUserId, roomIds);
+            log.info("Processing UPDATE_USER_PERMISSIONS command for targetUserId: {}", request.getTargetUserId());
+            userService.updateUserPermissions(request.getTargetUserId(), request.getRoomIds());
 
             return RemoteCommandResponse.builder()
                     .commandType(message.getCommandType())

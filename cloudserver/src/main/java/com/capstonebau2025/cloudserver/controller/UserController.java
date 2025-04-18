@@ -2,6 +2,7 @@ package com.capstonebau2025.cloudserver.controller;
 
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
+import com.capstonebau2025.cloudserver.dto.UpdateUserPermissionsRequest;
 import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -106,7 +106,7 @@ public class UserController {
 
     @PostMapping("/update-permissions")
     public ResponseEntity<?> updateUserPermissions(
-            @RequestBody Map<String, Object> request, // TODO: change request to proper DTO called UpdateUserPermissionsRequest in hub
+            @RequestBody UpdateUserPermissionsRequest request,
             @RequestParam String hubSerialNumber) {
         try {
             User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
