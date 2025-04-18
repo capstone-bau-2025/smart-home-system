@@ -2,6 +2,7 @@ package com.capstonebau2025.centralhub.service.device;
 
 import com.capstonebau2025.centralhub.dto.DeviceDetailsDTO;
 import com.capstonebau2025.centralhub.entity.*;
+import com.capstonebau2025.centralhub.exception.DeviceConnectionException;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,8 @@ public class DeviceDiscoveryService {
 
         // get device details from pending discovery service
         DeviceDetailsDTO deviceDetails = pendingDiscoveryService.removePendingDevice(deviceUid);
-        if (deviceDetails == null) return null;
+        if (deviceDetails == null)
+            throw new DeviceConnectionException("Failed to pair with device: " + deviceUid);
 
         Device.DeviceBuilder deviceBuilder = Device.builder()
                 .uid(deviceDetails.getUid())
@@ -74,7 +76,7 @@ public class DeviceDiscoveryService {
 
         // send credentials to the device through error in case device didn't respond
         if(!mqttMessageProducer.sendDeviceCredentials(deviceDetails.getUid())) {
-            throw new RuntimeException("device is not responding couldn't pair: " + deviceDetails.getUid());
+            throw new DeviceConnectionException("Failed to pair with device: " + deviceUid);
         }
 
         // create device StateValue entities and fetch state from device

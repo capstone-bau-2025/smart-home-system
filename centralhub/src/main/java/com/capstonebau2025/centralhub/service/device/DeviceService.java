@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service.device;
 import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import com.capstonebau2025.centralhub.repository.AreaRepository;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
@@ -27,7 +28,7 @@ public class DeviceService {
 
     public void setDeviceName(Long id, String name) {
         Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
 
         device.setName(name);
         deviceRepository.save(device);
@@ -38,10 +39,10 @@ public class DeviceService {
     public void setDeviceArea(Long id, Long areaId) {
 
         Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
 
         Area area = areaRepository.findById(areaId)
-                .orElseThrow(() -> new RuntimeException("Area not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
 
         device.setArea(area);
         deviceRepository.save(device);
@@ -50,13 +51,16 @@ public class DeviceService {
 
     public boolean pingDevice(Long id) {
         Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
 
         // TODO: if not pinging update device status to not responding
         return mqttMessageProducer.pingDevice(device.getUid());
     }
 
     public List<DeviceInfoDTO> getDevicesByArea(Long areaId) {
+        if(!areaRepository.existsById(areaId))
+            throw new ResourceNotFoundException("Area not found with ID: " + areaId);
+
         return deviceRepository.findByAreaId(areaId).stream()
                 .map(device -> DeviceInfoDTO.builder()
                         .id(device.getId())
@@ -75,7 +79,7 @@ public class DeviceService {
 
     public void deleteDevice(Long id) {
         Device device = deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
 
         // Send MQTT deletion message & delete mqtt user
         ObjectNode message = mapper.createObjectNode()

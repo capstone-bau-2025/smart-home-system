@@ -3,6 +3,9 @@ package com.capstonebau2025.centralhub.service.device;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.State;
 import com.capstonebau2025.centralhub.entity.StateValue;
+import com.capstonebau2025.centralhub.exception.DeviceConnectionException;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.StateValueRepository;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import lombok.RequiredArgsConstructor;
@@ -55,14 +58,14 @@ public class StateService {
     public void updateStateValue(Long id, String newValue) {
         // Find StateValue by id
         StateValue stateValue = stateValueRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("StateValue not found - " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("StateValue not found with ID: " + id));
 
         // Get State from StateValue
         State state = stateValue.getState();
 
         // Check if state is mutable
         if (!state.getIsMutable()) {
-            throw new IllegalArgumentException("StateValue is not mutable - " + id);
+            throw new ValidationException("State is not mutable with ID: " + id);
         }
 
         // Validate the new value based on State type
@@ -72,49 +75,52 @@ public class StateService {
                     .anyMatch(choice -> choice.getName().equals(newValue));
 
             if (!validChoice) {
-                throw new IllegalArgumentException("Invalid choice value. Value must be one of the available state choices");
+                throw new ValidationException("Invalid value: " + newValue);
             }
         } else {
             // For RANGE type, check if value is within range
             try {
                 int value = Integer.parseInt(newValue);
                 if (value < state.getMinRange() || value > state.getMaxRange()) {
-                    throw new IllegalArgumentException(
-                            "Value out of range. Must be between " + state.getMinRange() +
+                    throw new ValidationException(
+                            "Invalid value. Must be between " + state.getMinRange() +
                                     " and " + state.getMaxRange());
                 }
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid number format for RANGE type state");
+                throw new ValidationException("Invalid number format for RANGE type state");
             }
         }
 
         long deviceUid = stateValue.getDevice().getUid();
         int stateNumber = state.getNumber();
 
-        // Send device the new value and update in database
-        if(mqttMessageProducer.setStateValue(deviceUid, stateNumber, newValue)) {
-            stateValue.setStateValue(newValue);
-            stateValue.setLastUpdate(LocalDateTime.now());
-            stateValueRepository.save(stateValue);
+        // Send device the new value
+        if(!mqttMessageProducer.setStateValue(deviceUid, stateNumber, newValue)) {
+            throw new DeviceConnectionException("Failed to update state value on device: " + deviceUid);
         }
-        else {
-            throw new IllegalArgumentException("Failed to update state value - " + id);
-        }
+
+        // Update stored state value
+        stateValue.setStateValue(newValue);
+        stateValue.setLastUpdate(LocalDateTime.now());
+        stateValueRepository.save(stateValue);
     }
 
     public String fetchState(Long id) {
         StateValue stateValue = stateValueRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("StateValue not found - " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("StateValue not found with ID: " + id));
 
         long deviceUid = stateValue.getDevice().getUid();
         int stateNumber = stateValue.getState().getNumber();
 
         String newValue = mqttMessageProducer.getStateValue(deviceUid, stateNumber); // TODO: validate newValue
-        if (newValue != null) {
-            stateValue.setStateValue(newValue);
-            stateValue.setLastUpdate(LocalDateTime.now());
-            stateValueRepository.save(stateValue);
-        }
+
+        if (newValue == null)
+            throw new DeviceConnectionException("Failed to fetch state from device: " + deviceUid);
+
+        // Update stored state value
+        stateValue.setStateValue(newValue);
+        stateValue.setLastUpdate(LocalDateTime.now());
+        stateValueRepository.save(stateValue);
 
         return newValue;
     }

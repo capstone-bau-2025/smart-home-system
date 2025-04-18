@@ -101,9 +101,9 @@ public class MqttMessageHandler {
                         .build();
                 notificationService.sendNotification(device, notification);
 
-                logger.info("received event {} from device {}", stateNumber, deviceUid);
+                logger.info("Received event {} from device {}", stateNumber, deviceUid);
             } else {
-                logger.warn("Device or Event not found for UID: {} and Event number: {}", deviceUid, stateNumber);
+                logger.warn("Recieved unrecognized event, device UID: {} and Event number: {}", deviceUid, stateNumber);
             }
 
         } catch (Exception e) {
@@ -130,6 +130,6 @@ public class MqttMessageHandler {
     }
 
     public void handleInfo(ObjectNode message) {
-        // implementation for handling info messages (optional)
+        // TODO: implementation for handling info messages (optional)
     }
 }
