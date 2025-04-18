@@ -5,6 +5,7 @@ import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.dto.HubInfoResponse;
 import com.capstonebau2025.centralhub.entity.Hub;
 import com.capstonebau2025.centralhub.entity.Role;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.HubRepository;
 import com.capstonebau2025.centralhub.repository.RoleRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
@@ -87,7 +88,7 @@ public class HubService {
     public GetInvitationResponse configureHub(ConfigureHubRequest request) {
 
         if(userRepository.count() != 0)
-            throw new IllegalArgumentException("Hub already configured.");
+            throw new ValidationException("hub is already configured.");
 
         Hub hub = getHub();
         hub.setName(request.getHubName());

@@ -3,8 +3,8 @@ package com.capstonebau2025.centralhub.service;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.StateValue;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.repository.*;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class PermissionService {
         if (isUserAdmin(userId)) return true;
 
         Device device = deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + deviceId));
         return permissionRepository.existsByUserIdAndAreaId(userId, device.getArea().getId());
     }
 
@@ -42,7 +42,8 @@ public class PermissionService {
         if (isUserAdmin(userId)) return true;
 
         StateValue stateValue = stateValueRepository.findById(stateValueId)
-                .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("StateValue not found with ID: " + stateValueId));
+
         return permissionRepository.existsByUserIdAndAreaId(userId, stateValue.getDevice().getArea().getId());
     }
 

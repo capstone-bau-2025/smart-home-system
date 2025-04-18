@@ -9,6 +9,7 @@ import com.capstonebau2025.centralhub.dto.AuthResponse;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
+import com.capstonebau2025.centralhub.exception.AuthException;
 import com.capstonebau2025.centralhub.repository.AreaRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.HubService;
@@ -39,7 +40,7 @@ public class AuthService {
                 request.getEmail());
 
         if(!userValidationResponse.isValid())
-            throw new IllegalArgumentException("User validation failed: " + userValidationResponse.getMessage());
+            throw new AuthException("Couldn't validate cloud account.");
 
         // link user to hub in cloud
         LinkUserResponse linkUserResponse = cloudClient.linkUser(
@@ -48,7 +49,7 @@ public class AuthService {
                 request.getEmail());
 
         if(!linkUserResponse.isSuccess())
-            throw new RuntimeException("User linking failed: " + linkUserResponse.getMessage());
+            throw new AuthException("Couldn't link cloud account with hub.");
 
         // create user and save it to the hub
         User user = User.builder()
@@ -77,14 +78,14 @@ public class AuthService {
     public AuthResponse authenticate(AuthRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new AuthException("Not authorized user."));
 
         UserValidationResponse userValidationResponse = cloudClient.validateUser(
                 request.getCloudToken(),
                 request.getEmail());
 
         if(!userValidationResponse.isValid())
-            throw new IllegalArgumentException("User validation failed: " + userValidationResponse.getMessage());
+            throw new AuthException("Couldn't validate cloud account.");
 
         String jwtToken = jwtService.generateToken(user);
 
