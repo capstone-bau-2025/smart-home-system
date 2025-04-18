@@ -16,7 +16,7 @@ export const hubs = [
       },
       {
         id: "102",
-        name: "useraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2",
+        name: "user2",
         role: "guest",
         perms: {
           livingroom: true,

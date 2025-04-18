@@ -1,14 +1,14 @@
 import React from "react";
 import { View } from "react-native";
 import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
-
+import Colors from "../../constants/Colors";
 const TopLeftBlob = () => {
   return (
     <View style={{ position: "absolute", top: 0, left: 0 }}>
       <Svg width="200" height="200" viewBox="0 0 200 200" fill="none">
         <Defs>
           <LinearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0%" stopColor="#FF6B6B" />
+            <Stop offset="0%" stopColor={Colors.primary10} />
             <Stop offset="100%" stopColor="#FFD93D" />
           </LinearGradient>
         </Defs>

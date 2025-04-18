@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
-
+import Colors from "../../constants/Colors";
 const BottomLeftBlob = () => {
   return (
     <View style={{ position: "absolute", bottom: -60, left: 0 }}>
@@ -10,8 +10,8 @@ const BottomLeftBlob = () => {
         <Defs>
           {/* Outer Blob Gradient */}
           <LinearGradient id="grad1" x1="50" y1="0" x2="250" y2="350">
-            <Stop offset="0%" stopColor="#FEAD3B" />
-            <Stop offset="100%" stopColor="#FFCC33" />
+            <Stop offset="0%" stopColor={Colors.primary100} />
+            <Stop offset="100%" stopColor={Colors.primary100} />
           </LinearGradient>
 
           {/* Inner Blob Gradient */}

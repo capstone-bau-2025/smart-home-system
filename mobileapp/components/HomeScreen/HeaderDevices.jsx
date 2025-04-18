@@ -1,0 +1,39 @@
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
+import DeviceCard from './DeviceCard'
+
+export default function HeaderDevices() {
+  
+  const headerCards = {
+
+    thermostat:{
+      id: "dev3",
+      name: "Thermostat",
+      category:"thermometer",
+    },
+    hubConnection:{
+      id:'dev4',
+      name: "Hub Status",
+      category:"hub",
+    }
+
+
+
+  }
+  return (
+    
+    <View style={styles.container}>
+      <DeviceCard data={headerCards.thermostat} />
+      <DeviceCard data={headerCards.hubConnection}/>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container:{
+    width:"50%",
+    flexDirection:"row",
+    justifyContent:"space-between",
+    
+  }
+})

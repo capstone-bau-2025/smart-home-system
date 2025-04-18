@@ -5,7 +5,8 @@ import Header from "../../components/HomeScreen/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HubInfoModal from "../../components/HomeScreen/HubInfoModal";
 import TopLeftBlob from "../../components/svg/TopLeftBlob";
-
+import Colors from "../../constants/Colors";
+import Home from "../../components/HomeScreen/Home";
 export default function HomeScreen({setCurrentHub, currentHub}) {
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -13,9 +14,9 @@ export default function HomeScreen({setCurrentHub, currentHub}) {
   return (
     <SafeAreaView style={styles.container}>
       <TopRightBlob />
-      {/* <TopLeftBlob/> */}
       <Header setModalVisible={setModalVisible} setCurrentHub={setCurrentHub} currentHub={currentHub}/>
       <HubInfoModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+        <Home/>
     </SafeAreaView>
   );
 }
@@ -23,7 +24,10 @@ export default function HomeScreen({setCurrentHub, currentHub}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:'#E0E0E0'
+    backgroundColor:Colors.primaryBackground,
+    alignItems: "center",
+    justifyContent:'flex-start',
+  
   },
 });
 /*Settings

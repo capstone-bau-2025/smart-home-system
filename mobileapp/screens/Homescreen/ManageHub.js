@@ -21,7 +21,7 @@ export default function ManageHub(currentHub) {
   const [cogModal, setCogModal] = useState(false);
   const [infoModal, setInfoModal] = useState(false);
   const [renameModal, setRenameModal] = useState(false);
-  
+
   const userCount = selectedTab.users.length;
 
   const roleCounts = selectedTab.users.reduce((acc, user) => {
@@ -30,51 +30,47 @@ export default function ManageHub(currentHub) {
   }, {});
 
   return (
-    <GestureHandlerRootView>
-      <SafeAreaView style={styles.safeContainer}>
-        <StatusBar barStyle="dark-content" backgroundColor="white" />
-
-        <HubsTabs
-          hubs={hubs}
-          selectedTab={selectedTab}
-          setSelectedTab={setSelectedTab}
+    <SafeAreaView style={styles.safeContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <View style={styles.headerIcons}>
+        <HeaderIcons
+          onInfoPress={() => setInfoModal(true)}
+          onAddPress={() => setAddModal(true)}
+          onCogPress={() => console.log("Cog pressed, rename hub and delete")}
         />
+      </View>
 
-        <View style={styles.countContainer}>
-          <Text style={styles.countText}>Total Users: {userCount}</Text>
-          {Object.entries(roleCounts).map(([role, count]) => (
-            <Text key={role} style={styles.countText}>
-              {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
-            </Text>
-          ))}
-        </View>
+      <HubsTabs
+        hubs={hubs}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+      />
 
-        <View style={styles.headerIcons}>
-          <HeaderIcons
-            onInfoPress={() => setInfoModal(true)}
-            onAddPress={() => setAddModal(true)}
-            onCogPress={() =>
-              console.log("Cog pressed, rename hub and delete")
-            }
-          />
-        </View>
-        <UsersList users={selectedTab.users} setRenameModal={setRenameModal} />
+      <View style={styles.countContainer}>
+        <Text style={styles.countText}>Total Users: {userCount}</Text>
+        {Object.entries(roleCounts).map(([role, count]) => (
+          <Text key={role} style={styles.countText}>
+            {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
+          </Text>
+        ))}
+      </View>
+      <UsersList users={selectedTab.users} setRenameModal={setRenameModal} />
 
-        <InfoModal
-          visible={infoModal}
-          onClose={() => setInfoModal(false)}
-          cancelLabel="Close"
-          iconName="help-outline"
-          iconColor="orange"
-          message={
-            "In this screen, you can...."
-          }
-          title={"Manage Hubs"}
-        />
-        <TokenModal visible={addModal}  onClose={() => setAddModal(false)}/>
-        <RenameModal  visible={renameModal} onClose={() => setRenameModal(false)}/>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+      <InfoModal
+        visible={infoModal}
+        onClose={() => setInfoModal(false)}
+        cancelLabel="Close"
+        iconName="help-outline"
+        iconColor="orange"
+        message={"In this screen, you can...."}
+        title={"Manage Hubs"}
+      />
+      <TokenModal visible={addModal} onClose={() => setAddModal(false)} />
+      <RenameModal
+        visible={renameModal}
+        onClose={() => setRenameModal(false)}
+      />
+    </SafeAreaView>
   );
 }
 
@@ -82,8 +78,7 @@ const styles = StyleSheet.create({
   safeContainer: {
     justifyContent: "flex-start",
     alignItems: "center",
-    backgroundColor: "white",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    flex: 1,
     backgroundColor: "#f1f1f1",
   },
   countContainer: {
@@ -103,7 +98,8 @@ const styles = StyleSheet.create({
   headerIcons: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    paddingVertical: 10,
     paddingHorizontal: 15,
+
+
   },
 });

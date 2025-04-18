@@ -19,48 +19,44 @@ export default function AutomationScreen({ currentHub, navigation }) {
 
   return (
     <>
-      <BottomLeftBlob />
-      <SafeAreaView >
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <HeaderIcons onInfoPress={() => setInfoModal(true)} />
         </View>
+        <HubsTabs
+          hubs={hubs}
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+        />
 
-        <View style={styles.container}>
-          <HubsTabs
-            hubs={hubs}
-            selectedTab={selectedTab}
-            setSelectedTab={setSelectedTab}
-          />
+        <AutomationsList
+          automations={automations}
+          currentHub={
+            selectedTab.name.charAt(0).toUpperCase() + selectedTab.name.slice(1)
+          }
+          setModalVisible={setModalVisible}
+          setCurrentAutomation={setCurrentAutomation}
+        />
 
-          <AutomationsList
-            automations={automations}
-            currentHub={
-              selectedTab.name.charAt(0).toUpperCase() +
-              selectedTab.name.slice(1)
-            }
-            setModalVisible={setModalVisible}
-            setCurrentAutomation={setCurrentAutomation}
-          />
+        <AutomationInfoModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          currentAutomation={currentAutomation}
+          navigation={navigation}
+        />
 
-          <AutomationInfoModal
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            currentAutomation={currentAutomation}
-            navigation={navigation}
-          />
-
-          <InfoModal
-            visible={infoModal}
-            onClose={() => setInfoModal(false)}
-            cancelLabel="Close"
-            iconName="help-outline"
-            iconColor="orange"
-            message={
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
-            }
-            title={"Automation"}
-          />
-        </View>
+        <InfoModal
+          visible={infoModal}
+          onClose={() => setInfoModal(false)}
+          cancelLabel="Close"
+          iconName="help-outline"
+          iconColor="orange"
+          message={
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
+          }
+          title={"Automation"}
+        />
+        <BottomLeftBlob />
       </SafeAreaView>
     </>
   );
@@ -70,15 +66,16 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: "flex-start",
     alignItems: "center",
-
+    flex: 1,
+    backgroundColor: Colors.primaryBackground,
     
   },
 
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    paddingVertical: 10,
     paddingHorizontal: 15,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+
+
   },
 });
