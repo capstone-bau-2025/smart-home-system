@@ -1,12 +1,9 @@
 package com.capstonebau2025.centralhub.client;
 
-
+import com.capstonebau2025.centralhub.dto.RemoteCommandMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-
-
-
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -25,10 +22,12 @@ public class WebsocketClient {
     private final String hubId;
     private final String token;
     private StompSession session;
+    private final WebSocketCommandHandler commandHandler;
 
-    public WebsocketClient(String hubId, String token) {
+    public WebsocketClient(String hubId, String token, WebSocketCommandHandler commandHandler) {
         this.hubId = hubId;
         this.token = token;
+        this.commandHandler = commandHandler;
     }
 
     public void connectToCloud(String serverUrl) {
@@ -49,6 +48,9 @@ public class WebsocketClient {
                 public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
                     logger.info("Connected to Cloud Server");
 
+                    // Pass the session to the command handler
+                    commandHandler.setStompSession(session);
+
                     // Subscribe to hub-specific topic
                     session.subscribe("/topic/messages/" + hubId, new StompFrameHandler() {
                         @Override
@@ -62,6 +64,25 @@ public class WebsocketClient {
                             logger.info("Received from Cloud: {}", msg.getContent());
                         }
                     });
+
+                    // Subscribe to hub-specific command topic
+                    session.subscribe("/topic/commands/" + hubId, new StompFrameHandler() {
+                        @Override
+                        public Type getPayloadType(StompHeaders headers) {
+                            return RemoteCommandMessage.class;
+                        }
+
+                        @Override
+                        public void handleFrame(StompHeaders headers, Object payload) {
+                            RemoteCommandMessage message = (RemoteCommandMessage) payload;
+                            logger.info("Received command from Cloud: {}", message);
+
+                            // Forward the message to our command handler
+                            commandHandler.processCommand(hubId, message);
+                        }
+                    });
+
+                    logger.info("Subscribed to /topic/commands/{}", hubId);
 
                     // Send a test message
                     session.send("/app/message", new Message("Hello from " + hubId, hubId));

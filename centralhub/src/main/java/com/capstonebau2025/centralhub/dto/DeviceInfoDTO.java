@@ -5,8 +5,6 @@ import com.capstonebau2025.centralhub.entity.DeviceModel;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 public class DeviceInfoDTO {
@@ -16,8 +14,8 @@ public class DeviceInfoDTO {
     private String name;
 
     private Device.DeviceStatus status;
-    private LocalDateTime lastSeen;
-    private LocalDateTime createdAt;
+    private String lastSeen;
+    private String createdAt;
 
     // info that comes from device model
     private String model;

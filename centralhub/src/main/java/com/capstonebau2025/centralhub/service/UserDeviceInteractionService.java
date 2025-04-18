@@ -9,6 +9,7 @@ import com.capstonebau2025.centralhub.service.device.CommandService;
 import com.capstonebau2025.centralhub.service.device.StateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserDeviceInteractionService {
     private final StateService stateService;
     private final CommandService commandService;
 
+    @Transactional
     public AreaInteractionsDTO[] getAllInteractions(Long userId) {
         // Get all areas the user has permission to access
         List<Area> areas = permissionService.getPermittedAreas(userId);

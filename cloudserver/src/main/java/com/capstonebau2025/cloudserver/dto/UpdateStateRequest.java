@@ -1,4 +1,6 @@
-package com.capstonebau2025.centralhub.dto.RemoteRequests;
+package com.capstonebau2025.cloudserver.dto;
+
+
 
 import lombok.Data;
 
