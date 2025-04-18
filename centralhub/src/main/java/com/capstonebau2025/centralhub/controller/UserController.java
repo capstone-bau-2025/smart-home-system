@@ -40,5 +40,11 @@ public class UserController {
         userService.updateUserPermissions(request.getTargetUserId(), request.getRoomIds());
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/{userId}/permissions")
+    public ResponseEntity<List<Long>> getUserPermissions(@PathVariable Long userId) {
+        List<Long> areaIds = userService.getUserPermissions(userId);
+        return ResponseEntity.ok(areaIds);
+    }
 }
 

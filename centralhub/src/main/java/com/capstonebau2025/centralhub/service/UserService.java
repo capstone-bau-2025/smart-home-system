@@ -80,6 +80,15 @@ public class UserService {
         permissionRepository.saveAll(newPermissions);
     }
 
+    public List<Long> getUserPermissions(Long userId) {
+        if (!userRepository.existsById(userId))
+            throw new RuntimeException("User not found");
+
+        return permissionRepository.findByUserId(userId).stream()
+            .map(permission -> permission.getArea().getId())
+            .collect(Collectors.toList());
+    }
+
     public void grantPermission(Long userId, Long areaId) {
         // Find the user by ID
         User user = userRepository.findById(userId)
