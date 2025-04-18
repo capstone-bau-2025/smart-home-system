@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -64,6 +63,8 @@ public class AutomationExecService {
                 AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
                 if (trigger == null) continue;
 
+                // TODO: (note from hamza) check the cooldown duration here, if it is in cooldown "contine"
+
                 boolean shouldExecute = switch (rule.getTriggerType()) {
                     case SCHEDULE -> checkScheduledTrigger(trigger);
                     case EVENT -> checkEventTrigger(trigger);
@@ -83,17 +84,21 @@ public class AutomationExecService {
     public boolean checkScheduledTrigger(AutomationTrigger trigger) {
         if (trigger.getAutomationRule().getScheduledTime() == null) return false;
 
-        LocalTime now = LocalTime.now().withSecond(0).withNano(0);
+        LocalTime now = LocalTime.now().withSecond(0);
         LocalTime scheduledTime = trigger.getAutomationRule().getScheduledTime();
 
         // Check if current time matches scheduled time exactly or is ±1 minute
+
+        /*
+        * TODO: (note from hamza) checking schedule equality should be in range way,
+        *  for exaple you it should be something like that ( now-60 < scheduledTime && scheduledTime < now+60 )
+        *  because the current method compare only on minutes so if the different
+        *  between now and scheduledTime is one second it will resolve to false
+        * */
         return scheduledTime.equals(now) ||
                 scheduledTime.equals(now.plusMinutes(1)) ||
                 scheduledTime.equals(now.minusMinutes(1));
     }
-
-
-
 
     public boolean checkEventTrigger(AutomationTrigger trigger) {
         if (trigger.getEvent() == null) return false;
@@ -173,6 +178,10 @@ public class AutomationExecService {
     //Layer 3 
     private void executeActions(AutomationRule rule) {
         try {
+            /*
+            * TODO: (note from hamza) there is some problems in Action entity i will fix it and inform you to continue
+            *  executeActions method, leave to the end.
+            * */
             // Get all actions for this rule
             List<AutomationAction> actions = actionRepository.findByAutomationRuleId(rule.getId());
 

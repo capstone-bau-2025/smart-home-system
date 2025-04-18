@@ -27,6 +27,14 @@ public class AutomationService {
          */
         @Transactional
         public AutomationRule createAutomation(AutomationRule rule, AutomationTrigger trigger, List<AutomationAction> actions) {
+            /*
+            * TODO: (note from hamza) create a new dto that should be the request for createAutomation it should contain
+            *  the data we need to create automation including data for automation rule, trigger, and list of actions
+            *  copy data from these three entities that we need and add them to this dto.
+            *  after that you should use builder to create the entities in this method.
+            *
+            * */
+
             // Save rule
             AutomationRule savedRule = ruleRepository.save(rule);
 
@@ -62,6 +70,12 @@ public class AutomationService {
          */
         @Transactional
         public AutomationTrigger updateAutomationTrigger(Long ruleId, AutomationTrigger newTrigger) {
+            /*
+            * TODO: (note from hamza) similar to the note above, all methods in this class should not take ready entities
+            *  they should take a dto with required information to create the entity. so here you should
+            *  replace AutomationTrigger with a new dto that contains ruleId and the data we need to create the trigger
+            *
+            * */
             AutomationRule rule = ruleRepository.findById(ruleId)
                     .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
@@ -92,6 +106,9 @@ public class AutomationService {
          */
         @Transactional
         public AutomationAction addAutomationAction(Long ruleId, AutomationAction action) {
+            /*
+            * TODO: (note from hamza) again replace AutomationAction parameter with a new dto that contains the data needed.
+            * */
             AutomationRule rule = ruleRepository.findById(ruleId)
                     .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
@@ -99,6 +116,8 @@ public class AutomationService {
             return actionRepository.save(action);
         }
     }
+
+    // TODO: (note from hamza) add another method for turning automation on or off
 
     /*
     * method for creating an automation including rule, trigger, and their actions,
