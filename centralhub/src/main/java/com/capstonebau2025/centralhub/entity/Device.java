@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,8 +48,12 @@ public class Device {
     @OneToMany(mappedBy = "device", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<StateValue> stateValues;
 
-    private LocalDateTime lastSeen = LocalDateTime.now();
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(updatable = true)
+    private LocalDateTime lastSeen;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     public enum DeviceStatus {
         CONNECTED, DISCONNECTED, NOT_RESPONDING

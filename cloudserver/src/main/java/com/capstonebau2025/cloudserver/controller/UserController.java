@@ -106,7 +106,7 @@ public class UserController {
 
     @PostMapping("/update-permissions")
     public ResponseEntity<?> updateUserPermissions(
-            @RequestBody Map<String, Object> request,
+            @RequestBody Map<String, Object> request, // TODO: change request to proper DTO called UpdateUserPermissionsRequest in hub
             @RequestParam String hubSerialNumber) {
         try {
             User user = hubAccessService.validateUserHubAccess(hubSerialNumber);

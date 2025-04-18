@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -26,21 +26,26 @@ public class DeviceService {
     private final ObjectMapper mapper;
 
     public void setDeviceName(Long id, String name) {
-        Optional<Device> device = deviceRepository.findById(id);
-        device.ifPresent(value -> {
-            value.setName(name);
-            deviceRepository.save(value);
-        });
+        Device device = deviceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Device not found"));
+
+        device.setName(name);
+        deviceRepository.save(device);
+
         // TODO: update its state value names too
     }
 
     public void setDeviceArea(Long id, Long areaId) {
-        Optional<Device> device = deviceRepository.findById(id);
-        Optional<Area> area = areaRepository.findById(areaId);
-        if (device.isPresent() && area.isPresent()) {
-            device.get().setArea(area.get());
-            deviceRepository.save(device.get());
-        }
+
+        Device device = deviceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Device not found"));
+
+        Area area = areaRepository.findById(areaId)
+                .orElseThrow(() -> new RuntimeException("Area not found"));
+
+        device.setArea(area);
+        deviceRepository.save(device);
+
     }
 
     public boolean pingDevice(Long id) {
@@ -58,8 +63,8 @@ public class DeviceService {
                         .uid(device.getUid())
                         .name(device.getName())
                         .status(device.getStatus())
-                        .lastSeen(device.getLastSeen())
-                        .createdAt(device.getCreatedAt())
+                        .lastSeen(device.getLastSeen().toString())
+                        .createdAt(device.getCreatedAt().toString())
                         .model(device.getModel().getModel())
                         .modelName(device.getModel().getName())
                         .description(device.getModel().getDescription())
@@ -75,7 +80,7 @@ public class DeviceService {
         // Send MQTT deletion message & delete mqtt user
         ObjectNode message = mapper.createObjectNode()
                 .put("message_type", "DELETED");
-        mqttMessageProducer.sendMessage(device.getUid(), message);
+        CompletableFuture.runAsync(() -> mqttMessageProducer.sendMessage(device.getUid(), message));
         mqttUserControl.deleteUserIfExists("device-" + device.getUid());
 
         // delete the device

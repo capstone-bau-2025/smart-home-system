@@ -6,5 +6,4 @@ import lombok.Data;
 public class UpdateStateRequest {
     private Long stateValueId;
     private String value;
-    private String email;
 }

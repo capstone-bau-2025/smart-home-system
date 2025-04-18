@@ -10,4 +10,4 @@ public class UserDetailsDTO {
     private String email;
     private String username;
     private String role;
-}
+} // TODO: not used as response of hub is returned directly as Object

@@ -8,5 +8,4 @@ import java.util.List;
 public class UpdateUserPermissionsRequest {
     Long targetUserId;
     List<Long> roomIds;
-    String email;
 }

@@ -9,4 +9,4 @@ public class AreaInteractionsDTO {
     private String areaName;
     private Long areaId;
     private InteractionDTO[] interactions;
-}
+} // TODO: not used as response of hub is returned directly as Object

@@ -28,4 +28,4 @@ public class InteractionDTO {
     public enum InteractionType {
         INFO, RANGE, CHOICE, COMMAND
     }
-}
+} // TODO: not used as response of hub is returned directly as Object (only used in other DTO)
