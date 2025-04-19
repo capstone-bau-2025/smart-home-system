@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service;
 import com.capstonebau2025.centralhub.dto.AreaInteractionsDTO;
 import com.capstonebau2025.centralhub.dto.InteractionDTO;
 import com.capstonebau2025.centralhub.entity.*;
+import com.capstonebau2025.centralhub.exception.PermissionException;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.repository.StateValueRepository;
 import com.capstonebau2025.centralhub.service.device.CommandService;
@@ -115,21 +116,21 @@ public class UserDeviceInteractionService {
 
     public void updateStateInteraction(Long userId, Long stateValueId, String value) {
         if(!permissionService.isPermittedStateValue(userId, stateValueId))
-            throw new IllegalArgumentException("User does not have permission to update this state value");
+            throw new PermissionException("not permitted to access this device.");
 
         stateService.updateStateValue(stateValueId, value);
     }
 
     public void commandInteraction(Long userId, Long deviceId, Long commandId) {
         if(!permissionService.isPermittedDevice(userId, deviceId))
-            throw new IllegalArgumentException("User does not have permission to execute this command");
+            throw new PermissionException("not permitted to access this device.");
 
         commandService.executeCommand(deviceId, commandId);
     }
 
     public String fetchStateInteraction(Long userId, Long stateValueId) {
         if(!permissionService.isPermittedStateValue(userId, stateValueId))
-            throw new IllegalArgumentException("User does not have permission to fetch this state value");
+            throw new PermissionException("not permitted to access this device.");
 
         return stateService.fetchState(stateValueId);
     }

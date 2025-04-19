@@ -5,6 +5,8 @@ import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Permission;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.AreaRepository;
 import com.capstonebau2025.centralhub.repository.PermissionRepository;
 import com.capstonebau2025.centralhub.repository.RoleRepository;
@@ -46,11 +48,10 @@ public class UserService {
     public void updateUserPermissions(Long userId, List<Long> roomIds) {
         // Find the user by ID
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-        if(user.getRole().getName() == "ADMIN") {
-            throw new RuntimeException("Cannot change permissions for ADMIN user");
-        }
+        if(user.getRole().getName().equals("ADMIN"))
+            throw new ValidationException("Admin user permissions cannot be updated.");
 
         // Get all areas (rooms) by their IDs
         List<Area> areas = areaRepository.findAllById(roomIds);
@@ -80,20 +81,29 @@ public class UserService {
         permissionRepository.saveAll(newPermissions);
     }
 
+    public List<Long> getUserPermissions(Long userId) {
+        if (!userRepository.existsById(userId))
+            throw new ResourceNotFoundException("User not found with ID: " + userId);
+
+        return permissionRepository.findByUserId(userId).stream()
+            .map(permission -> permission.getArea().getId())
+            .collect(Collectors.toList());
+    }
+
     public void grantPermission(Long userId, Long areaId) {
         // Find the user by ID
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
         // Check if the user already has permission for the area
         boolean hasPermission = permissionRepository.existsByUserIdAndAreaId(userId, areaId);
         if (hasPermission) {
-            throw new RuntimeException("User already has permission for this area");
+            throw new ValidationException("User already has permission for this area.");
         }
 
         // Find the area by ID
         Area area = areaRepository.findById(areaId)
-            .orElseThrow(() -> new RuntimeException("Area not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
 
         // Create and save the new permission
         Permission permission = Permission.builder()

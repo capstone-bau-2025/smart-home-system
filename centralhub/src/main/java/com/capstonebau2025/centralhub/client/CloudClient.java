@@ -2,6 +2,7 @@ package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.cloudComm.*;
 import com.capstonebau2025.centralhub.entity.Hub;
+import com.capstonebau2025.centralhub.exception.CommunicationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class CloudClient {
                         url, request, HubRegistrationResponse.class);
                 return response.getBody();
             } catch (Exception e) {
-                logger.error("failed to register hub to cloud (retrying in 5 seconds): {}", e.getMessage());
+                logger.error("Cloud not responding, failed to register hub to cloud (retrying in 5 seconds): {}", e.getMessage());
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException interruptedException) {
@@ -114,8 +115,8 @@ public class CloudClient {
 
             return response.getBody();
         } catch (Exception e) {
-            logger.error("Error validating user: {}", e.getMessage());
-            throw new RuntimeException("Failed to validate user", e);
+            logger.error("Error validating user: {}", e);
+            throw new CommunicationException("Cloud server not responding, couldn't validate user.");
         }
     }
 
@@ -139,8 +140,8 @@ public class CloudClient {
 
             return response.getBody();
         } catch (Exception e) {
-            logger.error("Error linking user: {}", e.getMessage());
-            throw new RuntimeException("Failed to link user", e);
+            logger.error("Error linking user: {}", e);
+            throw new CommunicationException("Cloud server not responding, couldn't link user.");
         }
     }
 }
