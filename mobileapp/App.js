@@ -23,6 +23,7 @@ import Trigger from "./screens/AutomationScreen/Trigger";
 import StatusChange from "./screens/AutomationScreen/StatusChange";
 import Schedule from "./screens/AutomationScreen/Schedule";
 import Action from "./screens/AutomationScreen/Action";
+import HeaderIcons from "./components/UI/HeaderIcons";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -57,7 +58,10 @@ function RootApp() {
   return (
     <NavigationContainer>
       {userToken !== null ? (
-        <AuthenticatedStack currentHub={currentHub} setCurrentHub={setCurrentHub} />
+        <AuthenticatedStack
+          currentHub={currentHub}
+          setCurrentHub={setCurrentHub}
+        />
       ) : (
         <AuthStack />
       )}
@@ -75,7 +79,11 @@ function AuthStack() {
       </Stack.Screen>
       <Stack.Screen
         name="Register"
-        options={{ headerShown: true, headerTitle: "", headerTransparent: true }}
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerTransparent: true,
+        }}
       >
         {(props) => <RegisterScreen {...props} />}
       </Stack.Screen>
@@ -96,10 +104,18 @@ function AuthenticatedStack({ currentHub, setCurrentHub }) {
         name="Home"
         options={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
         }}
       >
-        {(props) => <HomeStackNavigator {...props} currentHub={currentHub} setCurrentHub={setCurrentHub} />}
+        {(props) => (
+          <HomeStackNavigator
+            {...props}
+            currentHub={currentHub}
+            setCurrentHub={setCurrentHub}
+          />
+        )}
       </BottomTabs.Screen>
 
       <BottomTabs.Screen
@@ -107,7 +123,9 @@ function AuthenticatedStack({ currentHub, setCurrentHub }) {
         component={SurveillanceScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <Ionicons name="camera-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="camera-outline" size={size} color={color} />
+          ),
         }}
       />
 
@@ -115,10 +133,18 @@ function AuthenticatedStack({ currentHub, setCurrentHub }) {
         name="Automation"
         options={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <Ionicons name="alarm-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="alarm-outline" size={size} color={color} />
+          ),
         }}
       >
-        {(props) => <AutomationStackNavigator  {...props} currentHub={currentHub} setCurrentHub={setCurrentHub}/>}
+        {(props) => (
+          <AutomationStackNavigator
+            {...props}
+            currentHub={currentHub}
+            setCurrentHub={setCurrentHub}
+          />
+        )}
       </BottomTabs.Screen>
 
       <BottomTabs.Screen
@@ -126,7 +152,9 @@ function AuthenticatedStack({ currentHub, setCurrentHub }) {
         component={ProfileScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-circle-outline" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle-outline" size={size} color={color} />
+          ),
         }}
       />
     </BottomTabs.Navigator>
@@ -134,15 +162,95 @@ function AuthenticatedStack({ currentHub, setCurrentHub }) {
 }
 
 function HomeStackNavigator({ currentHub, setCurrentHub }) {
+  const [addModal, setAddModal] = useState(false);
+  const [cogModal, setCogModal] = useState(false);
+  const [infoModal, setInfoModal] = useState(false);
   return (
     <Stack.Navigator>
       <Stack.Screen name="Hub" options={{ headerShown: false }}>
-        {(props) => <HomeScreen {...props} currentHub={currentHub} setCurrentHub={setCurrentHub} />}
+        {(props) => (
+          <HomeScreen
+            {...props}
+            currentHub={currentHub}
+            setCurrentHub={setCurrentHub}
+          />
+        )}
       </Stack.Screen>
-      <Stack.Screen name="DiscoverDevice" component={DiscoverDevice} options={{ headerShown: true, headerTitle: "Discover Device" }} />
-      <Stack.Screen name="DiscoverHub" component={DiscoverHub} options={{ headerShown: true, headerTitle: "Discover Hub" }} />
-      <Stack.Screen name="ManageHub" component={ManageHub} options={{ headerTransparent: true, headerTitle: "" }} />
-      <Stack.Screen name="ManageDevice" component={ManageDevice} options={{ headerTransparent: true, headerTitle: "" }} />
+      <Stack.Screen
+        name="DiscoverDevice"
+        component={DiscoverDevice}
+        options={{ headerShown: true, headerTitle: "Discover Device" }}
+      />
+      <Stack.Screen
+        name="DiscoverHub"
+        component={DiscoverHub}
+        options={{ headerShown: true, headerTitle: "Discover Hub" }}
+      />
+      <Stack.Screen
+        name="ManageHub"
+        options={{
+          headerTransparent: true,
+          headerTitle: "",
+          headerRight: () => (
+            <View style={styles.headerIcons}>
+              <HeaderIcons
+                onInfoPress={() => setInfoModal(true)}
+                onAddPress={() => setAddModal(true)}
+                onCogPress={() =>
+                setCogModal(true)
+                }
+                custompadding={true}
+              />
+            </View>
+          ),
+        }}
+      >
+        {(props) => (
+          <ManageHub
+            {...props}
+            currentHub={currentHub}
+            addModal={addModal}
+            cogModal={cogModal}
+            infoModal={infoModal}
+            setAddModal={setAddModal}
+            setCogModal={setCogModal}
+            setInfoModal={setInfoModal}
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen
+  name="ManageDevice"
+  options={{
+    headerTransparent: true,
+    headerTitle: "",
+    headerRight: () => (
+      <View style={styles.headerIcons}>
+        <HeaderIcons
+          onInfoPress={() => setInfoModal(true)}
+          onAddPress={() => setAddModal(true)}
+          onCogPress={() =>
+            console.log("Cog pressed, rename hub and delete")
+          }
+          custompadding={true}
+        />
+      </View>
+    ),
+  }}
+>
+  {(props) => (
+    <ManageDevice
+      {...props}
+      currentHub={currentHub}
+      addModal={addModal}
+      cogModal={cogModal}
+      infoModal={infoModal}
+      setAddModal={setAddModal}
+      setCogModal={setCogModal}
+      setInfoModal={setInfoModal}
+    />
+  )}
+</Stack.Screen>
+
     </Stack.Navigator>
   );
 }
@@ -150,21 +258,42 @@ function AutomationStackNavigator({ currentHub, setCurrentHub }) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Automations" options={{ headerShown: false }}>
-        {(props) => <AutomationScreen {...props} currentHub={currentHub} setCurrentHub={setCurrentHub} />}
+        {(props) => (
+          <AutomationScreen
+            {...props}
+            currentHub={currentHub}
+            setCurrentHub={setCurrentHub}
+          />
+        )}
       </Stack.Screen>
-      <Stack.Screen name="ConfigureAutomation" options={{  headerTransparent:true, headerTitle:"" }}>
+      <Stack.Screen
+        name="ConfigureAutomation"
+        options={{ headerTransparent: true, headerTitle: "" }}
+      >
         {(props) => <ConfigureAutomation {...props} />}
       </Stack.Screen>
-      <Stack.Screen name="Schedule" options={{  headerTransparent:true, headerTitle:"" }}>
+      <Stack.Screen
+        name="Schedule"
+        options={{ headerTransparent: true, headerTitle: "" }}
+      >
         {(props) => <Schedule {...props} />}
       </Stack.Screen>
-      <Stack.Screen name="Trigger" options={{  headerTransparent:true, headerTitle:"" }}>
+      <Stack.Screen
+        name="Trigger"
+        options={{ headerTransparent: true, headerTitle: "" }}
+      >
         {(props) => <Trigger {...props} />}
       </Stack.Screen>
-      <Stack.Screen name="StatusChange" options={{  headerTransparent:true, headerTitle:"" }}>
+      <Stack.Screen
+        name="StatusChange"
+        options={{ headerTransparent: true, headerTitle: "" }}
+      >
         {(props) => <StatusChange {...props} />}
       </Stack.Screen>
-      <Stack.Screen name="Action" options={{  headerTransparent:true, headerTitle:"" }}>
+      <Stack.Screen
+        name="Action"
+        options={{ headerTransparent: true, headerTitle: "" }}
+      >
         {(props) => <Action {...props} />}
       </Stack.Screen>
     </Stack.Navigator>
@@ -175,5 +304,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerIcons: {
+    marginTop: 5,
   },
 });

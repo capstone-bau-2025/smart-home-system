@@ -4,7 +4,7 @@ import FullScreenModal from '../UI/FullScreenModal';
 import EditInput from '../UI/EditInput';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-export default function AddRoomModal({ visible, onClose, title,onSave  }) {
+export default function AddRoomModal({ visible, onClose, title,onSave }) {
   const [roomName, setRoomName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState(null);
 

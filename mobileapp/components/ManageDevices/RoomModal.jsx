@@ -7,16 +7,38 @@ import ScrollableList from "../UI/ScrollableList";
 import HeaderIcons from "../UI/HeaderIcons";
 import InfoModal from "../UI/InfoModal";
 import Colors from "../../constants/Colors";
+import RenameModal from "../UI/RenameModal";
+import { useNavigation } from '@react-navigation/native';
+import ConfirmationModal from "../UI/ConfirmationModal";
 
-export default function RoomModal({ visible, onClose, room, selectedTab }) {
+
+export default function RoomModal({ visible, onClose, room, selectedTab,setVisible }) {
+  const navigation = useNavigation();
+
   if (!room) return null; 
 
   const [moveDevice, setMoveDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
+  const[renameModal, setRenameModal] = useState(false);
   const [infoModal, setInfoModal] = useState(false)
+  const[confirmModal,setConfirmModal] = useState(false)
   function handleDevicePress(device) {
     setSelectedDevice(device);
     setMoveDevice(true); 
+  }
+
+
+  
+  function handleAddPress(){
+    
+    navigation.push('DiscoverDevice') 
+    setVisible(false); 
+
+  }
+
+  function handleRemovePress(device){
+    setConfirmModal(true)
+    setSelectedDevice(device);
   }
 
   function handleMovePress() {
@@ -44,7 +66,7 @@ export default function RoomModal({ visible, onClose, room, selectedTab }) {
 
 
       <View style={styles.headerIcons}>
-          <HeaderIcons  onInfoPress={() => setInfoModal(true)}/>
+          <HeaderIcons  onInfoPress={() => setInfoModal(true)} onCogPress={() => setRenameModal(true)} onAddPress={() =>handleAddPress()}/>
         
       </View>
 
@@ -53,9 +75,10 @@ export default function RoomModal({ visible, onClose, room, selectedTab }) {
           textFields={["name"]} 
           buttonConfig={[
             { icon: "repeat-outline", onPress: (device) => handleDevicePress(device) }, 
-            { icon: "pencil-outline", onPress: (device) => handleOpenModal("rename", device.id) },
-            { icon: "remove-circle-outline", onPress: (device) => handleOpenModal("remove", device.id) },
+            { icon: "pencil-outline", onPress: () => setRenameModal(true)},
+            { icon: "remove-circle-outline", onPress: (device) => handleRemovePress(true)},
           ]}
+
         />
       
         {moveDevice && (
@@ -70,6 +93,10 @@ export default function RoomModal({ visible, onClose, room, selectedTab }) {
       </View>
       <InfoModal visible={infoModal} onClose={() => setInfoModal(false)} cancelLabel="Close" iconName="help-outline" iconColor="orange"
       message={"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"} title={"Configuring a Room"}/>
+      <ConfirmationModal  visible={confirmModal}  onClose={() => setConfirmModal(false)} message={`are you sure you want to remove this device`} 
+      iconColor="red"  />
+
+      <RenameModal visible={renameModal}  title={`change device name`} setVisible={setRenameModal} placeholder={'enter a new device name'} />
     </Modal>
 
 

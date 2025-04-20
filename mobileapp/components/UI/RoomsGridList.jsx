@@ -17,7 +17,6 @@ export default function RoomsGridList({ rooms, onRoomPress, devShown, editShown 
         <RoomCard 
           room={room} 
           icon={room.icon} 
-          colors={room.colors} 
           devices={room.devices}
           onPress={() => onRoomPress(room)}
           editShown={editShown}

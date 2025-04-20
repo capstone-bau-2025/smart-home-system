@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 8,
     padding: 10,
-    marginBottom: 20,
+    marginVertical:10,
     width: '100%',
   },
   input: {
@@ -40,11 +40,10 @@ const styles = StyleSheet.create({
   
   },
   infoText: {
-    fontFamily: 'Lexend-Regular',
-    fontSize: 15,
-    textAlign: 'left',
+    fontFamily: 'Lexend-Bold',
+    fontSize: 20,
     marginBottom: 3,
     marginLeft: 5,
-    marginTop:10
+  
   },
 });

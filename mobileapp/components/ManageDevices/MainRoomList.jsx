@@ -3,7 +3,7 @@ import { StyleSheet, Text } from "react-native";
 import RoomsGridList from "../UI/RoomsGridList";
 import RoomModal from "./RoomModal";
 
-export default function MainRoomList({ selectedTab }) {
+export default function MainRoomList({ selectedTab,setVisible }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
 
@@ -36,6 +36,7 @@ export default function MainRoomList({ selectedTab }) {
           onClose={() => setModalVisible(false)}
           room={selectedRoom}
           selectedTab={selectedTab}
+          setVisible={setModalVisible}
         />
 
     </>

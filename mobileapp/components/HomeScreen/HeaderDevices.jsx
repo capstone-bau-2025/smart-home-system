@@ -15,6 +15,8 @@ export default function HeaderDevices() {
       id:'dev4',
       name: "Hub Status",
       category:"hub",
+      type:"hub",
+      status:"connected",
     }
 
 

@@ -1,3 +1,5 @@
+
+
 import {
   StyleSheet,
   Text,
@@ -6,7 +8,7 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler";
 import HubsTabs from "../../components/ManageHub/HubsTabs";
 import { useState } from "react";
 import UsersList from "../../components/ManageHub/UsersList";
@@ -15,12 +17,21 @@ import InfoModal from "../../components/UI/InfoModal";
 import HeaderIcons from "../../components/UI/HeaderIcons";
 import TokenModal from "../../components/ManageHub/TokenModal";
 import RenameModal from "../../components/UI/RenameModal";
-export default function ManageHub(currentHub) {
+import MidModal from "../../components/UI/MidModal";
+
+export default function ManageHub({
+  currentHub,
+  setAddModal,
+  setCogModal,
+  setInfoModal,
+  infoModal,
+  addModal,
+  cogModal,
+}){
   const [selectedTab, setSelectedTab] = useState(hubs[0]);
-  const [addModal, setAddModal] = useState(false);
-  const [cogModal, setCogModal] = useState(false);
-  const [infoModal, setInfoModal] = useState(false);
-  const [renameModal, setRenameModal] = useState(false);
+  const [hubname, setHubName] = useState(currentHub.name);
+  const [userRenameModal, setUserRenameModal] = useState(false);
+  const [userNewName, setUserNewname] = useState("");
 
   const userCount = selectedTab.users.length;
 
@@ -32,13 +43,7 @@ export default function ManageHub(currentHub) {
   return (
     <SafeAreaView style={styles.safeContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <View style={styles.headerIcons}>
-        <HeaderIcons
-          onInfoPress={() => setInfoModal(true)}
-          onAddPress={() => setAddModal(true)}
-          onCogPress={() => console.log("Cog pressed, rename hub and delete")}
-        />
-      </View>
+
 
       <HubsTabs
         hubs={hubs}
@@ -54,7 +59,7 @@ export default function ManageHub(currentHub) {
           </Text>
         ))}
       </View>
-      <UsersList users={selectedTab.users} setRenameModal={setRenameModal} />
+      <UsersList users={selectedTab.users} setRenameModal={setUserRenameModal} />
 
       <InfoModal
         visible={infoModal}
@@ -62,21 +67,21 @@ export default function ManageHub(currentHub) {
         cancelLabel="Close"
         iconName="help-outline"
         iconColor="orange"
-        message={"In this screen, you can...."}
+        message={"In this screen, you can configure users' name, permissions, add, and delete"}
         title={"Manage Hubs"}
       />
       <TokenModal visible={addModal} onClose={() => setAddModal(false)} />
-      <RenameModal
-        visible={renameModal}
-        onClose={() => setRenameModal(false)}
-      />
+
+      <RenameModal  visible={cogModal} setVisible={setCogModal} value={hubname} setValue={setHubName} title={'Change hub name'} placeholder={'enter a new hub name'}/>
+      
+      <RenameModal  visible={userRenameModal} setVisible={setUserRenameModal} value={userNewName} setValue={setUserNewname} title={'Change the user name'} placeholder={'enter a new user name'}/>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeContainer: {
-    justifyContent: "flex-start",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     alignItems: "center",
     flex: 1,
     backgroundColor: "#f1f1f1",
@@ -99,7 +104,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
-
-
   },
 });

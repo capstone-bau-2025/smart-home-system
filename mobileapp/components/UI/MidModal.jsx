@@ -12,7 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 export default function MidModal({
   visible,
   onClose,
-  children,cancelLabel,confirmLabel
+  children,cancelLabel,confirmLabel,
+  buttons
 }) {
   return (
     <Modal
@@ -26,7 +27,7 @@ export default function MidModal({
     
       <View style={styles.modalContainer}>{children}
 
-
+{buttons &&
       <View style={styles.buttonsContainer}>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                           <Text style={styles.ButtonText}>{cancelLabel}</Text>
@@ -35,6 +36,7 @@ export default function MidModal({
                           <Text style={styles.ButtonText}>{confirmLabel}</Text>
                         </TouchableOpacity>
                       </View>
+                      }
       </View>
       
         </View>
@@ -60,23 +62,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 5,
   },
-  iconContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  message: {
-    fontSize: 18,
-    fontFamily: "Lexend-Regular",
-    textAlign: "center",
-  },
-  highlightedText: {
-    fontFamily: "Lexend-Bold",
-    color: "#2aa8a8",
-  },
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -90,7 +75,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
 
-
+    width: 100,
     marginHorizontal: 10,
     alignItems: "center",
   },
@@ -103,10 +88,11 @@ const styles = StyleSheet.create({
     height: 40,
     marginHorizontal: 10,
     alignItems: "center",
+    width: 100,
   },
   ButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily:"Lexend-Regular",
   },
 });

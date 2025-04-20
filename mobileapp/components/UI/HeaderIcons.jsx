@@ -1,9 +1,9 @@
-import { View, Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function HeaderIcons({ onInfoPress, onCogPress, onAddPress }) {
+export default function HeaderIcons({ onInfoPress, onCogPress, onAddPress, custompadding }) {
   return (
-    <View style={styles.iconsContainer}>
+    <View style={[styles.iconsContainer, custompadding && styles.customPadding]}>
       <TouchableOpacity onPress={onAddPress}>
         <Ionicons name="add-circle-outline" size={40} color="black" />
       </TouchableOpacity>
@@ -23,6 +23,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     flex: 1,
     paddingRight: 15,
-    paddingVertical: 10,
+  },
+  customPadding: {
+    paddingRight: 10, 
+    paddingLeft: 10,
   },
 });

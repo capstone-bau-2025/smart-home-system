@@ -52,7 +52,7 @@ export default function AutomationScreen({ currentHub, navigation }) {
           iconName="help-outline"
           iconColor="orange"
           message={
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,"
+            "In this screen, you can view and manage your automations. You can add or edit automations as needed. To add a new automation, click the '+' icon in the top right corner. To edit an existing automation, click on it in the list then press on 'Edit' "
           }
           title={"Automation"}
         />

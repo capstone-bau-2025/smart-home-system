@@ -3,7 +3,7 @@ export const automations = [
     id: 1,
     hubId: "Hub1",
     name: "Morning Routine",
-    description: "Automatically adjusts lights and temperature at 7:00 AM. loremipsum Lorem ipsum, dolor sit amet consectetur adipisicing elit. Non placeat nemo ad quibusdam quia atque soluta, at alias dignissimos quidem autem cum, temporibus voluptatem assumenda mollitia minima, magni omnis. Error! Lorem ipsum, dolor sit amet consectetur adipisicing elit. Non placeat nemo ad quibusdam quia atque soluta, at alias dignissimos quidem autem cum, temporibus voluptatem assumenda mollitia minima, magni omnis. Error!", 
+    description: "Automatically adjusts lights and temperature at 7:00 AM. loremipsum Lorem ipsum, dolor sit amet consectetur adipisicing elit. Non placeat nemo ad", 
     status: "Active",
     type: "schedule",
     action: "Turn on bedroom lights and set thermostat to 72°F",

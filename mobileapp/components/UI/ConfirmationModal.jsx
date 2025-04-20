@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
-    backgroundColor: "#FFA500",
+    backgroundColor: "#2d9f99",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     marginTop: 20,
-    backgroundColor: "#2d9f99",
+    backgroundColor: "#FFA500",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,

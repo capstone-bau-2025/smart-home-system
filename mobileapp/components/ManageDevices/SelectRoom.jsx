@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+
 import ConfirmationModal from "../UI/ConfirmationModal";
 import { Ionicons } from "@expo/vector-icons";
 import RoomsGridList from "../UI/RoomsGridList";

@@ -13,6 +13,7 @@ export default function DeviceCard({ data }) {
   const [value, setValue] = useState(0);
 
   const isSlider = data.type === "enum" || data.type === "range";
+  const isHub = data.type === "hub";
 
   return (
     <Pressable
@@ -53,8 +54,9 @@ export default function DeviceCard({ data }) {
               { color: state === "On" ? "green" : "red" },
             ]}
           >
-            {state}
+            {isHub ? null : state}
             {isSlider ? ` - ${value}` : ""}
+            {isHub ? `${data.status}`  : ""}
           </Text>
         </View>
       </View>
@@ -124,4 +126,5 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
+
 });

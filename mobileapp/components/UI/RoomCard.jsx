@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity, Text, View, StyleSheet,Platform } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import Colors from "../../constants/Colors";
 
 export default function RoomCard({
   room,
@@ -15,12 +16,7 @@ export default function RoomCard({
 }) {
   return (
     <TouchableOpacity onPress={onPress} style={styles.roomContainer}>
-      <LinearGradient
-        colors={colors} 
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradientContainer}
-      >
+
         <View style={styles.content}>
           <Text style={styles.roomName}>{room.name}</Text>
           <Ionicons
@@ -41,7 +37,7 @@ export default function RoomCard({
             </View>
           )}
         </View>
-      </LinearGradient>
+
     </TouchableOpacity>
   );
 }
@@ -74,6 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 5,
+    backgroundColor:Colors.primary100
   },
   icon: { marginVertical: 8 },
   deviceCount: { fontSize: 14, color: "white", marginTop: 5,fontFamily:"Lexend-Regular" },

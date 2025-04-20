@@ -9,6 +9,7 @@ import {
   Pressable,
   Platform,
 } from "react-native";
+import Colors from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function ScrollableList({
@@ -31,58 +32,61 @@ export default function ScrollableList({
       contentContainerStyle={styles.listContainer}
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => {
-        const isEnabled = item.status === "Active"; 
+        const isEnabled = item.status === "Active";
 
         return pressableTab ? (
-          <Pressable
-            style={({ pressed }) => [
-              styles.itemContainer,
-              pressed && styles.pressed,
-            ]}
-            onPress={() => handlePress(item)}
-          >
-            <View style={styles.textContainer}>
-              <Text
-                style={styles.pressableItemText}
-                numberOfLines={5}
-                ellipsizeMode="tail"
-              >
+          <>
+            <Pressable
+              style={({ pressed }) => [
+                styles.itemContainer,
+                pressed && styles.pressed,
+              ]}
+              onPress={() => handlePress(item)}
+            >
+              <View style={styles.textContainer}>
                 {textFields.map((field, index) => (
-                  <Text key={index}>
+                  <Text
+                    style={styles.pressableItemText}
+                    numberOfLines={5}
+                    ellipsizeMode="tail"
+                    key={index}
+                  >
                     {item[field]}
-                    {index < textFields.length - 1 ? " - " : ""}
                   </Text>
                 ))}
-              </Text>
-            </View>
-
-            <View style={styles.buttonContainer}>
-              {buttonConfig?.map((btn, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    onPress(item);
-                  }}
-                  style={styles.button}
-                >
-                  <Ionicons name={btn.icon} size={24} color="#000000" />
-                </TouchableOpacity>
-              ))}
-
-              {toggle && (
-                <Switch
-                  trackColor={{ false: "#767577", true: "#34C759" }}
-                  thumbColor={isEnabled ? "#fff" : "#f4f3f4"}
-                  ios_backgroundColor="#a3a3a3"
-                  onValueChange={() => {
-                    toggleSwitch(item.id);
-                  }}
-                  value={isEnabled}
-                  style={Platform.OS === "android" ? styles.switch : undefined}
+                <Ionicons
+                  name="chevron-forward-outline"
+                  size={25}
+                  color="#ccc"
                 />
-              )}
-            </View>
-          </Pressable>
+              </View>
+
+              <View style={styles.buttonContainer}>
+                {buttonConfig?.map((btn, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => btn.onPress(item)}
+                    style={styles.button}
+                  >
+                    <Ionicons name={btn.icon} size={24} color="#000000" />
+                  </TouchableOpacity>
+                ))}
+
+                {toggle && (
+                  <Switch
+                    trackColor={{ false: "#767577", true: "#34C759" }}
+                    thumbColor={isEnabled ? "#fff" : "#f4f3f4"}
+                    ios_backgroundColor="#a3a3a3"
+                    onValueChange={() => toggleSwitch(item.id)}
+                    value={isEnabled}
+                    style={
+                      Platform.OS === "android" ? styles.switch : undefined
+                    }
+                  />
+                )}
+              </View>
+            </Pressable>
+          </>
         ) : (
           <View style={styles.itemContainer}>
             <View style={styles.textContainer}>
@@ -131,69 +135,58 @@ export default function ScrollableList({
 
 const styles = StyleSheet.create({
   listContainer: {
-    flexGrow: 1,
     paddingBottom: 20,
+    flex: 1,
   },
-
   itemContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: 8,
-      marginVertical: 10,
-      borderTopRightRadius: 0,
-      borderBottomRightRadius: 20,
-      borderTopLeftRadius: 30,
-      borderBottomLeftRadius: 0,
-      width: "90%",
-      alignSelf: "center",
-      backgroundColor: "#fdf7f7",
-      borderWidth: 2,
-      borderColor: "orange",
-      //borderBottomColor:'black',
-      //borderLeftColor:'black'
-  },
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 10,
 
+    borderBottomWidth: 1,
+    borderColor: "#c4c4c4",
+    width: "90%",
+    alignSelf: "center",
+  },
   textContainer: {
     flex: 1,
     paddingRight: 1,
+    flexDirection: "row",
+    alignItems: "center",
   },
-
   itemText: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Lexend-Regular",
     color: "#000",
-    flexWrap: "wrap",
-    
+    // flexWrap: "wrap",
   },
-
   buttonContainer: {
     flexDirection: "row",
     alignItems: "center",
     flexShrink: 1,
   },
-
   button: {
     marginHorizontal: 5,
     padding: 8,
-    backgroundColor: "orange",
+    backgroundColor: Colors.primary100,
     borderRadius: 50,
   },
-
   pressed: {
     opacity: 0.7,
   },
-
   emptyText: {
     textAlign: "center",
     marginTop: 20,
     fontSize: 18,
     color: "gray",
   },
-  pressableItemText:{
-    fontSize: 25,
+  pressableItemText: {
+    fontSize: 20,
     fontFamily: "Lexend-Regular",
     color: "#000",
     flexWrap: "wrap",
-  }
+  },
 });
