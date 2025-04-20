@@ -117,6 +117,16 @@ public class MqttMessageProducer {
         return response != null;
     }
 
+    public String getStreamLink(long deviceUid) {
+        ObjectNode message = mapper.createObjectNode()
+                .put("message_type", "GET_STREAMING_LINK")
+                .put("device_uid", deviceUid);
+
+        ObjectNode response = sendMessage(deviceUid, message);
+        logger.info("retrieved stream link for deviceUid: {}", deviceUid);
+        return response.get("streaming_link").asText();
+    }
+
     /**
      * Pings a specified device to check if it is online.
      *
