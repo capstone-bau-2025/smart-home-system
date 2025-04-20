@@ -1,4 +1,4 @@
-package com.capstonebau2025.centralhub.dto;
+package com.capstonebau2025.cloudserver.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
