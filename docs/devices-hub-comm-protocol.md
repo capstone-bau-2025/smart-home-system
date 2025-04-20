@@ -193,6 +193,29 @@ Used for health monitoring. Topic: `device/device-uid/in`
 }
 ```
 
+#### Get Streaming Link (message specific to camera devices)
+Used for health monitoring. Topic: `device/device-uid/in`
+
+**Request:**
+```json
+{
+  "message_type": "GET_STREAMING_LINK",
+  "message_id": 1,
+  "uid": "string"
+}
+```
+
+**Response:** `device/device-uid/out/message-id`
+```json
+{
+  "message_type": "RESPONSE",
+  "message_id": 1,
+  "uid": "string",
+  "streaming_link": "http://<ip-address>:<port>/stream",
+  "status": "SUCCESS"  // or "FAILURE"
+}
+```
+
 ### Communication Messages from device to hub
 
 #### Event Notification

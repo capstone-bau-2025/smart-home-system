@@ -1,6 +1,11 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
+import com.capstonebau2025.centralhub.repository.DeviceRepository;
+import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,12 +17,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Service
-public class CameraStreamService {
-    private static final Logger log = LoggerFactory.getLogger(CameraStreamService.class);
+@RequiredArgsConstructor
+public class SurveillanceService {
+    private final MqttMessageProducer mqttMessageProducer;
+    private final DeviceRepository deviceRepository;
+    private static final Logger log = LoggerFactory.getLogger(SurveillanceService.class);
     private static final int BUFFER_SIZE = 16384;
     private static final int CONNECTION_TIMEOUT = 30000;
 
-    public void streamCameraFeed(String deviceId, HttpServletResponse response) throws IOException {
+    public void streamCameraFeed(Long deviceId, HttpServletResponse response) {
         String deviceUrl = getDeviceStreamUrl(deviceId);
         if (deviceUrl == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -29,11 +37,11 @@ public class CameraStreamService {
     }
 
     // mock method to be changed
-    public String getDeviceStreamUrl(String deviceId) {
-        if (deviceId.equals("cam001")) {
-            return "http://localhost:8000/video";
-        }
-        return null;
+    public String getDeviceStreamUrl(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Camera not found with ID: " + deviceId));
+
+        return mqttMessageProducer.getStreamLink(device.getUid());
     }
 
     private void configureResponseHeaders(HttpServletResponse response) {
@@ -71,12 +79,13 @@ public class CameraStreamService {
     }
 
     private HttpURLConnection createDeviceConnection(String deviceUrl) throws IOException {
+        // TODO: refactor this method
         URL url = new URL(deviceUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Accept", "multipart/x-mixed-replace");
         connection.setConnectTimeout(CONNECTION_TIMEOUT);
-        connection.setReadTimeout(0); // No read timeout for MJPEG streams
+        connection.setReadTimeout(0);
         connection.connect();
         return connection;
     }
