@@ -1,7 +1,9 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +17,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,9 @@ public class SurveillanceService {
     public String getDeviceStreamUrl(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Camera not found with ID: " + deviceId));
+
+        if(!device.getModel().getSupportStreaming())
+            throw new ValidationException("Device does not support streaming");
 
         return mqttMessageProducer.getStreamLink(device.getUid());
     }
@@ -88,5 +95,24 @@ public class SurveillanceService {
         connection.setReadTimeout(0);
         connection.connect();
         return connection;
+    }
+
+    public List<DeviceInfoDTO> getStreamingDevices() {
+        List<Device> streamingDevices = deviceRepository.findByModelSupportStreamingTrue();
+
+        return streamingDevices.stream()
+                .map(device -> DeviceInfoDTO.builder()
+                        .id(device.getId())
+                        .uid(device.getUid())
+                        .name(device.getName())
+                        .status(device.getStatus())
+                        .lastSeen(device.getLastSeen() != null ? device.getLastSeen().toString() : null)
+                        .createdAt(device.getCreatedAt() != null ? device.getCreatedAt().toString() : null)
+                        .model(device.getModel().getModel())
+                        .modelName(device.getModel().getName())
+                        .description(device.getModel().getDescription())
+                        .type(device.getModel().getType())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
