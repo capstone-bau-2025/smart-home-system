@@ -3,39 +3,35 @@ import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
 
 import Colors from "../../constants/Colors";
 
-export default function FullScreenModal({ visible, onClose, children,title}) {
-
-
-
+export default function FullScreenModal({ visible, onClose, children, title }) {
   return (
     <Modal animationType="slide" transparent={false} visible={visible}>
       <View style={styles.modalContainer}>
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeText}>X</Text>
-            </TouchableOpacity>
-          </View>
-{/* 
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeText}>close</Text>
+          </TouchableOpacity>
+        </View>
+        {/* 
       <View style={styles.headerIcons}>
           <HeaderIcons  onInfoPress={() => setInfoModal(true)}/>
         
       </View> */}
-{children}
+        {children}
       </View>
-
     </Modal>
-
-
   );
 }
 
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: Colors.primaryBackground, 
+    backgroundColor: Colors.primaryBackground,
     paddingTop: 50,
     alignItems: "center",
+    
+    
   },
   header: {
     width: "100%",
@@ -46,10 +42,8 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#c1c1c1",
-  },  closeButton: {
-    backgroundColor: "#e19b19",
-    width: 35,
-    height: 35,
+  },
+  closeButton: {
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 20,
@@ -57,7 +51,7 @@ const styles = StyleSheet.create({
   closeText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "#e19b19",
   },
   title: {
     fontSize: 24,

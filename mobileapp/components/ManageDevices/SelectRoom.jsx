@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-
+import Colors from "../../constants/Colors";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import { Ionicons } from "@expo/vector-icons";
 import RoomsGridList from "../UI/RoomsGridList";
@@ -49,7 +49,7 @@ export default function SelectRoom({
           rooms={selectedTab.rooms.filter((r) => r.id !== room.id)}
           onRoomPress={pressHandler}
           devShown={false}
-          
+
         />
     
           <ConfirmationModal
@@ -77,7 +77,7 @@ export default function SelectRoom({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: "#FDF8F0",
+    backgroundColor: Colors.primaryBackground, 
     paddingTop: 50,
     alignItems: "center",
   },
@@ -134,8 +134,8 @@ const styles = StyleSheet.create({
     fontFamily: "Lexend-Regular",
   },
   info: {
-    fontFamily: "Lexend-Bold",
-    color: "#2aa8a8",
+    fontFamily: "Lexend-Regular",
+    color: "#000000",
     fontSize: 20,
     marginVertical: 10,
     marginHorizontal: 5,

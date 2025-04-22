@@ -2,7 +2,7 @@ import React from "react";
 import { FlatList, StyleSheet, Text } from "react-native";
 import RoomCard from "../UI/RoomCard"; // Import RoomCard
 
-export default function RoomsGridList({ rooms, onRoomPress, devShown, editShown }) {
+export default function RoomsGridList({ rooms, onRoomPress, devShown, editShown, color}) {
   if (!rooms || rooms.length === 0) {
     return <Text style={styles.noRooms}>No rooms available</Text>;
   }
@@ -21,6 +21,7 @@ export default function RoomsGridList({ rooms, onRoomPress, devShown, editShown 
           onPress={() => onRoomPress(room)}
           editShown={editShown}
           devShown={devShown}
+          color={color}
         />
       )}
     />

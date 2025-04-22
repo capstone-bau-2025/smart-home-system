@@ -43,13 +43,13 @@ export default function AddDropdown({
       visible={addVisible}
       position={
         Platform.OS === "ios"
-          ? { right: 70, top: 55 }
-          : { right: 50, top: 0 }
+          ? { right: 70, top: 40 }
+          : { right: 50, top: -20 }
       }
       triposition={
         Platform.OS === "ios"
-          ? { right: 15, top: 55 }
-          : { right: 15, top: 0 }
+          ? { right: 10, top: 40 }
+          : { right: 10, top: -20 }
       }
     />
 

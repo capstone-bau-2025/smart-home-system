@@ -127,8 +127,8 @@ export const homeHub = {
       devices: [
         {
           id: "dev12",
-          name: "Fridge Temp",
-          category: "thermometer",
+          name: "Fridge Sensor",
+          category: "sensor",
           type: "range",
           mutable: false,
           range: [1, 10],
@@ -152,7 +152,7 @@ export const homeHub = {
         {
           id: "dev14",
           name: "Humidity Sensor",
-          category: "thermometer",
+          category: "sensor",
           type: "range",
           mutable: false,
           range: [0, 100],
@@ -203,7 +203,7 @@ export const homeHub = {
         {
           id: "dev19",
           name: "Temp Sensor",
-          category: "thermometer",
+          category: "sensor",
           type: "range",
           mutable: false,
           range: [15, 35],

@@ -9,7 +9,6 @@ export default function RoomCard({ data }) {
   let leftHeight = 0;
   let rightHeight = 0;
 
-  // Estimate device heights
   const getDeviceHeight = (device) =>
     device.type === 'enum' || device.type === 'range' ? 135 : 60;
 

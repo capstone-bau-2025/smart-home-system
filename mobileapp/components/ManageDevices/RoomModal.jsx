@@ -1,7 +1,5 @@
-import React, { use, useState } from "react";
+import React, {  useState } from "react";
 import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
-import DeviceCard from "../UI/DeviceCard";
-import MoveDevice from "./MoveDevice";
 import SelectRoom from "./SelectRoom"; 
 import ScrollableList from "../UI/ScrollableList";
 import HeaderIcons from "../UI/HeaderIcons";
@@ -15,8 +13,7 @@ import ConfirmationModal from "../UI/ConfirmationModal";
 export default function RoomModal({ visible, onClose, room, selectedTab,setVisible }) {
   const navigation = useNavigation();
 
-  if (!room) return null; 
-
+  
   const [moveDevice, setMoveDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const[renameModal, setRenameModal] = useState(false);
@@ -26,34 +23,35 @@ export default function RoomModal({ visible, onClose, room, selectedTab,setVisib
     setSelectedDevice(device);
     setMoveDevice(true); 
   }
-
-
+  
+  
   
   function handleAddPress(){
     
     navigation.push('DiscoverDevice') 
     setVisible(false); 
-
+    
   }
-
+  
   function handleRemovePress(device){
     setConfirmModal(true)
     setSelectedDevice(device);
   }
-
+  
   function handleMovePress() {
-
+    
     if (!selectedDevice && room.devices.length > 0) {
       setSelectedDevice(room.devices[0]); 
     }
     setMoveDevice(true);
   }
-
+  
   function handleCloseRoomList() {
     setMoveDevice(false);
     setSelectedDevice(null);
   }
-
+  
+  if (!room) return null; 
   return (
     <Modal animationType="slide" transparent={false} visible={visible}>
       <View style={styles.modalContainer}>

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import ScrollableList from "../UI/ScrollableList";
+import Toast from 'react-native-toast-message';
 
 export default function AutomationsList({
   automations,
@@ -24,18 +25,35 @@ export default function AutomationsList({
 
   const handleToggleAutomation = (automationId) => {
     let updatedStatus = "";
-
+    let updatedName = "";
     setAutoState((prevAutomations) =>
       prevAutomations.map((item) => {
         if (item.id === automationId) {
           updatedStatus = item.status === "Active" ? "Inactive" : "Active";
+          updatedName = item.name;
           return { ...item, status: updatedStatus };
         }
         return item;
       })
     );
+    Toast.show({
+      topOffset: 60,
+      swipeable: true,
 
-    Alert.alert("Automation Status", `The automation status is now ${updatedStatus}`);
+      type: "success",
+      text1Style: {
+        fontFamily: "Lexend-Bold",
+        fontSize: 16,
+        color:'black'
+      },
+      text2Style: {
+        fontFamily: "Lexend-Regular",
+        fontSize: 14,
+        color:'#a8a8a8'
+      },
+      text1: 'Automation Updated',
+      text2: `${updatedName} status is now ${updatedStatus}.`,
+    });
   };
 
   const autoData = autoState.filter((item) => item.hubId === currentHub);

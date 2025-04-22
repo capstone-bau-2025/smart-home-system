@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   pressableItemText: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: "Lexend-Regular",
     color: "#000",
     flexWrap: "wrap",

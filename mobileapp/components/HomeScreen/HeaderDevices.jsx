@@ -10,6 +10,7 @@ export default function HeaderDevices() {
       id: "dev3",
       name: "Thermostat",
       category:"thermometer",
+      reading:"23°C",
     },
     hubConnection:{
       id:'dev4',

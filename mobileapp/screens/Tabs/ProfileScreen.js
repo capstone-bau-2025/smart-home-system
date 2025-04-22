@@ -18,22 +18,22 @@ export default function ProfileScreen() {
       <View style={styles.profileCard}>
         <View style={styles.infoRow}>
           <Ionicons name="person-circle-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{user?.username || "Username"}</Text>
+          <Text style={styles.infoText}>{user?.username || "Khaled-admin123"}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Ionicons name="mail-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{user?.email || "Email"}</Text>
+          <Text style={styles.infoText}>{user?.email || "khaledemail@gmail.com"}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Ionicons name="lock-closed-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>Password ••••••••</Text>
+          <Text style={styles.infoText}>••••••••</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Ionicons name="briefcase-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{user?.role || "User Role"}</Text>
+          <Text style={styles.infoText}>{user?.role || "Admin"}</Text>
         </View>
       </View>
 

@@ -14,16 +14,18 @@ export default function DeviceCard({ data }) {
 
   const isSlider = data.type === "enum" || data.type === "range";
   const isHub = data.type === "hub";
-
+  const isThermostat = data.category === "thermometer";
   return (
     <Pressable
       style={({ pressed }) => [
         styles.card,
         isSlider ? styles.tallCard : styles.shortCard,
-        pressed && styles.pressed,
+        pressed && !isHub && !isThermostat ? styles.pressed : null,
       ]}
       onPress={() => {
-        setState((prev) => (prev === "On" ? "Off" : "On"));
+        if (!isHub && !isThermostat) {
+          setState((prev) => (prev === "On" ? "Off" : "On"));
+        }
       }}
     >
       <View style={styles.rowTop}>
@@ -51,12 +53,21 @@ export default function DeviceCard({ data }) {
           <Text
             style={[
               styles.status,
-              { color: state === "On" ? "green" : "red" },
+              {
+                color:
+                  isHub || isThermostat
+                    ? "#ff9900"
+                    : state === "On"
+                    ? "green"
+                    : "red",
+              },
+
             ]}
           >
-            {isHub ? null : state}
+            {isHub || isThermostat ? null : state}
             {isSlider ? ` - ${value}` : ""}
-            {isHub ? `${data.status}`  : ""}
+            {isHub ? `${data.status}` : ""}
+            {isThermostat ? `${data.reading}` : ""}
           </Text>
         </View>
       </View>
@@ -88,7 +99,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 2 },
     overflow: "hidden",
-    marginRight:15
+    marginRight: 15,
+    borderWidth: 1,
+    borderColor: "#b1b1b163",
   },
   shortCard: {
     height: 60,
@@ -122,9 +135,9 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 12,
     color: "#666",
+    fontFamily: "Lexend-Regular",
   },
   pressed: {
     opacity: 0.7,
   },
-
 });

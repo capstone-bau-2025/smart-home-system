@@ -8,7 +8,7 @@ export default function RoomCard({
   room,
   icon,
   devices,
-  colors = ["#e9aa22", "#f3b96d"],
+  color,
   iconColor = "white",
   onPress,
   devShown,
@@ -17,7 +17,7 @@ export default function RoomCard({
   return (
     <TouchableOpacity onPress={onPress} style={styles.roomContainer}>
 
-        <View style={styles.content}>
+<View style={[styles.content, { backgroundColor: color || Colors.primary100 }]}>
           <Text style={styles.roomName}>{room.name}</Text>
           <Ionicons
             style={[styles.icon, { color: iconColor }]}
@@ -53,12 +53,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     
   },
-  gradientContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
 
-  },
   roomName: {
     fontSize: 16,
     textAlign: "center",
@@ -70,7 +65,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 5,
-    backgroundColor:Colors.primary100
+
   },
   icon: { marginVertical: 8 },
   deviceCount: { fontSize: 14, color: "white", marginTop: 5,fontFamily:"Lexend-Regular" },

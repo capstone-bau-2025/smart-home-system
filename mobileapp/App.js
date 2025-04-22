@@ -17,22 +17,47 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
-import CustomToast from "./components/UI/CustomToast";
+import { BaseToast } from 'react-native-toast-message';
 import ConfigureAutomation from "./screens/AutomationScreen/ConfigureAutomation";
 import Trigger from "./screens/AutomationScreen/Trigger";
 import StatusChange from "./screens/AutomationScreen/StatusChange";
 import Schedule from "./screens/AutomationScreen/Schedule";
 import Action from "./screens/AutomationScreen/Action";
 import HeaderIcons from "./components/UI/HeaderIcons";
-
+import NewAutomation from "./screens/AutomationScreen/NewAutomation";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import Toast from 'react-native-toast-message';
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <AuthContextProvider>
-      <RootApp />
-    </AuthContextProvider>
+<SafeAreaProvider>
+      <AuthContextProvider>
+        <RootApp />
+      </AuthContextProvider>
+      <Toast
+  config={{
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{ borderLeftColor: '#4CAF50' }}
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1Style={{
+          fontFamily: 'Lexend-Bold',
+          fontSize: 16,
+          color: 'black',
+        }}
+        text2Style={{
+          fontFamily: 'Lexend-Regular',
+          fontSize: 14,
+          color: '#a8a8a8',
+        }}
+      />
+    ),
+  }}
+/>
+</SafeAreaProvider>
   );
 }
 
@@ -66,7 +91,7 @@ function RootApp() {
         <AuthStack />
       )}
 
-      <CustomToast />
+
     </NavigationContainer>
   );
 }
@@ -184,7 +209,7 @@ function HomeStackNavigator({ currentHub, setCurrentHub }) {
       <Stack.Screen
         name="DiscoverHub"
         component={DiscoverHub}
-        options={{ headerShown: true, headerTitle: "Discover Hub" }}
+        options={{ headerTransparent: true, headerTitle: "" }}
       />
       <Stack.Screen
         name="ManageHub"
@@ -295,6 +320,12 @@ function AutomationStackNavigator({ currentHub, setCurrentHub }) {
         options={{ headerTransparent: true, headerTitle: "" }}
       >
         {(props) => <Action {...props} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="NewAutomation"
+        options={{ headerTransparent: true, headerTitle: "" }}
+      >
+        {(props) => <NewAutomation {...props} />}
       </Stack.Screen>
     </Stack.Navigator>
   );

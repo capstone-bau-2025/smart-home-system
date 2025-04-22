@@ -43,12 +43,12 @@ export default function SettingsDropdown({
         setVisible={setSettingsVisible}
         visible={settingsVisible}
         position={
-          Platform.OS === "ios" ? { right: 0, top: 55 } : { right: 50, top: 0 }
+          Platform.OS === "ios" ? { right: 40, top: 40 } : { right: 10, top: -20 }
         }
         triposition={
           Platform.OS === "ios"
-            ? { right: -30, top: 55 }
-            : { right: 15, top: 0 }
+            ? { right: -30, top: 40 }
+            : { right: -30, top: -20 }
         }
       />
     </>

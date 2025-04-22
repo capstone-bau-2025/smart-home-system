@@ -48,13 +48,13 @@ export default function HubDropdown({ currentHub, setCurrentHub }) {
         onSelect={handleSelectHub}
         triposition={
           Platform.OS === "ios"
-            ? { right: 177, top: 50 }
-            : { right: 140, top: -5 }
+            ? { right: 177, top: 30 }
+            : { right: 160, top: -20 }
         }
         position={
           Platform.OS === "ios"
-            ? { right: 200, top: 50 }
-            : { right: 150, top: -5 }
+            ? { right: 200, top: 30 }
+            : { right: 180, top: -20 }
         }
       />
     </View>

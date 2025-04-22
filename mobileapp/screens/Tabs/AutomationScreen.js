@@ -9,9 +9,11 @@ import InfoModal from "../../components/UI/InfoModal";
 import HubsTabs from "../../components/ManageHub/HubsTabs";
 import Colors from "../../constants/Colors";
 import { hubs } from "../../Data/Hubs";
-import { StatusBar } from "react-native";
+
 
 export default function AutomationScreen({ currentHub, navigation }) {
+
+
   const [modalVisible, setModalVisible] = useState(false);
   const [currentAutomation, setCurrentAutomation] = useState(null);
   const [infoModal, setInfoModal] = useState(false);
@@ -21,7 +23,7 @@ export default function AutomationScreen({ currentHub, navigation }) {
     <>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <HeaderIcons onInfoPress={() => setInfoModal(true)} />
+          <HeaderIcons onInfoPress={() => setInfoModal(true)} onAddPress={() => navigation.push('NewAutomation')}/>
         </View>
         <HubsTabs
           hubs={hubs}

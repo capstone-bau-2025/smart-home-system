@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Toast from "react-native-toast-message"; 
-import CustomToast from "../UI/CustomToast";
+
 
 export default function PermsModal({ visible, onClose, userId, users, updatePermissions }) {
   const selectedUser = users.find((user) => user.id === userId);
@@ -33,11 +33,12 @@ export default function PermsModal({ visible, onClose, userId, users, updatePerm
 
     Toast.show({
       type: "success",
-      text1: "✅ Permissions Updated",
+      text1: "Permissions Updated",
       text2: `${selectedUser?.name}'s permissions have been saved.`,
       position: "top",
       visibilityTime: 4000,
       autoHide: true,
+      topOffset: 60,
     });
 
     onClose();
@@ -88,7 +89,7 @@ export default function PermsModal({ visible, onClose, userId, users, updatePerm
       </Modal>
 
   
-<Toast/>
+
     </>
   );
 }
