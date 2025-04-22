@@ -1,7 +1,9 @@
 package com.capstonebau2025.centralhub.service;
 
 import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
+import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.exception.PermissionException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
@@ -28,8 +30,12 @@ public class SurveillanceService {
     private static final Logger log = LoggerFactory.getLogger(SurveillanceService.class);
     private static final int BUFFER_SIZE = 16384;
     private static final int CONNECTION_TIMEOUT = 30000;
+    private final PermissionService permissionService;
 
-    public void streamCameraFeed(Long deviceId, HttpServletResponse response) {
+    public void streamCameraFeed(Long userId, Long deviceId, HttpServletResponse response) {
+        if(!permissionService.isPermittedDevice(userId, deviceId))
+            throw new PermissionException("not permitted to access this device.");
+
         String deviceUrl = getDeviceStreamUrl(deviceId);
         if (deviceUrl == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -40,7 +46,6 @@ public class SurveillanceService {
         streamFromDevice(deviceUrl, response);
     }
 
-    // mock method to be changed
     public String getDeviceStreamUrl(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Camera not found with ID: " + deviceId));
@@ -86,7 +91,6 @@ public class SurveillanceService {
     }
 
     private HttpURLConnection createDeviceConnection(String deviceUrl) throws IOException {
-        // TODO: refactor this method
         URL url = new URL(deviceUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
@@ -97,10 +101,16 @@ public class SurveillanceService {
         return connection;
     }
 
-    public List<DeviceInfoDTO> getStreamingDevices() {
+    public List<DeviceInfoDTO> getStreamingDevices(Long userId) {
         List<Device> streamingDevices = deviceRepository.findByModelSupportStreamingTrue();
+        List<Long> permittedAreaIds = permissionService.getPermittedAreas(userId)
+                .stream()
+                .map(Area::getId)
+                .toList();
 
         return streamingDevices.stream()
+                // Filter devices by permitted areas
+                .filter(device -> permittedAreaIds.contains(device.getArea().getId()))
                 .map(device -> DeviceInfoDTO.builder()
                         .id(device.getId())
                         .uid(device.getUid())
