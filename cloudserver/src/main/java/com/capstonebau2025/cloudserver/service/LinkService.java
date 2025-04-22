@@ -121,4 +121,13 @@ public class LinkService {
                     .build());
         }
     }
+
+    public void unlinkUser(String email, String hubSerialNumber) {
+        UserHub userHub = userHubRepository.findByUser_EmailAndHub_SerialNumber(email, hubSerialNumber)
+                .orElseThrow(() -> new RuntimeException("User not linked to this hub"));
+
+        // Delete the association
+        userHubRepository.delete(userHub);
+
+    }
 }

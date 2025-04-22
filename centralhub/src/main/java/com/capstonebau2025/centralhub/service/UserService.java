@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.client.CloudClient;
 import com.capstonebau2025.centralhub.dto.UserDetailsDTO;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Permission;
@@ -24,6 +25,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
+    private final CloudClient cloudClient;
     private final PermissionRepository permissionRepository;
 
     public List<Role> getAllRoles() {
@@ -42,7 +44,11 @@ public class UserService {
     }
 
     public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        cloudClient.unlinkUser(user.getEmail());
+        userRepository.delete(user);
     }
 
     public void updateUserPermissions(Long userId, List<Long> roomIds) {

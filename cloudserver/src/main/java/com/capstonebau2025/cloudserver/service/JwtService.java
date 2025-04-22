@@ -69,7 +69,7 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    public String generateHubToken(String hubId) {
+    public String generateHubToken(String hubId) { // TODO: rename to hubSerialNumber
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "hub");
         return Jwts.builder()
@@ -89,7 +89,7 @@ public class JwtService {
         }
     }
 
-    public String extractHubId(String token) {
+    public String extractHubId(String token) { // TODO: rename to hubSerialNumber
         return extractClaim(token, Claims::getSubject);
     }
 }

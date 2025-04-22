@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -142,6 +139,27 @@ public class CloudClient {
         } catch (Exception e) {
             logger.error("Error linking user: {}", e);
             throw new CommunicationException("Cloud server not responding, couldn't link user.");
+        }
+    }
+
+    public void unlinkUser(String email) {
+        try {
+            String url = cloudUrl + "/api/hub/unlinkUser";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            UnlinkUserRequest requestBody = new UnlinkUserRequest();
+            requestBody.setToken(hubToken);
+            requestBody.setEmail(email);
+
+            HttpEntity<UnlinkUserRequest> request = new HttpEntity<>(requestBody, headers);
+
+            restTemplate.exchange(url, HttpMethod.DELETE, request, Void.class);
+            logger.info("User {} successfully unlinked from hub", email);
+        } catch (Exception e) {
+            logger.error("Error unlinking user: {}", e);
+            throw new CommunicationException("Cloud server not responding, couldn't unlink user.");
         }
     }
 }
