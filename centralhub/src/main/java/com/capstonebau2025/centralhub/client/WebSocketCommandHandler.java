@@ -7,8 +7,7 @@ import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateUserPermissionsRe
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
-import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
-import com.capstonebau2025.centralhub.exception.ValidationException;
+import com.capstonebau2025.centralhub.exception.*;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
 import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
@@ -135,6 +134,22 @@ public class WebSocketCommandHandler {
             log.error("Validation error: {}", e.getMessage(), e);
             sendErrorResponse(hubSerialNumber, message, e.getMessage(),
                     HttpStatus.BAD_REQUEST, "ValidationException");
+        } catch (PermissionException e) {
+            log.error("PermissionException: {}", e.getMessage(), e);
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    HttpStatus.FORBIDDEN, "PermissionException");
+        } catch (AuthException e) {
+            log.error("Authentication error: {}", e.getMessage(), e);
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    HttpStatus.UNAUTHORIZED, "AuthException");
+        } catch (DeviceConnectionException e) {
+            log.error("Device connection error: {}", e.getMessage(), e);
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    HttpStatus.SERVICE_UNAVAILABLE, "DeviceConnectionException");
+        } catch (CommunicationException e) {
+            log.error("Communication error: {}", e.getMessage(), e);
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR, "CommunicationException");
         } catch (Exception e) {
             log.error("Error processing command: {}", e.getMessage(), e);
             sendErrorResponse(hubSerialNumber, message, e.getMessage(),

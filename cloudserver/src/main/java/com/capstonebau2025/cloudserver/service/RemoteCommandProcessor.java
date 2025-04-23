@@ -118,6 +118,8 @@ public class RemoteCommandProcessor {
                     throw new DeviceConnectionException(errorMessage);
                 case "CommunicationException":
                     throw new CommunicationException(errorMessage);
+                case  "PermissionException":
+                    throw new PermissionException(errorMessage);
                 default:
                     HttpStatus status = HttpStatus.valueOf(errorResponse.getStatus());
                     throw new ApplicationException(errorMessage, status);
