@@ -8,15 +8,14 @@ import com.capstonebau2025.cloudserver.service.JwtService;
 import com.capstonebau2025.cloudserver.service.LinkService;
 import com.capstonebau2025.cloudserver.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/hub")
 @RequiredArgsConstructor
@@ -98,6 +97,20 @@ public class HubController {
         }
 
         return hubService.linkUser(request);
+    }
+
+    @DeleteMapping("/unlinkUser")
+    public ResponseEntity<?> unlinkUser(@RequestBody UnlinkUserRequest request) {
+        if (request.getEmail() == null || request.getEmail().isEmpty())
+            return ResponseEntity.badRequest().body("Email and hub serial number are required");
+
+        String hubSerialNumber = jwtService.extractHubId(request.getToken());
+        if (!jwtService.validateToken(request.getToken()) || hubSerialNumber == null)
+            return ResponseEntity.status(401).body("Invalid hub token");
+
+        hubService.unlinkUser(request.getEmail(), hubSerialNumber);
+        log.info("Unlinked user with email: {} from hub with serial number: {}", request.getEmail(), hubSerialNumber);
+        return ResponseEntity.ok().build();
     }
 }
 

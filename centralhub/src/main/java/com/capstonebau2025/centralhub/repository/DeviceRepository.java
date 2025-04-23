@@ -9,7 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, Long> {
-    Optional<Device> findByUid(Long uid);
 
+    Optional<Device> findByUid(Long uid);
     List<Device> findByAreaId(Long areaId);
+    List<Device> findByModelSupportStreamingTrue();
 }

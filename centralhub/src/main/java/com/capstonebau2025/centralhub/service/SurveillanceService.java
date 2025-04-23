@@ -1,7 +1,11 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
+import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.exception.PermissionException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +30,12 @@ public class SurveillanceService {
     private static final Logger log = LoggerFactory.getLogger(SurveillanceService.class);
     private static final int BUFFER_SIZE = 16384;
     private static final int CONNECTION_TIMEOUT = 30000;
+    private final PermissionService permissionService;
 
-    public void streamCameraFeed(Long deviceId, HttpServletResponse response) {
+    public void streamCameraFeed(Long userId, Long deviceId, HttpServletResponse response) {
+        if(!permissionService.isPermittedDevice(userId, deviceId))
+            throw new PermissionException("not permitted to access this device.");
+
         String deviceUrl = getDeviceStreamUrl(deviceId);
         if (deviceUrl == null) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -36,10 +46,12 @@ public class SurveillanceService {
         streamFromDevice(deviceUrl, response);
     }
 
-    // mock method to be changed
     public String getDeviceStreamUrl(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Camera not found with ID: " + deviceId));
+
+        if(!device.getModel().getSupportStreaming())
+            throw new ValidationException("Device does not support streaming");
 
         return mqttMessageProducer.getStreamLink(device.getUid());
     }
@@ -79,7 +91,6 @@ public class SurveillanceService {
     }
 
     private HttpURLConnection createDeviceConnection(String deviceUrl) throws IOException {
-        // TODO: refactor this method
         URL url = new URL(deviceUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
@@ -88,5 +99,30 @@ public class SurveillanceService {
         connection.setReadTimeout(0);
         connection.connect();
         return connection;
+    }
+
+    public List<DeviceInfoDTO> getStreamingDevices(Long userId) {
+        List<Device> streamingDevices = deviceRepository.findByModelSupportStreamingTrue();
+        List<Long> permittedAreaIds = permissionService.getPermittedAreas(userId)
+                .stream()
+                .map(Area::getId)
+                .toList();
+
+        return streamingDevices.stream()
+                // Filter devices by permitted areas
+                .filter(device -> permittedAreaIds.contains(device.getArea().getId()))
+                .map(device -> DeviceInfoDTO.builder()
+                        .id(device.getId())
+                        .uid(device.getUid())
+                        .name(device.getName())
+                        .status(device.getStatus())
+                        .lastSeen(device.getLastSeen() != null ? device.getLastSeen().toString() : null)
+                        .createdAt(device.getCreatedAt() != null ? device.getCreatedAt().toString() : null)
+                        .model(device.getModel().getModel())
+                        .modelName(device.getModel().getName())
+                        .description(device.getModel().getDescription())
+                        .type(device.getModel().getType())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
