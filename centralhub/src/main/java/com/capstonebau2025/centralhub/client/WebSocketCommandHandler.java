@@ -126,34 +126,10 @@ public class WebSocketCommandHandler {
             if (response != null) {
                 sendResponse(hubSerialNumber, response);
             }
-        } catch (ResourceNotFoundException e) {
-            log.error("Resource not found: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.NOT_FOUND, "ResourceNotFoundException");
-        } catch (ValidationException e) {
-            log.error("Validation error: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.BAD_REQUEST, "ValidationException");
-        } catch (PermissionException e) {
-            log.error("PermissionException: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.FORBIDDEN, "PermissionException");
-        } catch (AuthException e) {
-            log.error("Authentication error: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.UNAUTHORIZED, "AuthException");
-        } catch (DeviceConnectionException e) {
-            log.error("Device connection error: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.SERVICE_UNAVAILABLE, "DeviceConnectionException");
-        } catch (CommunicationException e) {
-            log.error("Communication error: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR, "CommunicationException");
         } catch (Exception e) {
             log.error("Error processing command: {}", e.getMessage(), e);
             sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR, "ApplicationException");
+                    e.getStatus(), e.getClass().getSimpleName());
         }
     }
 
