@@ -126,10 +126,15 @@ public class WebSocketCommandHandler {
             if (response != null) {
                 sendResponse(hubSerialNumber, response);
             }
+        } catch (ApplicationException e) {
+            log.error("ApplicationException: {}", e.getMessage(), e);
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    e.getStatus(), e.getClass().getSimpleName());
+
         } catch (Exception e) {
             log.error("Error processing command: {}", e.getMessage(), e);
             sendErrorResponse(hubSerialNumber, message, e.getMessage(),
-                    e.getStatus(), e.getClass().getSimpleName());
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Exception");
         }
     }
 
