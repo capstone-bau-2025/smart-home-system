@@ -10,6 +10,7 @@
   } from "react-native";
   import { Ionicons } from "@expo/vector-icons";
 
+  //a custom made dropdown modal that takes in data and displays it in a dropdown format (found in homescreen)
   export default function DropdownModal({
     visible,
     setVisible,

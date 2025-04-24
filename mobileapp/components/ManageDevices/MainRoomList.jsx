@@ -3,6 +3,7 @@ import { StyleSheet, Text } from "react-native";
 import RoomsGridList from "../UI/RoomsGridList";
 import RoomModal from "./RoomModal";
 
+/// This component renders a list of rooms in the main room list screen
 export default function MainRoomList({ selectedTab,setVisible }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+//a component that renders a small modal in the middle of the screen (can be used as a wrapper)
 export default function MidModal({
   visible,
   onClose,

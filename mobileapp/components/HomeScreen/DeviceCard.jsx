@@ -8,6 +8,8 @@ import {
   getIconColor,
 } from "../../util/helperFunctions";
 
+
+//the device card thats in the homescreen
 export default function DeviceCard({ data }) {
   const [state, setState] = useState("Off");
   const [value, setValue] = useState(0);
@@ -56,7 +58,7 @@ export default function DeviceCard({ data }) {
               {
                 color:
                   isHub || isThermostat
-                    ? "#ff9900"
+                    ? "#8b8b8b"
                     : state === "On"
                     ? "green"
                     : "red",

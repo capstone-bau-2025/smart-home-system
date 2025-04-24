@@ -9,7 +9,7 @@ import RenameModal from "../UI/RenameModal";
 import { useNavigation } from '@react-navigation/native';
 import ConfirmationModal from "../UI/ConfirmationModal";
 
-
+//shows the devices inside the room clicked
 export default function RoomModal({ visible, onClose, room, selectedTab,setVisible }) {
   const navigation = useNavigation();
 

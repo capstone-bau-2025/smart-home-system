@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View, Switch, } from "react-native";
 
+//Switch button to toggle (similar to one found in ios/android)
 export default function Switch() {
   const [isEnabled, setIsEnabled] = useState(false);
 

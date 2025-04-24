@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message"; 
 
-
+//opens a modal that makes it possible to change the permissions of a user
 export default function PermsModal({ visible, onClose, userId, users, updatePermissions }) {
   const selectedUser = users.find((user) => user.id === userId);
   const [userPerms, setUserPerms] = useState({});

@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "../../constants/Colors";
 
+//this is the room card thats found in the roomsgridlist
 export default function RoomCard({
   room,
   icon,

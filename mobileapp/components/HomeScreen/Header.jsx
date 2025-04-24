@@ -5,6 +5,8 @@ import HeaderIcons from "../UI/HeaderIcons";
 import AddDropdown from "./AddDropdown";
 import SettingsDropdown from "./SettingsDropdown";
 
+
+//renders header elements in the homescreen
 export default function Header({ setModalVisible, setCurrentHub, currentHub }) {
   const [addValue, setAddValue] = useState(null);
   const [settingsValue, setSettingsValue] = useState(null);

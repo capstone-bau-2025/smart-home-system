@@ -3,6 +3,7 @@ import Colors from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 
+//a simple oval shaped text input, used in register and login screens 
 export default function OvalInput({
   placeholder,
   icon,
@@ -24,8 +25,8 @@ export default function OvalInput({
         placeholderTextColor="#ffffff"
         keyboardType={keyboardType}
         secureTextEntry={hidden}
-        value={value} // Ensure this is set
-        onChangeText={onChangeText} // Add this to update state
+        value={value} 
+        onChangeText={onChangeText} 
       />
 
       {password && (

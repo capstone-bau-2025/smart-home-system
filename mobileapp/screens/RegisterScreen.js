@@ -39,9 +39,9 @@ const styles = StyleSheet.create({
     fontSize: 35,
     marginBottom: 10,
     fontFamily: "Lexend-Bold",
-    textShadowColor: "rgba(0, 0, 0, 0.25)", // 25% opacity
-    textShadowOffset: { width: 0, height: 4 }, // X = 0, Y = 4
-    textShadowRadius: 4, // Blur = 4
+    textShadowColor: "rgba(0, 0, 0, 0.25)",
+    textShadowOffset: { width: 0, height: 4 }, 
+    textShadowRadius: 4, 
     marginTop: -100,
   },
 

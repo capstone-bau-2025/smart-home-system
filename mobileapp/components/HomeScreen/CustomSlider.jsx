@@ -2,6 +2,7 @@ import Slider from '@react-native-community/slider';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import React, { useState } from 'react';
 
+//custom slider for the ranges/enum types of devices in devices cards in homescreen
 export default function CustomSlider({ levels, ranged, choices, minRange, maxRange, value,setValue }) {
 
 

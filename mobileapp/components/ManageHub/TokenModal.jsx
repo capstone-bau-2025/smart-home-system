@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import InfoModal from "../UI/InfoModal";
 
+//opens a modal for the admin to generate invitation codes for users to join the hub
 export default function TokenModal({ visible, onClose }) {
   const [selectedRole, setSelectedRole] = useState(null);
   const [infoModal, setInfoModal] = useState(false);

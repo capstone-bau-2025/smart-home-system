@@ -1,9 +1,11 @@
-import { Pressable, StyleSheet, Text, TextInput, View,  } from "react-native";
+import { Pressable, StyleSheet, Text, View,  } from "react-native";
 
 import FullScreenModal from "../UI/FullScreenModal";
 import { useState } from "react";
 import EditInput from "../UI/EditInput";
 import { Ionicons } from "@expo/vector-icons";
+
+//modal that opens when hub card is pressed
 export default function DiscoveryModal({
   visible,
   onClose,

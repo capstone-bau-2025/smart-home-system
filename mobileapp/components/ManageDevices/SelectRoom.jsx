@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import Colors from "../../constants/Colors";
 import ConfirmationModal from "../UI/ConfirmationModal";
-import { Ionicons } from "@expo/vector-icons";
 import RoomsGridList from "../UI/RoomsGridList";
+
+// A modal that allows the user to select a room to move a device to
 export default function SelectRoom({
   visible,
   onClose,

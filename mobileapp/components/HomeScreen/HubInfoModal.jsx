@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+////the dropdown modal that shows when i is clicked
 export default function HubInfoModal({ visible, onClose }) {
   return (
     <Modal transparent visible={visible} animationType="fade">

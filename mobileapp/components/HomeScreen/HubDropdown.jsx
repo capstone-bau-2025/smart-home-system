@@ -4,18 +4,16 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Modal,
-  FlatList,
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DropdownModal from "../UI/DropdownModal";
-
+/// a dropdown component that shows the available hubs and allows the user to select one
 export default function HubDropdown({ currentHub, setCurrentHub }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const hubData = [
-    { label: "Hub1", value: "Hub1" , icon: "cube-outline"},
+    { label: "Hub1", value: "Hub1", icon: "cube-outline" },
     { label: "Hub2", value: "Hub2", icon: "cube-outline" },
   ];
 
@@ -80,7 +78,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: "#333",
     fontFamily: "Lexend-Bold",
-    
   },
   modalOverlay: {
     flex: 1,
@@ -112,6 +109,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "60%",
     justifyContent: "space-between",
-    marginLeft:15
+    marginLeft: 15,
   },
 });

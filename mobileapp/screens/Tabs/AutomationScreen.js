@@ -6,7 +6,7 @@ import AutomationInfoModal from "../../components/AutomationScreen/AutomationInf
 import HeaderIcons from "../../components/UI/HeaderIcons";
 import BottomLeftBlob from "../../components/svg/BottomLeftBlob";
 import InfoModal from "../../components/UI/InfoModal";
-import HubsTabs from "../../components/ManageHub/HubsTabs";
+import HubsTabs from "../../components/UI/HubsTabs";
 import Colors from "../../constants/Colors";
 import { hubs } from "../../Data/Hubs";
 

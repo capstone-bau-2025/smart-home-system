@@ -6,13 +6,13 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import HubsTabs from "../../components/ManageHub/HubsTabs";
+import HubsTabs from "../../../components/UI/HubsTabs";
 import { useState } from "react";
-import { hubs } from "../../Data/Hubs";
-import MainRoomList from "../../components/ManageDevices/MainRoomList";
-import HeaderIcons from "../../components/UI/HeaderIcons";
-import InfoModal from "../../components/UI/InfoModal";
-import AddRoomModal from "../../components/ManageDevices/AddRoomModal";
+import { hubs } from "../../../Data/Hubs";
+import MainRoomList from "../../../components/ManageDevices/MainRoomList";
+import HeaderIcons from "../../../components/UI/HeaderIcons";
+import InfoModal from "../../../components/UI/InfoModal";
+import AddRoomModal from "../../../components/ManageDevices/AddRoomModal";
 
 export default function ManageDevice({  currentHub,
   setAddModal,

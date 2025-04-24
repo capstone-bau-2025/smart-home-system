@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import Colors from "../../constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 
+
+//simple oval shaped button used in register and login 
 export default function OvalButton({ text, icon, color,onPress }) {
   return (
     <Pressable

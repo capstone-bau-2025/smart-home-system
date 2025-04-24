@@ -1,17 +1,11 @@
 import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Modal,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import DropdownModal from "../UI/DropdownModal";
 
+//the dropdown modal that shows when settings is clicked
 export default function SettingsDropdown({
   settingsValue,
   setSettingsValue,
@@ -43,7 +37,9 @@ export default function SettingsDropdown({
         setVisible={setSettingsVisible}
         visible={settingsVisible}
         position={
-          Platform.OS === "ios" ? { right: 40, top: 40 } : { right: 10, top: -20 }
+          Platform.OS === "ios"
+            ? { right: 40, top: 40 }
+            : { right: 10, top: -20 }
         }
         triposition={
           Platform.OS === "ios"

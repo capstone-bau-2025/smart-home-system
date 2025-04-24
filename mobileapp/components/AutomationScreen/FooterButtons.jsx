@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import React from "react";
 
+
+//footer buttons for the automation info modal
 export default function FooterButtons({ handleCloseModal, handleEdit, handleSave, edit }) {
   return (
     <View style={styles.buttonContainer}>

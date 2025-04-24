@@ -3,6 +3,8 @@ import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import DiscoveryModal from "./DiscoveryModal";
 import { useState } from "react";
+
+//card that shows the discovered hubs, and when pressed it shows a modal with the hub details
 export default function DiscoverCard() {
   const hubs = [
     {

@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import MidModal from "./MidModal";
 import EditInput from "./EditInput";
 import { useState } from "react";
+//a component for renaming, opens a small modal with text input and a save + cancel buttons
 export default function RenameModal({ visible, setVisible, value, setValue, title,placeholder}) {
 
   return (

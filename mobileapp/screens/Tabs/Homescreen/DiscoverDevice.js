@@ -13,7 +13,7 @@ export default function DiscoverDevice() {
 
   const handleScanDevices = () => {
     console.log("Scanning for devices...");
-    // Add scanning logic here
+
   };
 
   return (
@@ -29,7 +29,7 @@ export default function DiscoverDevice() {
         ))}
       </ScrollView>
 
-      {/* Fixed Scan Button */}
+      {/*  Scan Button */}
       <TouchableOpacity style={styles.scanButton} onPress={handleScanDevices}>
         <Text style={styles.scanButtonText}>Scan Devices</Text>
       </TouchableOpacity>
@@ -51,15 +51,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   deviceList: {
-    paddingBottom: 20, // Prevent overlap with button
+    paddingBottom: 20,
   },
   deviceItem: {
     backgroundColor: "white",
     padding: 15,
     marginBottom: 10,
     borderRadius: 8,
-    elevation: 3, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 3, 
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+//opens a mid screen modal with an icon and a message, and a close button
 export default function InfoModal({
   visible,
   onClose,

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+// a custom modal that takes in a message and an icon, and two buttons (confirm and cancel) to confirm or cancel an action
 export default function ConfirmationModal({
   visible,
   onClose,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
-    backgroundColor: "#2d9f99",
+    backgroundColor: "#ff0000",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,

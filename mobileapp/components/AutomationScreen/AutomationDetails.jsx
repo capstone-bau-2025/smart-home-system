@@ -3,6 +3,7 @@ import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
+// shows the details of the automation when the user clicks on it
 export default function AutomationDetails({
   currentAutomation,
   edit,

@@ -9,15 +9,15 @@ import {
   StatusBar,
 } from "react-native";
 import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler";
-import HubsTabs from "../../components/ManageHub/HubsTabs";
+import HubsTabs from "../../../components/UI/HubsTabs";
 import { useState } from "react";
-import UsersList from "../../components/ManageHub/UsersList";
-import { hubs } from "../../Data/Hubs";
-import InfoModal from "../../components/UI/InfoModal";
-import HeaderIcons from "../../components/UI/HeaderIcons";
-import TokenModal from "../../components/ManageHub/TokenModal";
-import RenameModal from "../../components/UI/RenameModal";
-import MidModal from "../../components/UI/MidModal";
+import UsersList from "../../../components/ManageHub/UsersList";
+import { hubs } from "../../../Data/Hubs";
+import InfoModal from "../../../components/UI/InfoModal";
+import HeaderIcons from "../../../components/UI/HeaderIcons";
+import TokenModal from "../../../components/ManageHub/TokenModal";
+import RenameModal from "../../../components/UI/RenameModal";
+import MidModal from "../../../components/UI/MidModal";
 
 export default function ManageHub({
   currentHub,

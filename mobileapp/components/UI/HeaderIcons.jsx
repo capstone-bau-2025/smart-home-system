@@ -1,6 +1,7 @@
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+//component to render the 3 icons in the header of the app
 export default function HeaderIcons({ onInfoPress, onCogPress, onAddPress, custompadding }) {
   return (
     <View style={[styles.iconsContainer, custompadding && styles.customPadding]}>

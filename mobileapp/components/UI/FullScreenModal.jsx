@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
 
 import Colors from "../../constants/Colors";
 
+// A component that renders a full screen modal with a title and a close button
 export default function FullScreenModal({ visible, onClose, children, title }) {
   return (
     <Modal animationType="slide" transparent={false} visible={visible}>

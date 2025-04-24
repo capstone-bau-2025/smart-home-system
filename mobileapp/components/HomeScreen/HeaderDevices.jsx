@@ -2,6 +2,8 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import DeviceCard from './DeviceCard'
 
+
+//the devices in the top header of the homescreen (thermo + hub)
 export default function HeaderDevices() {
   
   const headerCards = {

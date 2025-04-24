@@ -3,17 +3,14 @@ import {
   Text,
   View,
   Modal,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   ScrollView,
 } from "react-native";
-import React from "react";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+
 import FooterButtons from "./FooterButtons";
 import AutomationDetails from "./AutomationDetails";
-import { FlatList } from "react-native";
 
+//modal that is shown when user clicked on the automation card
 export default function AutomationInfoModal({
   modalVisible,
   setModalVisible,
@@ -28,7 +25,6 @@ export default function AutomationInfoModal({
     setModalVisible(false);
     navigation.navigate("ConfigureAutomation", {
       currentAutomation: currentAutomation,
-      
     });
   };
 
@@ -40,7 +36,6 @@ export default function AutomationInfoModal({
       visible={modalVisible}
       animationType="fade"
       onRequestClose={handleCloseModal}
-    
     >
       <TouchableWithoutFeedback onPress={handleCloseModal}>
         <View style={styles.modalOverlay}>
@@ -48,7 +43,7 @@ export default function AutomationInfoModal({
             <View style={styles.modalContainer}>
               <Text style={styles.autoName}>{currentAutomation.name}</Text>
 
-              <ScrollView style={styles.scrollContainer}  >
+              <ScrollView style={styles.scrollContainer}>
                 <AutomationDetails currentAutomation={currentAutomation} />
               </ScrollView>
               <FooterButtons
@@ -89,9 +84,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   scrollContainer: {
-  
     width: "100%",
     maxHeight: "80%",
   },
-
 });

@@ -6,10 +6,10 @@ import HomeScreen from "./screens/Tabs/HomeScreen";
 import AutomationScreen from "./screens/Tabs/AutomationScreen";
 import SurveillanceScreen from "./screens/Tabs/SurveillanceScreen";
 import ProfileScreen from "./screens/Tabs/ProfileScreen";
-import DiscoverDevice from "./screens/Homescreen/DiscoverDevice";
-import ManageDevice from "./screens/Homescreen/ManageDevice";
-import ManageHub from "./screens/Homescreen/ManageHub";
-import DiscoverHub from "./screens/Homescreen/DiscoverHub";
+import DiscoverDevice from "./screens/Tabs/Homescreen/DiscoverDevice";
+import ManageDevice from "./screens/Tabs/Homescreen/ManageDevice";
+import ManageHub from "./screens/Tabs/Homescreen/ManageHub";
+import DiscoverHub from "./screens/Tabs/Homescreen/DiscoverHub";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -17,7 +17,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
-import { BaseToast } from 'react-native-toast-message';
+import { BaseToast } from "react-native-toast-message";
 import ConfigureAutomation from "./screens/AutomationScreen/ConfigureAutomation";
 import Trigger from "./screens/AutomationScreen/Trigger";
 import StatusChange from "./screens/AutomationScreen/StatusChange";
@@ -26,38 +26,38 @@ import Action from "./screens/AutomationScreen/Action";
 import HeaderIcons from "./components/UI/HeaderIcons";
 import NewAutomation from "./screens/AutomationScreen/NewAutomation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 export default function App() {
   return (
-<SafeAreaProvider>
+    <SafeAreaProvider>
       <AuthContextProvider>
         <RootApp />
       </AuthContextProvider>
       <Toast
-  config={{
-    success: (props) => (
-      <BaseToast
-        {...props}
-        style={{ borderLeftColor: '#4CAF50' }}
-        contentContainerStyle={{ paddingHorizontal: 15 }}
-        text1Style={{
-          fontFamily: 'Lexend-Bold',
-          fontSize: 16,
-          color: 'black',
-        }}
-        text2Style={{
-          fontFamily: 'Lexend-Regular',
-          fontSize: 14,
-          color: '#a8a8a8',
+        config={{
+          success: (props) => (
+            <BaseToast
+              {...props}
+              style={{ borderLeftColor: "#4CAF50" }}
+              contentContainerStyle={{ paddingHorizontal: 15 }}
+              text1Style={{
+                fontFamily: "Lexend-Bold",
+                fontSize: 16,
+                color: "black",
+              }}
+              text2Style={{
+                fontFamily: "Lexend-Regular",
+                fontSize: 14,
+                color: "#a8a8a8",
+              }}
+            />
+          ),
         }}
       />
-    ),
-  }}
-/>
-</SafeAreaProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -90,8 +90,6 @@ function RootApp() {
       ) : (
         <AuthStack />
       )}
-
-
     </NavigationContainer>
   );
 }
@@ -221,9 +219,7 @@ function HomeStackNavigator({ currentHub, setCurrentHub }) {
               <HeaderIcons
                 onInfoPress={() => setInfoModal(true)}
                 onAddPress={() => setAddModal(true)}
-                onCogPress={() =>
-                setCogModal(true)
-                }
+                onCogPress={() => setCogModal(true)}
                 custompadding={true}
               />
             </View>
@@ -244,38 +240,37 @@ function HomeStackNavigator({ currentHub, setCurrentHub }) {
         )}
       </Stack.Screen>
       <Stack.Screen
-  name="ManageDevice"
-  options={{
-    headerTransparent: true,
-    headerTitle: "",
-    headerRight: () => (
-      <View style={styles.headerIcons}>
-        <HeaderIcons
-          onInfoPress={() => setInfoModal(true)}
-          onAddPress={() => setAddModal(true)}
-          onCogPress={() =>
-            console.log("Cog pressed, rename hub and delete")
-          }
-          custompadding={true}
-        />
-      </View>
-    ),
-  }}
->
-  {(props) => (
-    <ManageDevice
-      {...props}
-      currentHub={currentHub}
-      addModal={addModal}
-      cogModal={cogModal}
-      infoModal={infoModal}
-      setAddModal={setAddModal}
-      setCogModal={setCogModal}
-      setInfoModal={setInfoModal}
-    />
-  )}
-</Stack.Screen>
-
+        name="ManageDevice"
+        options={{
+          headerTransparent: true,
+          headerTitle: "",
+          headerRight: () => (
+            <View style={styles.headerIcons}>
+              <HeaderIcons
+                onInfoPress={() => setInfoModal(true)}
+                onAddPress={() => setAddModal(true)}
+                onCogPress={() =>
+                  console.log("Cog pressed, rename hub and delete")
+                }
+                custompadding={true}
+              />
+            </View>
+          ),
+        }}
+      >
+        {(props) => (
+          <ManageDevice
+            {...props}
+            currentHub={currentHub}
+            addModal={addModal}
+            cogModal={cogModal}
+            infoModal={infoModal}
+            setAddModal={setAddModal}
+            setCogModal={setCogModal}
+            setInfoModal={setInfoModal}
+          />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }

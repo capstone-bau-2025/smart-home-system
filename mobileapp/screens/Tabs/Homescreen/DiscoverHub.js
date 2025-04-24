@@ -1,8 +1,8 @@
 import { Modal, StyleSheet, Text, View,SafeAreaView } from 'react-native'
 import React from 'react'
-import DiscoverCard from './DiscoverCard'
+import DiscoverCard from '../../../components/DiscoverHub/DiscoverCard'
 
-export default function HubDiscovery() {
+export default function DiscoverHub() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Scanned Hubs</Text>

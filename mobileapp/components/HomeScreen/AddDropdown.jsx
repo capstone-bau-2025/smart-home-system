@@ -1,17 +1,11 @@
 import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Modal,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
+
 import { Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import DropdownModal from "../UI/DropdownModal";
 
+//the dropdown modal that shows when + is clicked
 export default function AddDropdown({
   addValue,
   setAddValue,
@@ -42,14 +36,10 @@ export default function AddDropdown({
       setVisible={setAddVisible}
       visible={addVisible}
       position={
-        Platform.OS === "ios"
-          ? { right: 70, top: 40 }
-          : { right: 50, top: -20 }
+        Platform.OS === "ios" ? { right: 70, top: 40 } : { right: 50, top: -20 }
       }
       triposition={
-        Platform.OS === "ios"
-          ? { right: 10, top: 40 }
-          : { right: 10, top: -20 }
+        Platform.OS === "ios" ? { right: 10, top: 40 } : { right: 10, top: -20 }
       }
     />
 

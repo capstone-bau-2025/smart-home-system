@@ -3,11 +3,11 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { AuthContext } from "../../store/auth-context";
 import OvalButton from "../../components/UI/OvalButton";
 import SVGS from "../../components/svg/SVGS";
-import { Ionicons } from "@expo/vector-icons"; // For icons
+import { Ionicons } from "@expo/vector-icons"; 
 import Colors from "../../constants/Colors";
 
 export default function ProfileScreen() {
-  const { logout, user } = useContext(AuthContext); // Assuming user info is in AuthContext
+  const { logout, user } = useContext(AuthContext); 
 
   return (
     <View style={styles.container}>

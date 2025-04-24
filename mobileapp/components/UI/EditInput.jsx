@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TextInput } from 'react-native';
 
+//a simple edit input component used in modals for changing text values
 export default function EditInput({ value, placeholder, setChange, title }) {
   return (
     <>

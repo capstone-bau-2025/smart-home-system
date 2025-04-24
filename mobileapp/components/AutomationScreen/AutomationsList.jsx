@@ -1,15 +1,9 @@
-import { Ionicons } from "@expo/vector-icons";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  Platform,
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState } from "react";
 import ScrollableList from "../UI/ScrollableList";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
+//uses a scrollable list to display the automations
 export default function AutomationsList({
   automations,
   currentHub,
@@ -44,14 +38,14 @@ export default function AutomationsList({
       text1Style: {
         fontFamily: "Lexend-Bold",
         fontSize: 16,
-        color:'black'
+        color: "black",
       },
       text2Style: {
         fontFamily: "Lexend-Regular",
         fontSize: 14,
-        color:'#a8a8a8'
+        color: "#a8a8a8",
       },
-      text1: 'Automation Updated',
+      text1: "Automation Updated",
       text2: `${updatedName} status is now ${updatedStatus}.`,
     });
   };
@@ -67,9 +61,9 @@ export default function AutomationsList({
       <ScrollableList
         data={autoData}
         toggle={true}
-        toggleSwitch={handleToggleAutomation} 
+        toggleSwitch={handleToggleAutomation}
         handlePress={handlePress}
-        textFields={["name"]} 
+        textFields={["name"]}
         pressableTab={true}
       />
     </>
@@ -85,6 +79,5 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontFamily: "Lexend-Bold",
-
   },
 });

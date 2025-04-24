@@ -18,21 +18,21 @@ export const homeHub = {
         },
         {
           id: "dev2",
-          name: "Ambient Light",
-          category: "light",
-          type: "binary",
+          name: "Curtains",
+          category: "curtains",
+          type: "enum",
           mutable: true,
           range: null,
-          choices: ["on", "off"],
+          choices: ["Low", "Medium", "High"],
         },
         {
           id: "dev3",
           name: "Air Sensor",
           category: "sensor",
-          type: "enum",
+          type: "range",
           mutable: false,
-          range: null,
-          choices: ["Low", "Medium", "High"],
+          range: [1, 30],
+
         },
         {
           id: "dev4",

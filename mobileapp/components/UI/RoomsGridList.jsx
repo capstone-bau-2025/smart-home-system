@@ -1,7 +1,8 @@
 import React from "react";
 import { FlatList, StyleSheet, Text } from "react-native";
-import RoomCard from "../UI/RoomCard"; // Import RoomCard
+import RoomCard from "../UI/RoomCard"; 
 
+//renders grid of rooms with room cards, each card can be pressed to navigate to the room details screen (used in managedevice + select room)
 export default function RoomsGridList({ rooms, onRoomPress, devShown, editShown, color}) {
   if (!rooms || rooms.length === 0) {
     return <Text style={styles.noRooms}>No rooms available</Text>;

@@ -12,6 +12,7 @@ import {
 import Colors from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 
+//renders a flatist of items with text and buttons, can either be pressable or not, have 3 different buttons next to it or just one switch
 export default function ScrollableList({
   data,
   textFields = [],

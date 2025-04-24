@@ -3,6 +3,8 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import DeviceCard from './DeviceCard';
 
+
+//holds the rooms and devices under them
 export default function RoomCard({ data }) {
   const leftColumn = [];
   const rightColumn = [];

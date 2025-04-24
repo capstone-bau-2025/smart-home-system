@@ -4,6 +4,8 @@ import FullScreenModal from '../UI/FullScreenModal';
 import EditInput from '../UI/EditInput';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+// A modal that allows the user to add a room to the hub, it takes in a name and an icon
 export default function AddRoomModal({ visible, onClose, title,onSave }) {
   const [roomName, setRoomName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState(null);
