@@ -7,6 +7,7 @@ import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateUserPermissionsRe
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
+import com.capstonebau2025.centralhub.exception.*;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
 import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
@@ -16,9 +17,11 @@ import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +57,7 @@ public class WebSocketCommandHandler {
 
             if (user == null) {
                 log.error("User with email {} not found", email);
-                sendErrorResponse(hubSerialNumber, message, "User not found");
+                sendErrorResponse(hubSerialNumber, message, "User not found", HttpStatus.NOT_FOUND, "ResourceNotFoundException");
                 return;
             }
 
@@ -114,7 +117,8 @@ public class WebSocketCommandHandler {
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
-                    sendErrorResponse(hubSerialNumber, message, "Unknown command type");
+                    sendErrorResponse(hubSerialNumber, message, "Unknown command type",
+                            HttpStatus.BAD_REQUEST, "ValidationException");
                     return;
             }
 
@@ -122,12 +126,17 @@ public class WebSocketCommandHandler {
             if (response != null) {
                 sendResponse(hubSerialNumber, response);
             }
+        } catch (ApplicationException e) {
+            log.error("ApplicationException: {}", e.getMessage(), e);
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    e.getStatus(), e.getClass().getSimpleName());
+
         } catch (Exception e) {
             log.error("Error processing command: {}", e.getMessage(), e);
-            sendErrorResponse(hubSerialNumber, message, "Error processing command: " + e.getMessage());
+            sendErrorResponse(hubSerialNumber, message, e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Exception");
         }
     }
-
 
     private RemoteCommandResponse handleGetAllInteractions(Long userId, String hubSerialNumber, RemoteCommandMessage message) {
         log.info("Processing GET_ALL_INTERACTIONS command for user ID: {}", userId);
@@ -470,13 +479,25 @@ public class WebSocketCommandHandler {
         stompSession.send(destination, response);
     }
 
-    private void sendErrorResponse(String hubSerialNumber, RemoteCommandMessage message, String errorMessage) {
+    private void sendErrorResponse(String hubSerialNumber, RemoteCommandMessage message,
+                                   String errorMessage, HttpStatus status, String errorType) {
+        // Create a structured ErrorResponse object
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now().toString())
+                .status(status.value())
+                .error(errorType)
+                .message(errorMessage)
+                .path("/api/" + message.getCommandType().toLowerCase().replace("_", "-"))
+                .build();
+
         RemoteCommandResponse response = RemoteCommandResponse.builder()
                 .commandType(message.getCommandType())
                 .status("ERROR")
                 .message(errorMessage)
+                .payload(errorResponse) // Include the structured error response in payload
                 .requestId(message.getRequestId())
                 .build();
+
         sendResponse(hubSerialNumber, response);
     }
 }

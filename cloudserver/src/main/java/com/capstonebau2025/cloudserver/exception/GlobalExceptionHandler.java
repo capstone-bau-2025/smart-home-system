@@ -1,6 +1,6 @@
-package com.capstonebau2025.centralhub.exception;
+package com.capstonebau2025.cloudserver.exception;
 
-import com.capstonebau2025.centralhub.dto.ErrorResponse;
+import com.capstonebau2025.cloudserver.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

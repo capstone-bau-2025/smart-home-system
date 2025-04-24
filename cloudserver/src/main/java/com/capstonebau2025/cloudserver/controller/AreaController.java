@@ -24,84 +24,58 @@ public class AreaController {
     public ResponseEntity<?> addArea(
             @RequestParam String areaName,
             @RequestParam String hubSerialNumber) {
-        try {
-            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("ADD_AREA")
-                    .email(user.getEmail())
-                    .payload(areaName)
-                    .build();
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                    hubSerialNumber, message, 5);
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("ADD_AREA")
+                .email(user.getEmail())
+                .payload(areaName)
+                .build();
 
-            if ("SUCCESS".equals(response.getStatus())) {
-                return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(response.getPayload());
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Error: " + response.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("Failed to add area", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to add area: " + e.getMessage());
-        }
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        // If we reach here, it means the response was successful
+        // (errors are handled by RemoteCommandProcessor)
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(response.getPayload());
     }
 
     @GetMapping("/get-all")
     public ResponseEntity<?> getAllAreas(@RequestParam String hubSerialNumber) {
-        try {
-            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("GET_ALL_AREAS")
-                    .email(user.getEmail())
-                    .build();
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                    hubSerialNumber, message, 5);
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("GET_ALL_AREAS")
+                .email(user.getEmail())
+                .build();
 
-            if ("SUCCESS".equals(response.getStatus())) {
-                return ResponseEntity.ok(response.getPayload());
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Error: " + response.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("Failed to get all areas", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to get all areas: " + e.getMessage());
-        }
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        // If we reach here, it means the response was successful
+        return ResponseEntity.ok(response.getPayload());
     }
 
     @DeleteMapping("/{areaId}")
     public ResponseEntity<?> deleteArea(
             @PathVariable Long areaId,
             @RequestParam String hubSerialNumber) {
-        try {
-            User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            RemoteCommandMessage message = RemoteCommandMessage.builder()
-                    .commandType("DELETE_AREA")
-                    .email(user.getEmail())
-                    .payload(areaId)
-                    .build();
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-            RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                    hubSerialNumber, message, 5);
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("DELETE_AREA")
+                .email(user.getEmail())
+                .payload(areaId)
+                .build();
 
-            if ("SUCCESS".equals(response.getStatus())) {
-                return ResponseEntity.noContent().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Error: " + response.getMessage());
-            }
-        } catch (Exception e) {
-            log.error("Failed to delete area", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to delete area: " + e.getMessage());
-        }
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        // If we reach here, it means the response was successful
+        return ResponseEntity.noContent().build();
     }
 }
