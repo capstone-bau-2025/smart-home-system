@@ -37,3 +37,5 @@ out/
 
 ### VS Code ###
 .vscode/
+
+cloudserver/src/main/resources/firebase/smart-home-system-notification-firebase-adminsdk.json

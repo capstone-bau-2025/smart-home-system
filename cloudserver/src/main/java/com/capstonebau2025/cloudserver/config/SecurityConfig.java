@@ -32,7 +32,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/api/hub/**",
                                 "/hub-socket/**",
-                                "/api/auth/hub-token"
+                                "/api/auth/hub-token",
+                                "/api/notify"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

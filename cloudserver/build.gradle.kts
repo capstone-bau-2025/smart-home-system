@@ -29,6 +29,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
+	implementation("com.google.firebase:firebase-admin:9.2.0")
 
 	implementation("org.projectlombok:lombok")
 	compileOnly("org.projectlombok:lombok")
