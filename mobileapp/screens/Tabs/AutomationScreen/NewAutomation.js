@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import React from "react";
-import AutomationDetails from "../../components/AutomationScreen/AutomationDetails";
-import ModalButtons from "../../components/AutomationScreen/FooterButtons";
+import AutomationDetails from "../../../components/AutomationScreen/AutomationDetails";
+import FooterButtons from "../../../components/AutomationScreen/FooterButtons"
 import { useState } from "react";
-import TypeModal from "../../components/AutomationScreen/TypeModal";
+import TypeModal from "../../../components/AutomationScreen/TypeModal";
 
 export default function NewAutomation({ route,navigation }) {
   const { currentAutomation } = route.params || {};
@@ -35,7 +35,7 @@ export default function NewAutomation({ route,navigation }) {
             setModalVisible={setModalVisible}
             navigation={navigation}
           />
-          <ModalButtons edit={true} />
+          <FooterButtons edit={true} />
         </View>
       </ScrollView>
 

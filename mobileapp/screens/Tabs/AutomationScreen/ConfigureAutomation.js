@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import React from "react";
-import AutomationDetails from "../../components/AutomationScreen/AutomationDetails";
-import ModalButtons from "../../components/AutomationScreen/FooterButtons";
+import AutomationDetails from "../../../components/AutomationScreen/AutomationDetails";
+import ModalButtons from "../../../components/AutomationScreen/FooterButtons";
 import { useState } from "react";
-import TypeModal from "../../components/AutomationScreen/TypeModal";
+import TypeModal from "../../../components/AutomationScreen/TypeModal";
 
 export default function ConfigureAutomation({ route,navigation }) {
   const { currentAutomation } = route.params || {};
