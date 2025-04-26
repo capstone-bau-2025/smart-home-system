@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.client.CloudClient;
 import com.capstonebau2025.centralhub.dto.localRequests.ConfigureHubRequest;
 import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.dto.HubInfoResponse;
@@ -22,6 +23,7 @@ public class HubService {
     private final HubRepository hubRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CloudClient cloudClient;
     private final InvitationService invitationService;
     private final Logger logger = LoggerFactory.getLogger(HubService.class);
 
@@ -71,7 +73,7 @@ public class HubService {
     public void setHubName(String name) {
         Hub hub = getHub();
         hub.setName(name);
-        // TODO: update name in cloud too
+        cloudClient.updateHubName(name);
         hubRepository.save(hub);
     }
 
