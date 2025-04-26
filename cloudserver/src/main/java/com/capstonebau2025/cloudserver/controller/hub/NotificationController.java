@@ -1,4 +1,4 @@
-package com.capstonebau2025.cloudserver.controller;
+package com.capstonebau2025.cloudserver.controller.hub;
 
 import com.capstonebau2025.cloudserver.dto.NotificationRequest;
 import com.capstonebau2025.cloudserver.entity.Hub;
