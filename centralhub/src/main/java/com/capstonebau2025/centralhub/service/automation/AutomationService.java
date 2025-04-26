@@ -35,8 +35,17 @@ public class AutomationService {
             *
             * */
 
-            // Save rule
-            AutomationRule savedRule = ruleRepository.save(rule);
+//            AutomationRuleBuilder ruleBuilder = AutomationRule.builder()
+//                    .name(request.getName)
+//                    .description();
+//
+//            if rule is schedule
+//            rule.scheduledTime(request.scheduleTime)
+//            else type is not schedule
+//            AutomationTrigger
+//
+//            // Save rule
+            AutomationRule savedRule = ruleRepository.save(rule); //ruleBuilder.build()
 
             // Attach rule to trigger
             trigger.setAutomationRule(savedRule);
