@@ -4,12 +4,18 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class FCMService {
 
-    public String sendNotification(String fcmToken, String title, String body) throws FirebaseMessagingException {
+    private final UserService userService;
+
+    public String sendNotification(String email, String title, String body) throws FirebaseMessagingException {
+        String fcmToken = userService.getUserFcmToken(email);
+
         Notification notification = Notification.builder()
                 .setTitle(title)
                 .setBody(body)

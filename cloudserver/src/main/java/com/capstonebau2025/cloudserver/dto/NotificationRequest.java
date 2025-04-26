@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class NotificationRequest {
     private String token;
-    private String fcmToken;
+    private String email;
     private String title;
     private String body;
 }

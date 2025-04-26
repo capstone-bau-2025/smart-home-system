@@ -29,11 +29,11 @@ public class NotificationController {
                     .valid(false)
                     .message("Invalid hub token")
                     .build());
-        }
+        } // TODO: check if user is linked to hub
 
         try {
             String response = fcmService.sendNotification(
-                request.getFcmToken(), request.getTitle(), request.getBody());
+                request.getEmail(), request.getTitle(), request.getBody());
 
             return ResponseEntity.ok("Notification sent: " + response);
 
