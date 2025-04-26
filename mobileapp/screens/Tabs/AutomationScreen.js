@@ -9,6 +9,7 @@ import InfoModal from "../../components/UI/InfoModal";
 import HubsTabs from "../../components/UI/HubsTabs";
 import Colors from "../../constants/Colors";
 import { hubs } from "../../Data/Hubs";
+import { StatusBar } from "expo-status-bar";
 
 
 export default function AutomationScreen({ currentHub, navigation }) {
@@ -22,6 +23,7 @@ export default function AutomationScreen({ currentHub, navigation }) {
   return (
     <>
       <SafeAreaView style={styles.container}>
+        <StatusBar/>
         <View style={styles.header}>
           <HeaderIcons onInfoPress={() => setInfoModal(true)} onAddPress={() => navigation.push('NewAutomation')}/>
         </View>
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
-
+    paddingTop: Platform.OS === "android" ? 30 : 0,
 
   },
 });

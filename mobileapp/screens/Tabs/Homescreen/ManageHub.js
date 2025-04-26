@@ -81,7 +81,8 @@ export default function ManageHub({
 
 const styles = StyleSheet.create({
   safeContainer: {
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 50 : 0,
+
     alignItems: "center",
     flex: 1,
     backgroundColor: "#f1f1f1",

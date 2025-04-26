@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, Text, View,SafeAreaView } from 'react-native'
+import { Modal, StyleSheet, Text, View,SafeAreaView,StatusBar,Platform } from 'react-native'
 import React from 'react'
 import DiscoverCard from '../../../components/DiscoverHub/DiscoverCard'
 
@@ -14,7 +14,8 @@ export default function DiscoverHub() {
 const styles = StyleSheet.create({
   container:{
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center', 
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 50 : 0,
   },
   title:{
     fontSize: 27,
