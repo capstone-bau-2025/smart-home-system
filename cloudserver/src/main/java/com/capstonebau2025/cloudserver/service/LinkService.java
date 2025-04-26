@@ -1,6 +1,5 @@
 package com.capstonebau2025.cloudserver.service;
 
-import com.capstonebau2025.cloudserver.dto.LinkUserRequest;
 import com.capstonebau2025.cloudserver.dto.LinkUserResponse;
 import com.capstonebau2025.cloudserver.dto.UserValidationResponse;
 import com.capstonebau2025.cloudserver.entity.Hub;
@@ -26,29 +25,10 @@ public class LinkService {
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(LinkService.class);
 
-    public ResponseEntity<LinkUserResponse> linkUser(LinkUserRequest request) {
-        // Validate request fields
-        if (request.getCloudToken() == null || request.getCloudToken().isEmpty()) {
-            return ResponseEntity.badRequest().body(LinkUserResponse.builder()
-                    .success(false)
-                    .message("Token is required")
-                    .build());
-        }
-        if (request.getHubSerialNumber() == null || request.getHubSerialNumber().isEmpty()) {
-            return ResponseEntity.badRequest().body(LinkUserResponse.builder()
-                    .success(false)
-                    .message("Hub serial number is required")
-                    .build());
-        }
-        if (request.getEmail() == null || request.getEmail().isEmpty()) {
-            return ResponseEntity.badRequest().body(LinkUserResponse.builder()
-                    .success(false)
-                    .message("Email is required")
-                    .build());
-        }
+    public ResponseEntity<LinkUserResponse> linkUser(String serialNumber, String email, String cloudToken) {
 
         // Validate user token
-        UserValidationResponse userValidation = userService.validateUser(request.getCloudToken(), request.getEmail());
+        UserValidationResponse userValidation = userService.validateUser(cloudToken, email);
         if (!userValidation.isValid()) {
             return ResponseEntity.status(401).body(LinkUserResponse.builder()
                     .success(false)
@@ -58,17 +38,9 @@ public class LinkService {
 
         try {
             // Find the hub by serial number
-            Hub hub = hubRepository.findBySerialNumber(request.getHubSerialNumber())
-                    .orElse(null);
-            if (hub == null) {
-                return ResponseEntity.badRequest().body(LinkUserResponse.builder()
-                        .success(false)
-                        .message("Hub not found with serial number: " + request.getHubSerialNumber())
-                        .build());
-            }
+            Hub hub = hubRepository.findBySerialNumber(serialNumber)
+                    .orElseThrow(() -> new RuntimeException("Hub doesn't exist"));
 
-            // Find user by email
-            String email = userValidation.getUserInfo().getEmail();
             User user = userRepository.findByEmail(email)
                     .orElse(null);
             if (user == null) {

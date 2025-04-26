@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface HubRepository extends JpaRepository<Hub, Long> {
     Optional<Hub> findBySerialNumber(String serialNumber);
+    boolean existsBySerialNumber(String serialNumber);
 }

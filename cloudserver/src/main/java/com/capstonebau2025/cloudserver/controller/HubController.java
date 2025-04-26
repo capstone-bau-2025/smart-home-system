@@ -4,6 +4,7 @@ import com.capstonebau2025.cloudserver.dto.*;
 import com.capstonebau2025.cloudserver.helper.KeyGenerator;
 import com.capstonebau2025.cloudserver.entity.Hub;
 import com.capstonebau2025.cloudserver.repository.HubRepository;
+import com.capstonebau2025.cloudserver.service.HubService;
 import com.capstonebau2025.cloudserver.service.JwtService;
 import com.capstonebau2025.cloudserver.service.LinkService;
 import com.capstonebau2025.cloudserver.service.UserService;
@@ -22,7 +23,8 @@ import java.util.Map;
 public class HubController {
     private final HubRepository hubRepository;
     private final UserService userService;
-    private final LinkService hubService;
+    private final LinkService linkService;
+    private final HubService hubService;
     private final JwtService jwtService;
 
     @PostMapping("/registerHub")
@@ -73,8 +75,8 @@ public class HubController {
     @PostMapping("/validateUser")
     public ResponseEntity<UserValidationResponse> validateUser(@RequestBody UserValidationRequest request) {
 
-        if(!jwtService.validateToken(request.getToken()) || jwtService.extractHubId(request.getToken()) == null) {
-            return ResponseEntity.badRequest().body(UserValidationResponse.builder()
+        if(!hubService.hubExistsByToken(request.getToken())) {
+            return ResponseEntity.status(401).body(UserValidationResponse.builder()
                     .valid(false)
                     .message("Invalid hub token")
                     .build());
@@ -88,28 +90,17 @@ public class HubController {
 
     @PostMapping("/linkUser")
     public ResponseEntity<LinkUserResponse> linkUser(@RequestBody LinkUserRequest request) {
+        Hub hub = hubService.getHubByToken(request.getToken());
 
-        if(!jwtService.validateToken(request.getToken()) || !jwtService.extractHubId(request.getToken()).equals(request.getHubSerialNumber())) {
-            return ResponseEntity.badRequest().body(LinkUserResponse.builder()
-                    .success(false)
-                    .message("Invalid hub token")
-                    .build());
-        }
-
-        return hubService.linkUser(request);
+        return linkService.linkUser(hub.getSerialNumber(), request.getEmail(), request.getCloudToken());
     }
 
     @DeleteMapping("/unlinkUser")
     public ResponseEntity<?> unlinkUser(@RequestBody UnlinkUserRequest request) {
-        if (request.getEmail() == null || request.getEmail().isEmpty())
-            return ResponseEntity.badRequest().body("Email and hub serial number are required");
+        Hub hub = hubService.getHubByToken(request.getToken());
 
-        String hubSerialNumber = jwtService.extractHubId(request.getToken());
-        if (!jwtService.validateToken(request.getToken()) || hubSerialNumber == null)
-            return ResponseEntity.status(401).body("Invalid hub token");
-
-        hubService.unlinkUser(request.getEmail(), hubSerialNumber);
-        log.info("Unlinked user with email: {} from hub with serial number: {}", request.getEmail(), hubSerialNumber);
+        linkService.unlinkUser(request.getEmail(), hub.getSerialNumber());
+        log.info("Unlinked user with email: {} from hub with serial number: {}", request.getEmail(), hub.getSerialNumber());
         return ResponseEntity.ok().build();
     }
 }
