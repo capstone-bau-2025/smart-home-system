@@ -26,15 +26,19 @@ function AuthContextProvider({ children }) {
       setUserToken(userInfo.token)
       setAuthStatus(res.status)
       console.log(authStatus)
-      AsyncStorage.setItem('userToken', userInfo.token) //storing token 
-      AsyncStorage.setItem('userInfo', JSON.stringify(userInfo)) //storing token 
+      AsyncStorage.setItem('userToken', userInfo.token) 
+      AsyncStorage.setItem('userInfo', JSON.stringify(userInfo)) 
       console.log("User Token " + userInfo.token)
 
     })
     .catch(e =>{
+      
       setAuthStatus(e.response?.status || 'error');
       
-      console.log(`Login Error ${authStatus}`);
+      useEffect(() => {
+        console.log(`Login Error ${authStatus}`);
+      }, [authStatus]); // Runs whenever authStatus changes
+      
 
     }) 
     setIsLoading(false)

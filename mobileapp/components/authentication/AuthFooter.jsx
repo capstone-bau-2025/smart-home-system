@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native'
 import React from 'react'
 import Colors from '../../constants/Colors'
+//renders a footer for the authentication screens
 export default function AuthFooter({navigation}) {
   return (
 

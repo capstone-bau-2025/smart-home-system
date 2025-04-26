@@ -1,9 +1,8 @@
 import { useState, useContext } from "react";
 import { View, StyleSheet } from "react-native";
 import OvalButton from "../UI/OvalButton";
-import { AuthContext } from "../../store/auth-context";
 import AuthInput from "../UI/AuthInput";
-
+//holds the login form and handles the register process (will be changed to formik later)
 export default function RegForm({register}) {
 
 

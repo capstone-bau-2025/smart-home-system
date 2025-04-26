@@ -3,6 +3,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import Colors from "../../constants/Colors";
 
+
+//textinput used in authentication screens
 export default function AuthInput({ 
   placeholder, 
   icon, 

@@ -1,8 +1,9 @@
-import { useState,useEffect } from "react";
-import { View, Pressable, Text, StyleSheet,  } from "react-native";
-import OvalButton from "../UI/OvalButton";
+import { useState, useEffect } from "react";
+import { View, Pressable, Text, StyleSheet } from "react-native";
+import OvalButton from "../UI/OvalButton";  
 import AuthInput from "../UI/AuthInput";
 
+//holds the login form and handles the login process (will be changed to formik later)
 export default function AuthForm({ login, authStatus }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

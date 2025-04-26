@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Platform } from "react-native";
 import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
-
+import Colors from "../../constants/Colors";
 const TopRightBlob = () => {
   const viewBoxValue = Platform.OS === "android" ? "0 23 195 232" : "0 15 195 232";
 
@@ -11,8 +11,8 @@ const TopRightBlob = () => {
         <Defs>
           {/* First Gradient */}
           <LinearGradient id="grad1" x1="0" y1="0" x2="195" y2="232">
-            <Stop offset="0%" stopColor="#FEAD3B" />
-            <Stop offset="100%" stopColor="#FFCC33" />
+            <Stop offset="0%" stopColor={Colors.primary100}/>
+            <Stop offset="100%" stopColor={Colors.primary100} />
           </LinearGradient>
 
           {/* Second Gradient */}

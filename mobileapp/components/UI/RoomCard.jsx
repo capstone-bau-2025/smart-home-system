@@ -1,0 +1,78 @@
+import React from "react";
+import { TouchableOpacity, Text, View, StyleSheet,Platform } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import Colors from "../../constants/Colors";
+
+//this is the room card thats found in the roomsgridlist
+export default function RoomCard({
+  room,
+  icon,
+  devices,
+  color,
+  iconColor = "white",
+  onPress,
+  devShown,
+  editShown,
+}) {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.roomContainer}>
+
+<View style={[styles.content, { backgroundColor: color || Colors.primary100 }]}>
+          <Text style={styles.roomName}>{room.name}</Text>
+          <Ionicons
+            style={[styles.icon, { color: iconColor }]}
+            name={icon}
+            size={30}
+          />
+
+          {devShown !== false && (
+            <View style={styles.deviceContainer}>
+              <Text style={styles.deviceCount}>
+                {devices?.length || 0} Devices {""}
+              </Text>
+
+              {editShown !== false && (
+                <Ionicons name="create-outline" size={18} color="white" />
+              )}
+            </View>
+          )}
+        </View>
+
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  roomContainer: {
+    height: Platform.OS === 'ios' ? 120 : 110,
+    width: Platform.OS === 'ios' ? 120 : 110,
+    marginVertical: 10,
+    marginHorizontal: 7,
+    borderRadius: 20,
+
+    overflow: "hidden",
+    
+  },
+
+  roomName: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "white",
+    fontFamily:"Lexend-Regular"
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 5,
+
+  },
+  icon: { marginVertical: 8 },
+  deviceCount: { fontSize: 14, color: "white", marginTop: 5,fontFamily:"Lexend-Regular" },
+  deviceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+});
