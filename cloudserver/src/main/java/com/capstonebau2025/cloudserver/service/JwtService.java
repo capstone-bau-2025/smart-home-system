@@ -69,12 +69,12 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    public String generateHubToken(String hubId) { // TODO: rename to hubSerialNumber
+    public String generateHubToken(String serialNumber) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "hub");
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(hubId)
+                .setSubject(serialNumber)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + hubTokenExpirationTime)) // 10 hours
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -89,7 +89,7 @@ public class JwtService {
         }
     }
 
-    public String extractHubId(String token) { // TODO: rename to hubSerialNumber
+    public String extractHubSerialNumber(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 }

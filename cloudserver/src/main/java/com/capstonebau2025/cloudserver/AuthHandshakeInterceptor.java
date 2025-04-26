@@ -27,7 +27,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
             return false;
         }
 
-        String hubId = jwtService.extractHubId(token);
+        String hubId = jwtService.extractHubSerialNumber(token);
         attributes.put("hubId", hubId);
 
         return true;

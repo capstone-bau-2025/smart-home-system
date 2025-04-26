@@ -162,4 +162,28 @@ public class CloudClient {
             throw new CommunicationException("Cloud server not responding, couldn't unlink user.");
         }
     }
+
+    public void updateHubName(String newName) {
+        try {
+            String url = cloudUrl + "/api/hub/updateName";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HubUpdateNameRequest requestBody = HubUpdateNameRequest.builder()
+                    .token(hubToken)
+                    .name(newName)
+                    .build();
+
+            HttpEntity<HubUpdateNameRequest> request = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.PUT, request, String.class);
+
+            logger.info("Hub name successfully updated to: {}", newName);
+        } catch (Exception e) {
+            logger.error("Error updating hub name: {}", e.getMessage());
+            throw new CommunicationException("Cloud server not responding, couldn't update hub name.");
+        }
+    }
 }

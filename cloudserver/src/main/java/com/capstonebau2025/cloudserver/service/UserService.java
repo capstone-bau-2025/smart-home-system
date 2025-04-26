@@ -1,6 +1,7 @@
 package com.capstonebau2025.cloudserver.service;
 
 import com.capstonebau2025.cloudserver.dto.UserValidationResponse;
+import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,7 +35,7 @@ public class UserService {
             }
 
             // Cast to User to access username field
-            var user = (com.capstonebau2025.cloudserver.entity.User) userDetails;
+            User user = (User) userDetails;
 
             return UserValidationResponse.builder()
                     .valid(true)
@@ -50,6 +51,25 @@ public class UserService {
                     .message("Validation error")
                     .build();
         }
+    }
+
+    /**
+     * Retrieves the FCM token for a user identified by their email.
+     *
+     * @param email The email of the user
+     * @return The FCM token of the user
+     * @throws IllegalStateException if the user is not found or their FCM token is null
+     */
+    public String getUserFcmToken(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found with email: " + email));
+
+        String fcmToken = user.getFcmToken();
+        if (fcmToken == null) {
+            throw new IllegalStateException("FCM token not set for user: " + email);
+        }
+
+        return fcmToken;
     }
 }
 

@@ -39,6 +39,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHub> userHubs;
 
+    private String fcmToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 

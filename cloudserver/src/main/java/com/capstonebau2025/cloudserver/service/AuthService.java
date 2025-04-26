@@ -23,6 +23,7 @@ public class AuthService {
         var user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
+                .fcmToken(request.getFcmToken())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
@@ -41,6 +42,8 @@ public class AuthService {
         );
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
+        user.setFcmToken(request.getFcmToken());
+        userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(jwtToken)
