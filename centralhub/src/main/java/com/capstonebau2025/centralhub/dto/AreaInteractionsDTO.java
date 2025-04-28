@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class AreaInteractionsDTO {
     private String areaName;
+    private Integer iconId;
     private Long areaId;
     private InteractionDTO[] interactions;
 }

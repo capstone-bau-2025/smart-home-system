@@ -14,13 +14,14 @@ import java.util.List;
 public class AreaService {
     private final AreaRepository areaRepository;
 
-    public Area addArea(String areaName) {
+    public Area addArea(String areaName, Integer iconId) {
         if (areaRepository.existsByName(areaName)) {
             throw new ValidationException("Area already exists: " + areaName);
         }
 
         Area area = Area.builder()
                 .name(areaName)
+                .icon(iconId)
                 .build();
 
         return areaRepository.save(area);

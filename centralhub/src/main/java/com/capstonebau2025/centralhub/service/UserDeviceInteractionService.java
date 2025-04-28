@@ -106,6 +106,7 @@ public class UserDeviceInteractionService {
             // Create area DTO with all interactions
             interactionAreas.add(AreaInteractionsDTO.builder()
                     .areaName(area.getName())
+                    .iconId(area.getIcon())
                     .areaId(area.getId())
                     .interactions(interactions.toArray(new InteractionDTO[0]))
                     .build());

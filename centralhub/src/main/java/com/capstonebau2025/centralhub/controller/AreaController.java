@@ -17,9 +17,9 @@ public class AreaController {
     private final AreaService areaService;
 
     @PostMapping("/add")
-    public ResponseEntity<Area> addArea(@RequestParam String areaName) {
+    public ResponseEntity<Area> addArea(@RequestParam String areaName, @RequestParam Integer iconId) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(areaService.addArea(areaName));
+                .body(areaService.addArea(areaName, iconId));
     }
 
     @GetMapping("/get-all")
