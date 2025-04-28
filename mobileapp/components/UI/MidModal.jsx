@@ -13,8 +13,11 @@ import { Ionicons } from "@expo/vector-icons";
 export default function MidModal({
   visible,
   onClose,
-  children,cancelLabel,confirmLabel,
-  buttons
+  children,
+  cancelLabel,
+  confirmLabel,
+  buttons,
+  onConfirm,
 }) {
   return (
     <Modal
@@ -25,23 +28,24 @@ export default function MidModal({
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
-    
-      <View style={styles.modalContainer}>{children}
+          <View style={styles.modalContainer}>
+            {children}
 
-{buttons &&
-      <View style={styles.buttonsContainer}>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                          <Text style={styles.ButtonText}>{cancelLabel}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onClose} style={styles.confirmButton}>
-                          <Text style={styles.ButtonText}>{confirmLabel}</Text>
-                        </TouchableOpacity>
-                      </View>
-                      }
-      </View>
-      
+            {buttons && (
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Text style={styles.ButtonText}>{cancelLabel}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={onConfirm}
+                  style={styles.confirmButton}
+                >
+                  <Text style={styles.ButtonText}>{confirmLabel}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
-        
       </TouchableWithoutFeedback>
     </Modal>
   );
@@ -50,10 +54,9 @@ export default function MidModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", //0.5
     justifyContent: "center",
     alignItems: "center",
-    
   },
   modalContainer: {
     width: 350,
@@ -66,8 +69,8 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 'auto',
-    height:'auto'
+    width: "auto",
+    height: "auto",
   },
   closeButton: {
     marginTop: 20,
@@ -94,6 +97,6 @@ const styles = StyleSheet.create({
   ButtonText: {
     color: "white",
     fontSize: 16,
-    fontFamily:"Lexend-Regular",
+    fontFamily: "Lexend-Regular",
   },
 });

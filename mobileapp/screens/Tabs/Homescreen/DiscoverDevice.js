@@ -1,85 +1,90 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import DiscoverCard from "../../../components/DiscoverHub/DiscoverCard";
+import { fetchHubs } from "../../../api/services/hubService";
 
 export default function DiscoverDevice() {
-  const [devices] = useState([
-    "Smart Bulb",
-    "Thermostat",
-    "Smart Plug",
-    "Security Camera",
-    "Motion Sensor",
-    "Smart Lock",
-  ]);
+  const [hubs, setHubs] = useState([]);
+  const [loading, setLoading] = useState(false); //true
 
-  const handleScanDevices = () => {
-    console.log("Scanning for devices...");
+  // const loadHubs = async () => {
+  //   setLoading(true);
+  //   const { data, error } = await fetchHubs();
+  //   if (error) {
+  //     console.log("Error fetching hubs");
+  //   } else {
+  //     setHubs(data);
+  //   }
+  //   setLoading(false);
+  // };
 
-  };
+  // useEffect(() => {
+  //   loadHubs();
+  // }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Discovered Devices</Text>
-
-      {/* Scrollable Device List */}
-      <ScrollView contentContainerStyle={styles.deviceList}>
-        {devices.map((device, index) => (
-          <View key={index} style={styles.deviceItem}>
-            <Text style={styles.deviceText}>{device}</Text>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/*  Scan Button */}
-      <TouchableOpacity style={styles.scanButton} onPress={handleScanDevices}>
-        <Text style={styles.scanButtonText}>Scan Devices</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.container}>
+      {loading ? (
+        <>
+          <Text style={styles.title}>Looking for devices...</Text>
+          <ActivityIndicator size="large" color="#e19b19" />
+        </>
+      ) : (
+        <>
+          <Text style={styles.title}>Scanned Devices</Text>
+          <DiscoverCard hubs={hubs} isDevice={true}/>
+          {/* onScanPress={loadHubs}  */}
+        </>
+      )}
+      <Pressable
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        onPress={""}
+      >
+        <Text style={styles.buttonText}>Look for devices</Text>
+      </Pressable>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 50 : 0,
   },
   title: {
-    fontSize: 22,
+    fontSize: 27,
     fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  deviceList: {
-    paddingBottom: 20,
-  },
-  deviceItem: {
-    backgroundColor: "white",
-    padding: 15,
+    justifyContent: "center",
+    alignContent: "center",
+    color: "#000000",
     marginBottom: 10,
-    borderRadius: 8,
-    elevation: 3, 
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
-  deviceText: {
-    fontSize: 18,
-    color: "#333",
+  pressed: {
+    opacity: 0.7,
   },
-  scanButton: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: "#2F80ED",
-    padding: 15,
-    borderRadius: 8,
+  button: {
+    padding: 10,
+    backgroundColor: "#e19b19",
+    borderRadius: 10,
+    width: "80%",
+    justifyContent: "center",
     alignItems: "center",
+    marginBottom: 10,
   },
-  scanButtonText: {
-    color: "white",
+  buttonText: {
+    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
   },

@@ -27,36 +27,23 @@ import HeaderIcons from "./components/UI/HeaderIcons";
 import NewAutomation from "./screens/Tabs/AutomationScreen/NewAutomation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
+
+
+
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AuthContextProvider>
-        <RootApp />
-      </AuthContextProvider>
-      <Toast
-        config={{
-          success: (props) => (
-            <BaseToast
-              {...props}
-              style={{ borderLeftColor: "#4CAF50" }}
-              contentContainerStyle={{ paddingHorizontal: 15 }}
-              text1Style={{
-                fontFamily: "Lexend-Bold",
-                fontSize: 16,
-                color: "black",
-              }}
-              text2Style={{
-                fontFamily: "Lexend-Regular",
-                fontSize: 14,
-                color: "#a8a8a8",
-              }}
-            />
-          ),
-        }}
-      />
+<Provider store={store}>
+        <AuthContextProvider>
+          <RootApp />
+        </AuthContextProvider>
+</Provider>
+      <Toast/>
     </SafeAreaProvider>
   );
 }
@@ -202,7 +189,7 @@ function HomeStackNavigator({ currentHub, setCurrentHub }) {
       <Stack.Screen
         name="DiscoverDevice"
         component={DiscoverDevice}
-        options={{ headerShown: true, headerTitle: "Discover Device" }}
+        options={{ headerTransparent: true, headerTitle: "" }}
       />
       <Stack.Screen
         name="DiscoverHub"

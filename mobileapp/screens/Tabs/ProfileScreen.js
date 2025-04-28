@@ -1,12 +1,29 @@
 import React, { useContext } from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Button } from "react-native";
 import { AuthContext } from "../../store/auth-context";
 import OvalButton from "../../components/UI/OvalButton";
 import SVGS from "../../components/svg/SVGS";
 import { Ionicons } from "@expo/vector-icons"; 
 import Colors from "../../constants/Colors";
+import {useSelector,useDispatch} from 'react-redux';
+import { setCurrentHub } from "../../store/slices/hubSlice";
+
 
 export default function ProfileScreen() {
+
+  const dispatch = useDispatch();
+  const hubId = useSelector((state) => state.hub.hubId);
+  const hubName = useSelector((state) => state.hub.hubName);
+
+  const handleSetHub = () => {
+    dispatch(setCurrentHub({
+      hubId: "test123",
+      hubName: "Test Hub",
+      hubDetails: { firmware: "v1.0", devices: 5 }
+    }));
+  };
+
+
   const { logout, user } = useContext(AuthContext); 
 
   return (
@@ -39,6 +56,10 @@ export default function ProfileScreen() {
 
       {/* Logout Button */}
       <OvalButton text="Logout" color="black" onPress={logout} />
+
+
+      <Text>Hub ID: {hubId}</Text>
+      <Button title="Set Hub" onPress={handleSetHub} />
     </View>
   );
 }

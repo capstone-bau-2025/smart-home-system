@@ -1,13 +1,34 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
 import { homeHub } from "../../Data/homehub";
-
+import { useState,useEffect } from "react";
+import { fetchRooms } from "../../api/services/areaService";
 import RoomCard from "./RoomCard";
-
 import HeaderDevices from "./HeaderDevices";
 
 //this is the feed that shows the rooms and devices in the home hub
 export default function Home() {
+
+
+  const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  useEffect(() => {
+    handleFetchRooms();
+  }, []);
+
+  const handleFetchRooms = async () => {
+    setIsLoading(true);
+    const result = await fetchRooms();
+    if (result.success) {
+      setRooms(result.data);
+    } else {
+      console.log("Fetch rooms error:", result.error);
+    }
+    setIsLoading(false);
+  };
+  
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -22,7 +43,8 @@ export default function Home() {
         )}
         renderItem={({ item }) => (
           <>
-            <RoomCard data={item} />
+            <RoomCard data={item} /> 
+            {/* fetched data (rooms) sent here */}
           </>
         )}
       />
