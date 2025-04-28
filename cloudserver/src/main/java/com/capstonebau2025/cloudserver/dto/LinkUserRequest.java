@@ -13,4 +13,5 @@ public class LinkUserRequest {
     private String token;
     private String cloudToken;
     private String email;
+    private String role;
 }

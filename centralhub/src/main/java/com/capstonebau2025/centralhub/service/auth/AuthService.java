@@ -46,7 +46,8 @@ public class AuthService {
         LinkUserResponse linkUserResponse = cloudClient.linkUser(
                 request.getCloudToken(),
                 request.getHubSerialNumber(),
-                request.getEmail());
+                request.getEmail(),
+                role.getName());
 
         if(!linkUserResponse.isSuccess())
             throw new AuthException("Couldn't link cloud account with hub.");

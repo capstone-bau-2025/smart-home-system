@@ -25,7 +25,7 @@ public class LinkService {
     private final UserService userService;
     private final Logger logger = LoggerFactory.getLogger(LinkService.class);
 
-    public ResponseEntity<LinkUserResponse> linkUser(String serialNumber, String email, String cloudToken) {
+    public ResponseEntity<LinkUserResponse> linkUser(String serialNumber, String email, String cloudToken, String role) {
 
         // Validate user token
         UserValidationResponse userValidation = userService.validateUser(cloudToken, email);
@@ -68,6 +68,7 @@ public class LinkService {
 
             // Create a new UserHub association
             UserHub userHub = UserHub.builder()
+                    .role(role)
                     .user(user)
                     .hub(hub)
                     .build();
