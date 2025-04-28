@@ -117,7 +117,7 @@ public class CloudClient {
         }
     }
 
-    public LinkUserResponse linkUser(String cloudToken, String hubSerialNumber, String email) {
+    public LinkUserResponse linkUser(String cloudToken, String hubSerialNumber, String email, String role) {
         try {
             String url = cloudUrl + "/api/hub/linkUser";
 
@@ -129,6 +129,7 @@ public class CloudClient {
                     .hubSerialNumber(hubSerialNumber)
                     .token(hubToken)
                     .email(email)
+                    .role(role)
                     .build();
             HttpEntity<LinkUserRequest> request = new HttpEntity<>(requestBody, headers);
 

@@ -16,6 +16,7 @@ import com.capstonebau2025.centralhub.service.UserService;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -38,17 +39,14 @@ public class WebSocketCommandHandler {
     private final UserService userService;
     private final InvitationService invitationService;
 
-    // Reference to the active WebSocket client session
-    private StompSession stompSession;
-
     // Method to set the session from WebSocketClient
-    public void setStompSession(StompSession stompSession) {
-        this.stompSession = stompSession;
-    }
+    // Reference to the active WebSocket client session
+    @Setter
+    private StompSession stompSession;
 
     public void processCommand(String hubSerialNumber, RemoteCommandMessage message) {
         log.info("Received command from cloud: {} for hub: {}", message, hubSerialNumber);
-        RemoteCommandResponse response = null;
+        RemoteCommandResponse response;
 
         try {
             // Verify the user exists
@@ -65,55 +63,55 @@ public class WebSocketCommandHandler {
 
             switch (message.getCommandType()) {
                 case "GET_ALL_INTERACTIONS":
-                    response = handleGetAllInteractions(userId, hubSerialNumber, message);
+                    response = handleGetAllInteractions(userId, message);
                     break;
                 case "UPDATE_STATE":
-                    response = handleUpdateState(userId, hubSerialNumber, message);
+                    response = handleUpdateState(userId, message);
                     break;
                 case "EXECUTE_COMMAND":
-                    response = handleExecuteCommand(userId, hubSerialNumber, message);
+                    response = handleExecuteCommand(userId, message);
                     break;
                 case "FETCH_STATE":
-                    response = handleFetchState(userId, hubSerialNumber, message);
+                    response = handleFetchState(userId, message);
                     break;
                 case "SET_DEVICE_NAME":
-                    response = handleSetDeviceName(hubSerialNumber, message);
+                    response = handleSetDeviceName(message);
                     break;
                 case "SET_DEVICE_AREA":
-                    response = handleSetDeviceArea(hubSerialNumber, message);
+                    response = handleSetDeviceArea(message);
                     break;
                 case "PING_DEVICE":
-                    response = handlePingDevice(hubSerialNumber, message);
+                    response = handlePingDevice(message);
                     break;
                 case "GET_DEVICES_BY_AREA":
-                    response = handleGetDevicesByArea(hubSerialNumber, message);
+                    response = handleGetDevicesByArea(message);
                     break;
                 case "DELETE_DEVICE":
-                    response = handleDeleteDevice(hubSerialNumber, message);
+                    response = handleDeleteDevice(message);
                     break;
                 case "ADD_AREA":
-                    response = handleAddArea(hubSerialNumber, message);
+                    response = handleAddArea(message);
                     break;
                 case "GET_ALL_AREAS":
-                    response = handleGetAllAreas(hubSerialNumber, message);
+                    response = handleGetAllAreas(message);
                     break;
                 case "DELETE_AREA":
-                    response = handleDeleteArea(hubSerialNumber, message);
+                    response = handleDeleteArea(message);
                     break;
                 case "GET_ALL_ROLES":
-                    response = handleGetAllRoles(hubSerialNumber, message);
+                    response = handleGetAllRoles(message);
                     break;
                 case "GET_ALL_USERS":
-                    response = handleGetAllUsers(hubSerialNumber, message);
+                    response = handleGetAllUsers(message);
                     break;
                 case "DELETE_USER":
-                    response = handleDeleteUser(hubSerialNumber, message);
+                    response = handleDeleteUser(message);
                     break;
                 case "UPDATE_USER_PERMISSIONS":
-                    response = handleUpdateUserPermissions(hubSerialNumber, message);
+                    response = handleUpdateUserPermissions(message);
                     break;
                 case "GENERATE_INVITATION":
-                    response = handleGenerateInvitation(hubSerialNumber, message);
+                    response = handleGenerateInvitation(message);
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
@@ -138,7 +136,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleGetAllInteractions(Long userId, String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGetAllInteractions(Long userId, RemoteCommandMessage message) {
         log.info("Processing GET_ALL_INTERACTIONS command for user ID: {}", userId);
         var interactions = interactionService.getAllInteractions(userId);
 
@@ -151,7 +149,7 @@ public class WebSocketCommandHandler {
                 .build();
     }
 
-    private RemoteCommandResponse handleUpdateState(Long userId, String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleUpdateState(Long userId, RemoteCommandMessage message) {
         try {
             // Convert payload to UpdateStateRequest
             UpdateStateRequest request = objectMapper.convertValue(
@@ -172,7 +170,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleExecuteCommand(Long userId, String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleExecuteCommand(Long userId, RemoteCommandMessage message) {
         try {
             // Convert payload to ExecuteCommandRequest
             ExecuteCommandRequest request = objectMapper.convertValue(
@@ -193,7 +191,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleFetchState(Long userId, String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleFetchState(Long userId, RemoteCommandMessage message) {
         try {
             // Get stateValueId from payload
             Long stateValueId = objectMapper.convertValue(message.getPayload(), Long.class);
@@ -215,7 +213,7 @@ public class WebSocketCommandHandler {
     }
 
     // New handlers for device operations
-    private RemoteCommandResponse handleSetDeviceName(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleSetDeviceName(RemoteCommandMessage message) {
         try {
             Map<String, Object> payload = (Map<String, Object>) message.getPayload();
             Long deviceId = Long.valueOf(payload.get("deviceId").toString());
@@ -236,7 +234,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleSetDeviceArea(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleSetDeviceArea(RemoteCommandMessage message) {
         try {
             Map<String, Object> payload = (Map<String, Object>) message.getPayload();
             Long deviceId = Long.valueOf(payload.get("deviceId").toString());
@@ -257,7 +255,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handlePingDevice(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handlePingDevice(RemoteCommandMessage message) {
         try {
             Long deviceId = objectMapper.convertValue(message.getPayload(), Long.class);
 
@@ -277,7 +275,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleGetDevicesByArea(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGetDevicesByArea(RemoteCommandMessage message) {
         try {
             Long areaId = objectMapper.convertValue(message.getPayload(), Long.class);
 
@@ -297,7 +295,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleDeleteDevice(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleDeleteDevice(RemoteCommandMessage message) {
         try {
             Long deviceId = objectMapper.convertValue(message.getPayload(), Long.class);
 
@@ -316,12 +314,14 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleAddArea(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleAddArea(RemoteCommandMessage message) {
         try {
-            String areaName = objectMapper.convertValue(message.getPayload(), String.class);
+            Map<String, Object> payload = (Map<String, Object>) message.getPayload();
+            String areaName = String.valueOf(payload.get("areaName").toString());
+            Integer iconId = Integer.valueOf(payload.get("iconId").toString());
 
             log.info("Processing ADD_AREA command for area name: {}", areaName);
-            Area area = areaService.addArea(areaName);
+            Area area = areaService.addArea(areaName, iconId);
 
             return RemoteCommandResponse.builder()
                     .commandType(message.getCommandType())
@@ -336,7 +336,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleGetAllAreas(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGetAllAreas(RemoteCommandMessage message) {
         try {
             log.info("Processing GET_ALL_AREAS command");
             List<Area> areas = areaService.getAllAreas();
@@ -354,7 +354,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleDeleteArea(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleDeleteArea(RemoteCommandMessage message) {
         try {
             Long areaId = objectMapper.convertValue(message.getPayload(), Long.class);
 
@@ -373,7 +373,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleGetAllRoles(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGetAllRoles(RemoteCommandMessage message) {
         try {
             log.info("Processing GET_ALL_ROLES command");
             List<Role> roles = userService.getAllRoles();
@@ -391,7 +391,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleGetAllUsers(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGetAllUsers(RemoteCommandMessage message) {
         try {
             log.info("Processing GET_ALL_USERS command");
             List<UserDetailsDTO> users = userService.getAllUsers();
@@ -409,7 +409,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleDeleteUser(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleDeleteUser(RemoteCommandMessage message) {
         try {
             Long userId = objectMapper.convertValue(message.getPayload(), Long.class);
 
@@ -428,7 +428,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleUpdateUserPermissions(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleUpdateUserPermissions(RemoteCommandMessage message) {
         try {
             UpdateUserPermissionsRequest request = objectMapper.convertValue(
                     message.getPayload(), UpdateUserPermissionsRequest.class);
@@ -448,7 +448,7 @@ public class WebSocketCommandHandler {
         }
     }
 
-    private RemoteCommandResponse handleGenerateInvitation(String hubSerialNumber, RemoteCommandMessage message) {
+    private RemoteCommandResponse handleGenerateInvitation(RemoteCommandMessage message) {
         try {
             Long roleId = objectMapper.convertValue(message.getPayload(), Long.class);
 

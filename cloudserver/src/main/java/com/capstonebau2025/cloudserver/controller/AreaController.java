@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/areas")
 @RequiredArgsConstructor
@@ -23,14 +26,19 @@ public class AreaController {
     @PostMapping("/add")
     public ResponseEntity<?> addArea(
             @RequestParam String areaName,
+            @RequestParam Integer iconId,
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("areaName", areaName);
+        payload.put("iconId", iconId);
+
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("ADD_AREA")
                 .email(user.getEmail())
-                .payload(areaName)
+                .payload(payload)
                 .build();
 
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
@@ -72,10 +80,7 @@ public class AreaController {
                 .payload(areaId)
                 .build();
 
-        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                hubSerialNumber, message, 5);
-
-        // If we reach here, it means the response was successful
+        commandProcessor.processCommandAndWaitForResponse(hubSerialNumber, message, 5);
         return ResponseEntity.noContent().build();
     }
 }

@@ -21,4 +21,6 @@ public class Area {
     @NotNull
     @Column(unique = true, nullable = false)
     private String name;
+
+    private Integer icon;
 }

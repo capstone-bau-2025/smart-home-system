@@ -1,6 +1,7 @@
 package com.capstonebau2025.cloudserver.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,4 +25,8 @@ public class UserHub {
     @ManyToOne
     @JoinColumn(name = "hub_id", nullable = false)
     private Hub hub;
+
+    @NotNull
+    @Column(name = "role", nullable = false)
+    private String role;
 }

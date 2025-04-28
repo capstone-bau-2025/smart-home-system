@@ -14,4 +14,5 @@ public class LinkUserRequest {
     private String cloudToken;
     private String hubSerialNumber;
     private String email;
+    private String role;
 }

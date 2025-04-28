@@ -39,7 +39,7 @@ public class HubUserController {
     public ResponseEntity<LinkUserResponse> linkUser(@RequestBody LinkUserRequest request) {
         Hub hub = hubService.getHubByToken(request.getToken());
 
-        return linkService.linkUser(hub.getSerialNumber(), request.getEmail(), request.getCloudToken());
+        return linkService.linkUser(hub.getSerialNumber(), request.getEmail(), request.getCloudToken(), request.getRole());
     }
 
     @DeleteMapping("/unlinkUser")
