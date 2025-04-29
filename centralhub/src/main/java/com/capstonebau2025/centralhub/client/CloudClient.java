@@ -187,4 +187,30 @@ public class CloudClient {
             throw new CommunicationException("Cloud server not responding, couldn't update hub name.");
         }
     }
+
+    public void sendNotification(String email, String title, String body) {
+        try {
+            String url = cloudUrl + "/api/notify";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            NotificationRequest requestBody = NotificationRequest.builder()
+                    .token(hubToken)
+                    .email(email)
+                    .title(title)
+                    .body(body)
+                    .build();
+
+            HttpEntity<NotificationRequest> request = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    url, request, String.class);
+
+            logger.info("Notification sent to {} with title: {}", email, title);
+        } catch (Exception e) {
+            logger.error("Error sending notification: {}", e.getMessage());
+            throw new CommunicationException("Cloud server not responding, couldn't send notification.");
+        }
+    }
 }

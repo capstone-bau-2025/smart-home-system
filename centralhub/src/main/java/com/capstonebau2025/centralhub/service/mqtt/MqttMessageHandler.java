@@ -1,7 +1,6 @@
 package com.capstonebau2025.centralhub.service.mqtt;
 
 import com.capstonebau2025.centralhub.dto.DeviceDetailsDTO;
-import com.capstonebau2025.centralhub.dto.NotificationDTO;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.Event;
 import com.capstonebau2025.centralhub.entity.StateValue;
@@ -17,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -78,6 +78,7 @@ public class MqttMessageHandler {
         }
     }
 
+    @Transactional
     public void handleEvent(ObjectNode message) {
         try {
             Long deviceUid = message.get("device_uid").asLong();
@@ -94,12 +95,9 @@ public class MqttMessageHandler {
                 device.setLastSeen(LocalDateTime.now());
                 deviceRepository.save(device);
 
-                // send notification
-                NotificationDTO notification = NotificationDTO.builder()
-                        .title("Device " + device.getName() + " triggered " + event.getName() + " event.")
-                        .body(event.getDescription())
-                        .build();
-                notificationService.sendNotification(device, notification);
+                String title = "Device " + device.getName() + " triggered " + event.getName() + " event.";
+                String body = event.getDescription();
+                notificationService.sendNotification(device, title, body);
 
                 logger.info("Received event {} from device {}", stateNumber, deviceUid);
             } else {

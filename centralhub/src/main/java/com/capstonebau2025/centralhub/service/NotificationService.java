@@ -1,14 +1,21 @@
 package com.capstonebau2025.centralhub.service;
 
-import com.capstonebau2025.centralhub.dto.NotificationDTO;
+import com.capstonebau2025.centralhub.client.CloudClient;
 import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.entity.Permission;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
+    private final CloudClient cloudClient;
 
-    public void sendNotification(Device device, NotificationDTO notificationDTO) {
-        // only send to users with permission to that device
-//        System.out.println("Sending notification: " + notificationDTO.getTitle() + " - " + notificationDTO.getBody());
+    @Transactional
+    public void sendNotification(Device device, String title, String body) {
+        device.getArea().getPermissions().stream()
+                .map(Permission::getUser)
+                .forEach(u -> cloudClient.sendNotification(u.getEmail(), title, body));
     }
 }

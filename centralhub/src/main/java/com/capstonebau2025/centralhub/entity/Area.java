@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,4 +25,7 @@ public class Area {
     private String name;
 
     private Integer icon;
+
+    @OneToMany(mappedBy = "area", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Permission> permissions;
 }
