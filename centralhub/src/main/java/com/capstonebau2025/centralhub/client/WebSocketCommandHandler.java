@@ -110,6 +110,9 @@ public class WebSocketCommandHandler {
                 case "UPDATE_USER_PERMISSIONS":
                     response = handleUpdateUserPermissions(message);
                     break;
+                case "GET_USER_PERMISSIONS":
+                    response = handleGetUserPermissions(message);
+                    break;
                 case "GENERATE_INVITATION":
                     response = handleGenerateInvitation(message);
                     break;
@@ -444,6 +447,26 @@ public class WebSocketCommandHandler {
                     .build();
         } catch (Exception e) {
             log.error("Error processing UPDATE_USER_PERMISSIONS command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleGetUserPermissions(RemoteCommandMessage message) {
+        try {
+            Long userId = objectMapper.convertValue(message.getPayload(), Long.class);
+
+            log.info("Processing GET_USER_PERMISSIONS command for userId: {}", userId);
+            List<Long> areaIds = userService.getUserPermissions(userId);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("User permissions retrieved successfully")
+                    .payload(areaIds)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_USER_PERMISSIONS command: {}", e.getMessage(), e);
             throw e;
         }
     }

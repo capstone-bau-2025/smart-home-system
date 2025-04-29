@@ -91,4 +91,23 @@ public class UserController {
         // If we reach here, it means the response was successful
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/{userId}/permissions")
+    public ResponseEntity<?> getUserPermissions(
+            @PathVariable Long userId,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("GET_USER_PERMISSIONS")
+                .email(user.getEmail())
+                .payload(userId)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        // If we reach here, it means the response was successful
+        return ResponseEntity.ok(response.getPayload());
+    }
 }
