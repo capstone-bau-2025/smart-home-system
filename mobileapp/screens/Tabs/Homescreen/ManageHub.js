@@ -129,7 +129,7 @@ export default function ManageHub({
         title={"Change hub name"}
         placeholder={"enter a new hub name"}
         onConfirm={handleUpdateHubName}
-
+        
       />
 
       <RenameModal

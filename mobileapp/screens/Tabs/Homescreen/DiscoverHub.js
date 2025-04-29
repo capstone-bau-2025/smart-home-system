@@ -7,7 +7,7 @@ import {
   StatusBar,
   Platform,
   ActivityIndicator,
-  Pressable
+  Pressable,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import DiscoverCard from "../../../components/DiscoverHub/DiscoverCard";
@@ -16,6 +16,7 @@ import { fetchHubs } from "../../../api/services/hubService";
 export default function DiscoverHub() {
   const [hubs, setHubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [serialNumber, setSerialNumber] = useState(null);
 
   const loadHubs = async () => {
     setLoading(true);
@@ -23,7 +24,13 @@ export default function DiscoverHub() {
     if (error) {
       console.log("Error fetching hubs");
     } else {
-      setHubs(data);
+      if (Array.isArray(data)) {
+        setHubs(data);
+      } else if (data) {
+        setHubs([data]);
+      } else {
+        setHubs([]);
+      }
     }
     setLoading(false);
   };
@@ -42,16 +49,20 @@ export default function DiscoverHub() {
       ) : (
         <>
           <Text style={styles.title}>Scanned Hubs</Text>
-          <DiscoverCard hubs={hubs}  />
+          <DiscoverCard
+            hubs={hubs}
+            isDevice={false}
+            serialNumber={serialNumber}
+            setSerialNumber={setSerialNumber}
+          />
+          <Pressable
+            style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+            onPress={loadHubs}
+          >
+            <Text style={styles.buttonText}>Look for hubs</Text>
+          </Pressable>
         </>
       )}
-
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        onPress={loadHubs}
-      >
-        <Text style={styles.buttonText}>Look for hubs</Text>
-      </Pressable>
     </SafeAreaView>
   );
 }
@@ -81,7 +92,7 @@ const styles = StyleSheet.create({
     width: "80%",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom:10
+    marginBottom: 10,
   },
   buttonText: {
     color: "#fff",

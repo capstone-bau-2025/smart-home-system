@@ -4,6 +4,16 @@ import FullScreenModal from "../UI/FullScreenModal";
 import { useState } from "react";
 import EditInput from "../UI/EditInput";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  setAdminInvitationCode,
+  addUserHub,
+  setCurrentHub
+} from "../../store/slices/hubSlice";
+import { setUserRole } from "../../store/slices/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import Toast from "react-native-toast-message";
+import { registerWithInvitation } from "../../api/services/invRegisterService";
+
 
 //modal that opens when hub card is pressed
 export default function DiscoveryModal({
@@ -11,16 +21,69 @@ export default function DiscoveryModal({
   onClose,
   title,
   selectedHub,
+  isConfigured
 }) {
   const [value, setValue] = useState("");
+  const dispatch = useDispatch();
+  const hubState = useSelector((state) => state.hub);
+  
+
 
   const handleConfigureHub = async () => {
     if (selectedHub && value.trim()) {
       try {
         const result = await configureHub(value);
-        console.log("Hub configured successfully:", result);
 
+        if (!result) {
+          console.log("Error: No result from configureHub");
+          return;
+        }
+        console.log("Hub configured successfully:", result);
+        
+        dispatch(setUserRole(result.role));
+        dispatch(setAdminInvitationCode(result.code));
+        
+        const newHub = {
+          serialNumber: selectedHub.serialNumber,
+          hubName: value,
+          hubDetails: {
+            status: selectedHub.status,
+            location: selectedHub.location,
+            name: selectedHub.name,
+            // discovered: selectedHub.discovered,
+          },
+        };
+        
+        dispatch(addUserHub(newHub));
+        dispatch(setCurrentHub({
+          serialNumber: newHub.serialNumber,
+          hubName: newHub.hubName,
+          hubDetails: newHub.hubDetails,
+        }));
+        
+        
+        await registerWithInvitation();
+        
+        Toast.show({
+          topOffset: 60,
+          swipeable: true,
+          type: "success",
+          text1: `${value} configured successfully`,
+          text2: `You are now the admin of this hub`,
+          text1Style: {
+            fontFamily: "Lexend-Bold",
+            fontSize: 16,
+            color: "black",
+          },
+          text2Style: {
+            fontFamily: "Lexend-Regular",
+            fontSize: 14,
+            color: "#a8a8a8",
+          },
+        });
+        
         onClose();
+        
       } catch (error) {
         console.log("Failed to configure hub:", error);
       }
@@ -28,9 +91,11 @@ export default function DiscoveryModal({
       console.log("Hub name is required");
     }
   };
+  
+
   return (
     <FullScreenModal visible={visible} onClose={onClose} title={title}>
-      {selectedHub?.discovered ? (
+      {isConfigured ? (
         <>
           <View style={styles.container}>
             <Ionicons
@@ -42,6 +107,7 @@ export default function DiscoveryModal({
               To connect to this hub you need to enter an invitation code
               provided by the admin of this hub
             </Text>
+
             <View style={styles.input}>
               <EditInput
                 placeholder={"enter code"}
@@ -70,27 +136,20 @@ export default function DiscoveryModal({
               style={styles.icon}
             />
             <Text style={styles.infoText}>
-              This hub haven't been configured yet, to configure it enter a name
+              This hub (SN:{selectedHub?.serialNumber}) haven't been configured
+              yet, to configure it enter a name
             </Text>
+
             <View style={styles.input}>
               <EditInput
                 placeholder={"enter name"}
                 title={"Enter hub name"}
                 setChange={setValue}
                 value={value}
-                validationMessage={
-                  value.trim().length === 0 ? "This field is required" : ""
-                }
+                confirmButton={true} 
+                onConfirm={handleConfigureHub}
               />
-              <Pressable
-                style={({ pressed }) => [
-                  styles.button,
-                  pressed && styles.pressed,
-                ]}
-                onPress={handleConfigureHub}
-              >
-                <Text style={styles.text}>continue</Text>
-              </Pressable>
+
             </View>
           </View>
         </>
@@ -126,7 +185,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 25,
     elevation: 3,
-    marginTop:10
+    marginTop: 10,
   },
   pressed: {
     opacity: 0.75,

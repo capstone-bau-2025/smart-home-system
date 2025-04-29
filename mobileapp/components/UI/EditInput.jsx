@@ -1,33 +1,15 @@
-import { useState, useEffect } from "react";
 import { StyleSheet, Text, View, TextInput } from "react-native";
-import * as Yup from "yup"; // Import Yup
-
-// Define the validation schema (just required)
-const validationSchema = Yup.object({
-  inputValue: Yup.string().required("This field is required"),  // Only required validation
-});
 
 export default function EditInput({
   value,
   placeholder,
   setChange,
   title,
-  validationMessage,
+  error, // now purely controlled from outside
 }) {
-  const [error, setError] = useState("");
-
-  
-  useEffect(() => {
-  
-    validationSchema
-      .validate({ inputValue: value })
-      .then(() => setError(""))  
-      .catch(() => setError("This field is required"));
-  }, [value]); 
-
   return (
     <>
-      <Text style={styles.infoText}>{title}</Text>
+      {title && <Text style={styles.infoText}>{title}</Text>}
       <View style={styles.propContainer}>
         <TextInput
           style={styles.input}
@@ -38,10 +20,7 @@ export default function EditInput({
         />
       </View>
 
-
-      {error && (
-        <Text style={styles.validationText}>{error}</Text>
-      )}
+      {error ? <Text style={styles.validationText}>{error}</Text> : null}
     </>
   );
 }
@@ -76,6 +55,5 @@ const styles = StyleSheet.create({
     color: "red",
     marginLeft: 15,
     alignSelf: "flex-start",
-
   },
 });

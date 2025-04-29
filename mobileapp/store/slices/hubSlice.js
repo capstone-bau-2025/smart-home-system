@@ -3,23 +3,47 @@ import { createSlice } from "@reduxjs/toolkit";
 const hubSlice = createSlice({
   name: "hub",
   initialState: {
-    hubId: null,
-    hubName: "",
-    hubDetails: {}, 
+    currentHubSerialNumber: null,
+    currentHubName: "",
+    currentHubDetails: {},
+    userHubs: [], 
+    adminInvitationCode: null,
   },
   reducers: {
     setCurrentHub(state, action) {
-      state.hubId = action.payload.hubId;
-      state.hubName = action.payload.hubName;
-      state.hubDetails = action.payload.hubDetails;
+      state.currentHubSerialNumber = action.payload.serialNumber;
+      state.currentHubName = action.payload.hubName;
+      state.currentHubDetails = action.payload.hubDetails;
     },
     clearCurrentHub(state) {
-      state.hubId = null;
-      state.hubName = "";
-      state.hubDetails = {};
+      state.currentHubSerialNumber = null;
+      state.currentHubName = "";
+      state.currentHubDetails = {};
+      state.adminInvitationCode = null;
+    },
+    addUserHub(state, action) {
+      const exists = state.userHubs.some(
+        (hub) => hub.serialNumber === action.payload.serialNumber 
+      );
+      if (!exists) {
+        state.userHubs.push(action.payload);
+      }
+    },
+    setAdminInvitationCode(state, action) {
+      state.adminInvitationCode = action.payload;
+    },
+    clearUserHubs(state) {
+      state.userHubs = [];
     },
   },
 });
 
-export const { setCurrentHub, clearCurrentHub } = hubSlice.actions;
+export const {
+  setCurrentHub,
+  clearCurrentHub,
+  addUserHub,
+  clearUserHubs,
+  setAdminInvitationCode
+} = hubSlice.actions;
+
 export default hubSlice.reducer;

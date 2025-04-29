@@ -1,6 +1,9 @@
 import axios from "axios";
-import { LOCAL_URL } from "../../util/auth"; // adjust path if needed
+import { LOCAL_URL } from "../../util/auth"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+
 
 const path = `${LOCAL_URL}api/hub/`;
 
@@ -8,11 +11,10 @@ export const discoverHubs = async () => {
   try {
     const token = await AsyncStorage.getItem("userToken");
     const response = await axios.get(`${path}discover`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+
     });
 
+    console.log(response.data)
     return response.data; 
   } catch (error) {
     console.error("Error discovering hubs:", error);
@@ -36,15 +38,10 @@ export const fetchHubs = async () => {
 
 export const configureHub = async (hubName) => {
   try {
-    const token = await AsyncStorage.getItem("userToken");
+    // const token = await AsyncStorage.getItem("userToken");
     const response = await axios.post(
       `${path}configure`,
       { hubName },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
     );
     return response.data; 
   } catch (error) {

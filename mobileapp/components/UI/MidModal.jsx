@@ -1,4 +1,3 @@
-import React, { Children } from "react";
 import {
   Modal,
   View,
@@ -7,9 +6,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
-//a component that renders a small modal in the middle of the screen (can be used as a wrapper)
 export default function MidModal({
   visible,
   onClose,
@@ -36,10 +33,7 @@ export default function MidModal({
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                   <Text style={styles.ButtonText}>{cancelLabel}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={onConfirm}
-                  style={styles.confirmButton}
-                >
+                <TouchableOpacity onPress={onConfirm} style={styles.confirmButton}>
                   <Text style={styles.ButtonText}>{confirmLabel}</Text>
                 </TouchableOpacity>
               </View>
@@ -54,7 +48,7 @@ export default function MidModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", //0.5
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -78,7 +72,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-
     width: 100,
     marginHorizontal: 10,
     alignItems: "center",

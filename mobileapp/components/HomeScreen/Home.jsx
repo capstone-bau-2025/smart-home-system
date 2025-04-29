@@ -6,6 +6,8 @@ import { fetchRooms } from "../../api/services/areaService";
 import RoomCard from "./RoomCard";
 import HeaderDevices from "./HeaderDevices";
 
+
+
 //this is the feed that shows the rooms and devices in the home hub
 export default function Home() {
 
@@ -13,21 +15,24 @@ export default function Home() {
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  useEffect(() => {
-    handleFetchRooms();
-  }, []);
 
-  const handleFetchRooms = async () => {
-    setIsLoading(true);
-    const result = await fetchRooms();
-    if (result.success) {
-      setRooms(result.data);
-    } else {
-      console.log("Fetch rooms error:", result.error);
-    }
-    setIsLoading(false);
-  };
+
+  // useEffect(() => {
+  //   handleFetchRooms();
+  // }, []);
+
+  // const handleFetchRooms = async () => {
+  //   setIsLoading(true);
+  //   const result = await fetchRooms();
+  //   if (result.success) {
+  //     setRooms(result.data);
+  //   } else {
+  //     console.log("Fetch rooms error:", result.error);
+  //   }
+  //   setIsLoading(false);
+  // };
   
+
 
   return (
     <View style={styles.container}>

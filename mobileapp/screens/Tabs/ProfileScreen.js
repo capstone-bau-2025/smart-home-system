@@ -12,16 +12,10 @@ import { setCurrentHub } from "../../store/slices/hubSlice";
 export default function ProfileScreen() {
 
   const dispatch = useDispatch();
+  const userRole = useSelector((state) => state.user.userRole);
+  const userEmail = useSelector((state) => state.user.email);
   const hubId = useSelector((state) => state.hub.hubId);
   const hubName = useSelector((state) => state.hub.hubName);
-
-  const handleSetHub = () => {
-    dispatch(setCurrentHub({
-      hubId: "test123",
-      hubName: "Test Hub",
-      hubDetails: { firmware: "v1.0", devices: 5 }
-    }));
-  };
 
 
   const { logout, user } = useContext(AuthContext); 
@@ -40,7 +34,7 @@ export default function ProfileScreen() {
 
         <View style={styles.infoRow}>
           <Ionicons name="mail-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{user?.email || "khaledemail@gmail.com"}</Text>
+          <Text style={styles.infoText}>{userEmail}</Text>
         </View>
 
         <View style={styles.infoRow}>
@@ -50,16 +44,13 @@ export default function ProfileScreen() {
 
         <View style={styles.infoRow}>
           <Ionicons name="briefcase-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{user?.role || "Admin"}</Text>
+          <Text style={styles.infoText}>{userRole}</Text>
         </View>
       </View>
 
       {/* Logout Button */}
       <OvalButton text="Logout" color="black" onPress={logout} />
 
-
-      <Text>Hub ID: {hubId}</Text>
-      <Button title="Set Hub" onPress={handleSetHub} />
     </View>
   );
 }
