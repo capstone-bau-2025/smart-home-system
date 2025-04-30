@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
 
     private final EventService eventService;
-
+    // TODO: Implement the event controller methods or remove it
 }
 

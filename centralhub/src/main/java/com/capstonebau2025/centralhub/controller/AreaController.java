@@ -2,6 +2,7 @@ package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.service.AreaService;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ public class AreaController {
     private final AreaService areaService;
 
     @PostMapping("/add")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Area> addArea(@RequestParam String areaName, @RequestParam Integer iconId) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(areaService.addArea(areaName, iconId));
@@ -28,6 +30,7 @@ public class AreaController {
     }
 
     @DeleteMapping("/{areaId}")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Void> deleteArea(@PathVariable Long areaId) {
         areaService.deleteArea(areaId);
         return ResponseEntity.noContent().build();

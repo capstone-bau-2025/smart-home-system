@@ -4,6 +4,7 @@ import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateUserPermissionsRe
 import com.capstonebau2025.centralhub.dto.UserDetailsDTO;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.service.UserService;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,18 +31,21 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/update-permissions")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Void> updateUserPermissions(@RequestBody UpdateUserPermissionsRequest request) {
         userService.updateUserPermissions(request.getTargetUserId(), request.getRoomIds());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{userId}/permissions")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<List<Long>> getUserPermissions(@PathVariable Long userId) {
         List<Long> areaIds = userService.getUserPermissions(userId);
         return ResponseEntity.ok(areaIds);

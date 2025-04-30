@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(jsr250Enabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
@@ -27,11 +29,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth // Lambda for authorization rules
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/map/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
-                        ).permitAll()
-                        .anyRequest().permitAll() // TODO: Change to authenticated
+                                "/v3/api-docs/**",
+                                "/api/hub/discover/",
+                                "/api/hub/configure/"
+                        ).permitAll() // or check if .anonymous() should be used to skip token check
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session // Lambda for session management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

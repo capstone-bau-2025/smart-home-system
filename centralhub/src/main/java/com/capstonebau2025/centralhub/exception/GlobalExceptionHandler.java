@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.exception;
 import com.capstonebau2025.centralhub.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -76,6 +77,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(404)
                 .body(createErrorResponse(ex, request, 404));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+            AccessDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(403)
+                .body(createErrorResponse(ex, request, 403));
     }
 
     @ExceptionHandler(Exception.class)

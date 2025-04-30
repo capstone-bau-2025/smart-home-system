@@ -61,6 +61,8 @@ public class DeviceService {
         if(!areaRepository.existsById(areaId))
             throw new ResourceNotFoundException("Area not found with ID: " + areaId);
 
+        // TODO: return only if user has permission to this area
+
         return deviceRepository.findByAreaId(areaId).stream()
                 .map(device -> DeviceInfoDTO.builder()
                         .id(device.getId())

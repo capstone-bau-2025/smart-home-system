@@ -4,6 +4,7 @@ import com.capstonebau2025.centralhub.dto.localRequests.ConfigureHubRequest;
 import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.dto.HubInfoResponse;
 import com.capstonebau2025.centralhub.service.HubService;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class HubController {
     }
 
     @PutMapping("/update-name")
+    @RolesAllowed("ADMIN")
     public ResponseEntity<Void> updateHubName(@RequestParam String name) {
         hubService.setHubName(name);
         return ResponseEntity.noContent().build();
