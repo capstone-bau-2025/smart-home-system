@@ -5,6 +5,7 @@ import com.capstonebau2025.centralhub.dto.AreaInteractionsDTO;
 import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateStateRequest;
 import com.capstonebau2025.centralhub.entity.User;
 import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ public class InteractionController {
     private final UserDeviceInteractionService interactionService;
 
     @GetMapping
+    @Operation(summary = "REMOTE")
     public ResponseEntity<AreaInteractionsDTO[]> getAllInteractions() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -28,6 +30,7 @@ public class InteractionController {
     }
 
     @PostMapping("/update-state")
+    @Operation(summary = "REMOTE")
     public ResponseEntity<Void> updateStateInteraction(@RequestBody UpdateStateRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -38,6 +41,7 @@ public class InteractionController {
     }
 
     @PostMapping("/execute-command")
+    @Operation(summary = "REMOTE")
     public ResponseEntity<Void> executeCommand(@RequestBody ExecuteCommandRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -48,6 +52,7 @@ public class InteractionController {
     }
 
     @GetMapping("/fetch-state/{stateValueId}")
+    @Operation(summary = "REMOTE")
     public ResponseEntity<String> fetchStateInteraction(@PathVariable Long stateValueId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
