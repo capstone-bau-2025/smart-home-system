@@ -3,6 +3,7 @@ package com.capstonebau2025.cloudserver.controller;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
 import com.capstonebau2025.cloudserver.entity.User;
+import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class AreaController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
+    private final AuthorizationService authorizationService;
 
     @PostMapping("/add")
     public ResponseEntity<?> addArea(
@@ -30,6 +32,7 @@ public class AreaController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("areaName", areaName);
@@ -44,8 +47,6 @@ public class AreaController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
-        // (errors are handled by RemoteCommandProcessor)
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response.getPayload());
     }
@@ -63,7 +64,6 @@ public class AreaController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 
@@ -73,6 +73,7 @@ public class AreaController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("DELETE_AREA")

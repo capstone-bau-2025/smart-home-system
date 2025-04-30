@@ -4,6 +4,7 @@ import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
 import com.capstonebau2025.cloudserver.dto.UpdateUserPermissionsRequest;
 import com.capstonebau2025.cloudserver.entity.User;
+import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,12 @@ public class UserController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
+    private final AuthorizationService authorizationService;
 
     @GetMapping("/roles")
     public ResponseEntity<?> getAllRoles(@RequestParam String hubSerialNumber) {
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("GET_ALL_ROLES")
@@ -32,13 +35,13 @@ public class UserController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 
     @GetMapping
     public ResponseEntity<?> getAllUsers(@RequestParam String hubSerialNumber) {
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("GET_ALL_USERS")
@@ -48,7 +51,6 @@ public class UserController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 
@@ -58,6 +60,7 @@ public class UserController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("DELETE_USER")
@@ -68,7 +71,6 @@ public class UserController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.noContent().build();
     }
 
@@ -78,6 +80,7 @@ public class UserController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("UPDATE_USER_PERMISSIONS")
@@ -88,7 +91,26 @@ public class UserController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{userId}/permissions")
+    public ResponseEntity<?> getUserPermissions(
+            @PathVariable Long userId,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("GET_USER_PERMISSIONS")
+                .email(user.getEmail())
+                .payload(userId)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        return ResponseEntity.ok(response.getPayload());
     }
 }
