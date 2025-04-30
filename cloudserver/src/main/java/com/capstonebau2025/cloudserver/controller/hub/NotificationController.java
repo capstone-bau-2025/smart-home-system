@@ -25,8 +25,9 @@ public class NotificationController {
     public ResponseEntity<?> send(@RequestBody NotificationRequest request) {
 
         Hub hub = hubService.getHubByToken(request.getToken());
-        if(hubService.isUserLinkedToHub(hub.getSerialNumber(), request.getEmail()))
+        if(!hubService.isUserLinkedToHub(hub.getSerialNumber(), request.getEmail()))
             throw new RuntimeException("User is not linked to this hub");
+
 
         try {
             String response = fcmService.sendNotification(

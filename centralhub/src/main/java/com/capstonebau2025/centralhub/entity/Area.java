@@ -1,11 +1,14 @@
 package com.capstonebau2025.centralhub.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -23,4 +26,8 @@ public class Area {
     private String name;
 
     private Integer icon;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "area", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Permission> permissions;
 }
