@@ -3,6 +3,7 @@ package com.capstonebau2025.cloudserver.controller;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
 import com.capstonebau2025.cloudserver.entity.User;
+import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class InvitationController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
+    private final AuthorizationService authorizationService;
 
     @PostMapping
     public ResponseEntity<?> generateInvitation(
@@ -25,6 +27,7 @@ public class InvitationController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("GENERATE_INVITATION")
@@ -35,7 +38,6 @@ public class InvitationController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 }

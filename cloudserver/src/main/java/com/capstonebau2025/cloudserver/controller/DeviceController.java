@@ -3,6 +3,7 @@ package com.capstonebau2025.cloudserver.controller;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
 import com.capstonebau2025.cloudserver.entity.User;
+import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class DeviceController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
+    private final AuthorizationService authorizationService;
 
     @PutMapping("/{id}/name")
     public ResponseEntity<?> setDeviceName(
@@ -29,6 +31,7 @@ public class DeviceController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("deviceId", id);
@@ -43,7 +46,6 @@ public class DeviceController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok().build();
     }
 
@@ -54,6 +56,7 @@ public class DeviceController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("deviceId", id);
@@ -68,7 +71,6 @@ public class DeviceController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok().build();
     }
 
@@ -88,7 +90,6 @@ public class DeviceController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 10);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 
@@ -108,7 +109,6 @@ public class DeviceController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 10);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 
@@ -118,6 +118,7 @@ public class DeviceController {
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("DELETE_DEVICE")
@@ -128,7 +129,6 @@ public class DeviceController {
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.noContent().build();
     }
 }

@@ -25,7 +25,7 @@ public class UserController {
     @GetMapping("/roles")
     public ResponseEntity<?> getAllRoles(@RequestParam String hubSerialNumber) {
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("GET_ALL_ROLES")
@@ -41,7 +41,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<?> getAllUsers(@RequestParam String hubSerialNumber) {
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
                 .commandType("GET_ALL_USERS")
