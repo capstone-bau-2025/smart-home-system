@@ -29,10 +29,21 @@ public class AutomationAction {
     private Device device;
 
     @NotNull
+    @Column(nullable = false)
+    private ActionType type;
+
+    // only if ActionType is COMMAND
     @ManyToOne
-    @JoinColumn(name = "command_id", nullable = false)
+    @JoinColumn(name = "command_id")
     private Command command;
 
-    //TODO: figure out how to store command parameters.
-    private String commandParams;
+    // only if ActionType is STATE_UPDATE
+    @ManyToOne
+    @JoinColumn(name = "states_value_id")
+    private StateValue stateValue;
+    private String value;
+
+    public enum ActionType {
+        COMMAND, STATE_UPDATE
+    }
 }
