@@ -2,10 +2,7 @@ package com.capstonebau2025.cloudserver.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
@@ -19,10 +16,12 @@ public class UserHub {
     private Long id;
 
     @ManyToOne
+    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
+    @EqualsAndHashCode.Exclude
     @JoinColumn(name = "hub_id", nullable = false)
     private Hub hub;
 

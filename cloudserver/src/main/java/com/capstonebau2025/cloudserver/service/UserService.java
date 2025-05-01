@@ -1,11 +1,14 @@
 package com.capstonebau2025.cloudserver.service;
 
+import com.capstonebau2025.cloudserver.dto.HubsConnected;
+import com.capstonebau2025.cloudserver.dto.UserDetails;
 import com.capstonebau2025.cloudserver.dto.UserValidationResponse;
 import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +73,25 @@ public class UserService {
         }
 
         return fcmToken;
+    }
+
+    public UserDetails getUserDetails(String email) {
+        User user =  userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found with email: " + email));
+
+        List<HubsConnected> hubsConnected = user.getUserHubs().stream()
+                .map(userHub -> HubsConnected.builder()
+                        .serialNumber(userHub.getHub().getSerialNumber())
+                        .name(userHub.getHub().getName())
+                        .role(userHub.getRole())
+                        .build())
+                .toList();
+
+        return UserDetails.builder()
+                .username(user.getRealUsername())
+                .email(user.getEmail())
+                .hubsConnected(hubsConnected)
+                .build();
     }
 }
 
