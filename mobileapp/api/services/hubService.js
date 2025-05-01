@@ -21,7 +21,7 @@ export const discoverHubs = async () => {
     throw error;
   }
 };
-
+ 
 
 export const fetchHubs = async () => {
   try {

@@ -4,6 +4,8 @@ import { BASE_URL } from '../util/auth';
 import { createContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from './slices/userSlice';
+import { authenticateUser } from '../api/services/onRunService'; 
+
 
 export const AuthContext = createContext();
 
@@ -13,40 +15,51 @@ function AuthContextProvider({ children }) {
   const [userToken, setUserToken] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [authStatus, setAuthStatus] = useState(null);
-
-  const login = (email, password) => {
+  const login = async (email, password) => {
     setIsLoading(true);
-
-    axios.post(`${BASE_URL}api/auth/authenticate`, {
-      email,
-      password,
-    })
-    .then(res => {
+    try {
+      const res = await axios.post(`${BASE_URL}api/auth/authenticate`, {
+        email,
+        password,
+      });
+  
       const userInfo = res.data;
-
+      console.log('USERINFO:', JSON.stringify(userInfo));
+  
       setUserInfo(userInfo);
       setUserToken(userInfo.token);
       setAuthStatus(res.status);
-
-      AsyncStorage.setItem('userToken', userInfo.token);
-      AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
-      AsyncStorage.setItem('userEmail', email);
-
-      dispatch(setUser({
-        cloudToken: userInfo.token,
-        email: email,
-      }));
-
-      console.log('Logged in user token:', userInfo.token);
-    })
-    .catch(e => {
+  
+      await AsyncStorage.setItem('userToken', userInfo.token);
+      await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
+      await AsyncStorage.setItem('userEmail', email);
+  
+      try {
+        const authResponse = await authenticateUser(email, userInfo.token);
+        const localToken = authResponse?.token || null;
+        console.log('LOCAL TOKEN (from login):', localToken);
+  
+        dispatch(setUser({
+          cloudToken: userInfo.token,
+          email: email,
+          localToken: localToken,
+        }));
+      } catch (authErr) {
+        console.warn("Failed to fetch local token after login:", authErr);
+        dispatch(setUser({
+          cloudToken: userInfo.token,
+          email: email,
+        }));
+      }
+  
+      console.log('Logged in user cloud token:', userInfo.token);
+    } catch (e) {
       const status = e.response?.status || 'error';
       setAuthStatus(status);
-      console.log(`Login Error: ${status}`);
-    })
-    .finally(() => {
+      console.log("Login Error:", e.message); 
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   const logout = () => {
@@ -105,17 +118,25 @@ function AuthContextProvider({ children }) {
       storedUserInfo = JSON.parse(storedUserInfo);
 
       if (storedUserInfo && storedUserToken && storedEmail) {
-        setUserToken(storedUserToken);
-        setUserInfo(storedUserInfo);
+    
+
+        const authResponse = await authenticateUser(storedEmail, storedUserToken);
+        const localToken = authResponse?.token || null;
+        console.log('LOCAL TOKEN:', localToken);
 
         dispatch(setUser({
           cloudToken: storedUserToken,
           email: storedEmail,
+          localToken: localToken,
         }));
+
+        setUserToken(storedUserToken);
+        setUserInfo(storedUserInfo);
+
+        console.log('Auto-login and backend re-auth successful.');
       }
 
       setIsLoading(false);
-
       // FOR REFRESHING TOKEN (DIDN'T TEST IT YET):
       // try {
       //   setIsLoading(true);
@@ -134,13 +155,12 @@ function AuthContextProvider({ children }) {
       //   }
       //   setIsLoading(false);
       // } catch (e) {
-      //   console.log(`isLogged in error ${e}`);
+      //   console.log(isLogged in error ${e});
       //   logout();
       // };
-      
     } catch (e) {
       console.log(`isLogged in error: ${e}`);
-      logout();
+      logout(); 
     }
   };
 

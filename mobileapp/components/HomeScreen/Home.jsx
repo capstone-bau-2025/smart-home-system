@@ -9,35 +9,15 @@ import HeaderDevices from "./HeaderDevices";
 
 
 //this is the feed that shows the rooms and devices in the home hub
-export default function Home() {
+export default function Home({data}) {
 
 
-  const [rooms, setRooms] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  
-
-
-  // useEffect(() => {
-  //   handleFetchRooms();
-  // }, []);
-
-  // const handleFetchRooms = async () => {
-  //   setIsLoading(true);
-  //   const result = await fetchRooms();
-  //   if (result.success) {
-  //     setRooms(result.data);
-  //   } else {
-  //     console.log("Fetch rooms error:", result.error);
-  //   }
-  //   setIsLoading(false);
-  // };
-  
 
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={homeHub.rooms}
+        data={data}
         keyExtractor={(item, index) => index.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 15 }}
@@ -49,7 +29,7 @@ export default function Home() {
         renderItem={({ item }) => (
           <>
             <RoomCard data={item} /> 
-            {/* fetched data (rooms) sent here */}
+
           </>
         )}
       />

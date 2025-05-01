@@ -29,13 +29,16 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-
+import { useSelector } from "react-redux";
 
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 export default function App() {
+
+
+
   return (
     <SafeAreaProvider>
 <Provider store={store}>
@@ -101,7 +104,9 @@ function AuthStack() {
   );
 }
 
-function AuthenticatedStack({ currentHub, setCurrentHub }) {
+function AuthenticatedStack({setCurrentHub }) {
+  const currentHub = useSelector((state) => state.hub)
+
   return (
     <BottomTabs.Navigator
       screenOptions={{

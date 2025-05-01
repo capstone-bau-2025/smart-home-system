@@ -17,6 +17,8 @@ import RenameModal from "../../../components/UI/RenameModal";
 import MidModal from "../../../components/UI/MidModal";
 import { updateHubName } from "../../../api/services/hubService";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
+import { setCurrentHub } from "../../../store/slices/hubSlice";
 
 export default function ManageHub({
   currentHub,
@@ -31,6 +33,7 @@ export default function ManageHub({
   const [hubname, setHubName] = useState(currentHub.name || "");
   const [userRenameModal, setUserRenameModal] = useState(false);
   const [userNewName, setUserNewname] = useState("");
+  const dispatch = useDispatch();
 
   const userCount = selectedTab.users.length;
 
@@ -42,8 +45,16 @@ export default function ManageHub({
   async function handleUpdateHubName(newName) {
     try {
       const result = await updateHubName(newName);
-      console.log("Hub name updated:", result);
+      console.log("Hub name updated: " + newName);
       setHubName(newName);
+      dispatch(setCurrentHub({
+        serialNumber: currentHub.serialNumber, 
+        hubName: newName,
+        hubDetails: {
+          ...currentHub.hubDetails,
+          name: newName, 
+        },
+      }));
       setCogModal(false);
       Toast.show({
         topOffset: 60,

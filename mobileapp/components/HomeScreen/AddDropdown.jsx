@@ -15,18 +15,19 @@ export default function AddDropdown({
   const navigation = useNavigation();
 
   const addData = [
-    { label: "Discover Device", value: "DDevice", icon: "tv-outline" },
     { label: "Discover Hub", value: "DHub", icon: "cube-outline" },
+    { label: "Discover Device", value: "DDevice", icon: "tv-outline" },
   ];
 
   useEffect(() => {
-    if (addValue === "DDevice") {
-      navigation.navigate("DiscoverDevice");
-      setAddValue(null);
-    } else if (addValue === "DHub") {
+     if (addValue === "DHub") {
       navigation.navigate("DiscoverHub");
       setAddValue(null);
     }
+    else if (addValue === "DDevice") {
+      navigation.navigate("DiscoverDevice");
+      setAddValue(null);
+    } 
   }, [addValue, navigation]);
 
   return (

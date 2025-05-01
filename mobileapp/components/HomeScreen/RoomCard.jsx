@@ -14,23 +14,23 @@ export default function RoomCard({ data }) {
   const getDeviceHeight = (device) =>
     device.type === 'enum' || device.type === 'range' ? 135 : 60;
 
-  data.devices.forEach((device) => {
-    const estimatedHeight = getDeviceHeight(device);
+  // data.devices.forEach((device) => {
+  //   const estimatedHeight = getDeviceHeight(device);
 
-    if (leftHeight <= rightHeight) {
-      leftColumn.push(device);
-      leftHeight += estimatedHeight;
-    } else {
-      rightColumn.push(device);
-      rightHeight += estimatedHeight;
-    }
-  });
+  //   if (leftHeight <= rightHeight) {
+  //     leftColumn.push(device);
+  //     leftHeight += estimatedHeight;
+  //   } else {
+  //     rightColumn.push(device);
+  //     rightHeight += estimatedHeight;
+  //   }
+  // });
 
   return (
     <View style={styles.entireRoom}>
       {/* Room Header */}
       <View style={styles.roomHeader}>
-        <Ionicons name={data.icon} style={styles.icon} size={25} />
+        <Ionicons name='car-outline' style={styles.icon} size={25} />
         <Text style={styles.roomName}>{data.name}</Text>
       </View>
 

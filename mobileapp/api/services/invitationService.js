@@ -1,16 +1,20 @@
-import axios from "axios";
-import { LOCAL_URL } from "../../util/auth"; // or BASE_URL depending on your setup
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
+import { LOCAL_URL } from '../../util/auth';
 
-const path = `${LOCAL_URL}api/invitations/`;
+export const generateInviteCode = async (roleId) => {
+  try {
+    const response = await axios.post(`${LOCAL_URL}api/invitations?roleId=${roleId}`, null, {
+      headers: {
+        Accept: '*/*',
+        
+      },
+    });
 
-export const createInvitation = async (roleId) => {
-  const token = await AsyncStorage.getItem("userToken");
-  const response = await axios.post(`${path}?roleId=${roleId}`, {}, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    console.log('Invitation code generated:', response.data);
+    return response.data; 
 
-  return response.data; 
+  } catch (error) {
+    console.error('Failed to generate invite code:', error.response?.data || error.message);
+    throw error;
+  }
 };

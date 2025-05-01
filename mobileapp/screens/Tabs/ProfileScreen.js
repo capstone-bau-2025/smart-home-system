@@ -27,20 +27,20 @@ export default function ProfileScreen() {
 
       {/* User Info Card */}
       <View style={styles.profileCard}>
-        <View style={styles.infoRow}>
+        {/* <View style={styles.infoRow}>
           <Ionicons name="person-circle-outline" size={22} color="#2aa8a8" />
           <Text style={styles.infoText}>{user?.username || "Khaled-admin123"}</Text>
-        </View>
+        </View> */}
 
         <View style={styles.infoRow}>
           <Ionicons name="mail-outline" size={22} color="#2aa8a8" />
           <Text style={styles.infoText}>{userEmail}</Text>
         </View>
 
-        <View style={styles.infoRow}>
+        {/* <View style={styles.infoRow}>
           <Ionicons name="lock-closed-outline" size={22} color="#2aa8a8" />
           <Text style={styles.infoText}>••••••••</Text>
-        </View>
+        </View> */}
 
         <View style={styles.infoRow}>
           <Ionicons name="briefcase-outline" size={22} color="#2aa8a8" />

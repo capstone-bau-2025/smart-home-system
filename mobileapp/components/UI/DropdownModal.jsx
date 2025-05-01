@@ -17,7 +17,7 @@
     data,
     onSelect,
     triposition,
-    position
+    position,
   }) {
     return (
       <Modal visible={visible} transparent animationType="fade">

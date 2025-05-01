@@ -26,8 +26,55 @@ export default function DiscoveryModal({
   const [value, setValue] = useState("");
   const dispatch = useDispatch();
   const hubState = useSelector((state) => state.hub);
-  
+  const user = useSelector((state) => state.user);
 
+
+  const handleConnectHub = async () => {
+    if (!value.trim()) {
+      console.log("Invitation code is required.");
+      return;
+    }
+  
+    try {
+      const result = await registerWithInvitation({
+        invitation: value,
+        email: user.email,
+        cloudToken: user.cloudToken,
+        hubSerialNumber: selectedHub.serialNumber,
+      });
+  
+      if (!result) {
+        console.log("Invalid or missing result from backend");
+        return;
+      }
+  
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "success",
+        text1: `Connected successfully`,
+        text2: `You are now connected to ${selectedHub.name}`,
+      });
+  
+      const joinedHub = {
+        serialNumber: selectedHub.serialNumber,
+        hubName: selectedHub.name, 
+        hubDetails: {
+          status: selectedHub.status,
+          location: selectedHub.location,
+          name: selectedHub.name,
+        },
+      };
+  
+      dispatch(addUserHub(joinedHub));
+      dispatch(setCurrentHub(joinedHub));
+  
+      onClose();
+  
+    } catch (error) {
+      console.log("Failed to join hub:", error);
+    }
+  };
 
   const handleConfigureHub = async () => {
     if (selectedHub && value.trim()) {
@@ -62,7 +109,12 @@ export default function DiscoveryModal({
         }));
         
         
-        await registerWithInvitation();
+        await registerWithInvitation({
+          invitation: result.code,
+          email: user.email,
+          cloudToken: user.cloudToken,
+          hubSerialNumber: selectedHub.serialNumber,
+        });
         
         Toast.show({
           topOffset: 60,
@@ -120,7 +172,7 @@ export default function DiscoveryModal({
                   styles.button,
                   pressed && styles.pressed,
                 ]}
-                onPress={() => console.log("pressed")}
+                onPress={handleConnectHub}
               >
                 <Text style={styles.text}>confirm</Text>
               </Pressable>

@@ -5,10 +5,10 @@ import EditInput from '../UI/EditInput';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { addRoom } from '../../api/services/areaService';
-
+import DissmissKeyboard from '../../components/utils/DismissKeyboard'
 
 // A modal that allows the user to add a room to the hub, it takes in a name and an icon
-export default function AddRoomModal({ visible, onClose, title }) {
+export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) {
   const [roomName, setRoomName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [showRoomNameError, setShowRoomNameError] = useState(false);
@@ -60,71 +60,72 @@ export default function AddRoomModal({ visible, onClose, title }) {
 
   async function handleSave() {
     let hasError = false;
+  
     if (!roomName.trim()) {
       setShowRoomNameError(true);
       hasError = true;
     }
-    if (!selectedIcon) {
-      setShowIconError(true);
-      hasError = true;
-    }
+  
+    // Uncomment if icon is required
+    // if (!selectedIcon) {
+    //   setShowIconError(true);
+    //   hasError = true;
+    // }
+  
     if (hasError) return;
   
     try {
-      const result = await addRoom(roomName); 
-  
-      if (result.success) { 
-        console.log('Room added successfully:', result);
-        setRoomName('');
-        setSelectedIcon(null);
-        setShowRoomNameError(false);
-        setShowIconError(false);
-        onClose(); 
-      } else {
-        console.log('Failed to add room:', result.message);
-
-      }
+      const result = await addRoom(roomName, '123456789');
+      console.log('Room added:', result);
+      await refetchAreas(); 
+      setRoomName('');
+      setSelectedIcon(null);
+      setShowRoomNameError(false);
+      setShowIconError(false);
+      onClose();
     } catch (error) {
-      console.log('Error while adding room:', error.message);
-
+      console.log('Error while adding room:', error.response?.data || error.message);
     }
   }
+  
   return (
     <FullScreenModal onClose={onClose} visible={visible} title={title}>
-      <View style={styles.container}>
-        <View style={{ flex: 1 }}>
-          <EditInput
-            title={'Room name'}
-            value={roomName}
-            setChange={(value) => {
-              setRoomName(value);
-              if (value.trim()) setShowRoomNameError(false);
-            }}
-            placeholder={'bedroom, kitchen, living room, etc...'}
-          />
-          {showRoomNameError && (
-            <Text style={styles.validationText}>Room name is required</Text>
-          )}
-
-          <Text style={styles.sectionTitle}>Choose Icon</Text>
-          {showIconError && (
-            <Text style={styles.validationText}>Icon is required</Text>
-          )}
-          
-          <FlatList
-            data={iconOptions}
-            renderItem={renderIcon}
-            keyExtractor={(item) => item}
-            numColumns={5}
-            contentContainerStyle={styles.iconGrid}
-            style={{ flexGrow: 0 }}
-          />
+    <DissmissKeyboard>
+        <View style={styles.container}>
+          <View style={{ flex: 1 }}>
+            <EditInput
+              title={'Room name'}
+              value={roomName}
+              setChange={(value) => {
+                setRoomName(value);
+                if (value.trim()) setShowRoomNameError(false);
+              }}
+              placeholder={'bedroom, kitchen, living room, etc...'}
+            />
+            {showRoomNameError && (
+              <Text style={styles.validationText}>Room name is required</Text>
+            )}
+      
+            <Text style={styles.sectionTitle}>Choose Icon</Text>
+            {showIconError && (
+              <Text style={styles.validationText}>Icon is required</Text>
+            )}
+            
+            <FlatList
+              data={iconOptions}
+              renderItem={renderIcon}
+              keyExtractor={(item) => item}
+              numColumns={5}
+              contentContainerStyle={styles.iconGrid}
+              style={{ flexGrow: 0 }}
+            />
+          </View>
+      
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveText}>Save</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+    </DissmissKeyboard>
     </FullScreenModal>
   );
 }
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 15,
+    marginBottom: 15,
   },
   saveText: {
     color: 'white',

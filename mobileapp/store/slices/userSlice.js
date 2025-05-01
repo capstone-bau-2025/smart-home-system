@@ -4,9 +4,10 @@ const userSlice = createSlice({
   name: "user",
   initialState: {     
     userRole: null,        
-    cloudToken: "",     
+    cloudToken: null,     //""
     localToken: null,   
     email: null,
+    userId: null,
   },
   reducers: {
     setUser(state, action) {
@@ -26,9 +27,13 @@ const userSlice = createSlice({
       state.cloudToken = "";
       state.localToken = null;
       state.email = null;
+      state.userId = null; 
+    },
+    setUserId(state, action) {
+      state.userId = action.payload;
     },
   },
 });
 
-export const { setUser, updateLocalToken, clearUser, setUserRole } = userSlice.actions;
+export const { setUser, updateLocalToken, clearUser, setUserRole, setUserId } = userSlice.actions;
 export default userSlice.reducer;

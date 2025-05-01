@@ -8,17 +8,42 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DropdownModal from "../UI/DropdownModal";
-/// a dropdown component that shows the available hubs and allows the user to select one
-export default function HubDropdown({ currentHub, setCurrentHub }) {
+import { useSelector, useDispatch } from "react-redux";
+import { setCurrentHub } from "../../store/slices/hubSlice";
+
+
+  // const hubData = [
+  //   { label: "Hub1", value: "Hub1", icon: "cube-outline" },
+  //   { label: "Hub2", value: "Hub2", icon: "cube-outline" },
+  // ];
+
+
+export default function HubDropdown() {
   const [modalVisible, setModalVisible] = useState(false);
+  const dispatch = useDispatch();
 
-  const hubData = [
-    { label: "Hub1", value: "Hub1", icon: "cube-outline" },
-    { label: "Hub2", value: "Hub2", icon: "cube-outline" },
-  ];
+  const hubs = useSelector((state) => state.hub.userHubs);
+  const currentHub = useSelector((state) => state.hub.currentHubName);
 
-  const handleSelectHub = (value) => {
-    setCurrentHub(value);
+  const dropdownData = hubs.map((hub) => ({
+    label: hub.name,
+    value: hub.serialNumber,
+    icon: "cube-outline",
+  }));
+
+  const handleSelectHub = (serialNumber) => {
+    const selectedHub = hubs.find((hub) => hub.serialNumber === serialNumber);
+    if (selectedHub) {
+      dispatch(setCurrentHub({
+        serialNumber: selectedHub.serialNumber,
+        hubName: selectedHub.name,
+        hubDetails: selectedHub.hubDetails || {
+          location: selectedHub.location,
+          name: selectedHub.name,
+          status: selectedHub.status,
+        },
+      }));
+    }
     setModalVisible(false);
   };
 
@@ -29,7 +54,7 @@ export default function HubDropdown({ currentHub, setCurrentHub }) {
         onPress={() => setModalVisible(true)}
       >
         <View style={styles.row}>
-          <Text style={styles.selectedText}>{currentHub || "Select Hub"} </Text>
+          <Text style={styles.selectedText}>{currentHub || "Select"}</Text>
           <Ionicons
             name="chevron-down-outline"
             size={20}
@@ -40,7 +65,8 @@ export default function HubDropdown({ currentHub, setCurrentHub }) {
       </TouchableOpacity>
 
       <DropdownModal
-        data={hubData}
+        key={currentHub}
+        data={dropdownData}
         setVisible={setModalVisible}
         visible={modalVisible}
         onSelect={handleSelectHub}
@@ -62,17 +88,13 @@ export default function HubDropdown({ currentHub, setCurrentHub }) {
 const styles = StyleSheet.create({
   dropdownContainer: {
     width: 160,
-
     borderRadius: 8,
-
     overflow: "hidden",
   },
   dropdownButton: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    // paddingHorizontal: 10,
-    // paddingVertical: 12,
   },
   selectedText: {
     fontSize: 30,

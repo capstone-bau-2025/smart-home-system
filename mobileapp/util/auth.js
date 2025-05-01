@@ -2,7 +2,7 @@ import axios from "axios";
 import { Platform } from "react-native";
 
 
-const LOCAL_IP = "192.168.1.55";
+const LOCAL_IP = "192.168.1.54";
 
 
 export const LOCAL_URL =

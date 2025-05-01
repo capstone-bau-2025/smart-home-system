@@ -10,14 +10,15 @@ import { useNavigation } from "@react-navigation/native";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import { Ionicons } from "@expo/vector-icons";
 import { deleteRoom } from "../../api/services/areaService";
-
+import Toast from "react-native-toast-message";
 //shows the devices inside the room clicked
 export default function RoomModal({
   visible,
   onClose,
   room,
   selectedTab,
-  setVisible,
+  setRoomModalVisible,
+  refetchAreas,
 }) {
   const navigation = useNavigation();
 
@@ -35,7 +36,7 @@ export default function RoomModal({
 
   function handleAddPress() {
     navigation.push("DiscoverDevice");
-    setVisible(false);
+    setRoomModalVisible(false);
   }
 
   function handleRemovePress(device) {
@@ -55,30 +56,56 @@ export default function RoomModal({
     setSelectedDevice(null);
   }
 
-  async function handleDeleteRoom(areaId) {
+  // console.log(room.name)
+  // console.log(room.id)
+  async function handleDeleteRoom(areaId, hubSerialNumber) {
     try {
-      const result = await deleteRoom(areaId);
-      if (result.success) {
-        console.log("Room deleted successfully:", result.message || result);
-        setDeleteConfirm(false);
+      const result = await deleteRoom(areaId, hubSerialNumber);
+      setDeleteConfirm(false);
+      await refetchAreas();
+      setSelectedDevice(null);
+      setMoveDevice(false);
+      console.log("Room deleted successfully");
+    
+      setTimeout(() => {
         onClose(); 
-      } else {
-        console.log("Failed to delete room:", result.message || result);
-      }
+        Toast.show({
+          topOffset: 60,
+          swipeable: true,
+        
+          type: "success",
+          text1Style: {
+            fontFamily: "Lexend-Bold",
+            fontSize: 16,
+            color: "black",
+          },
+          text2Style: {
+            fontFamily: "Lexend-Regular",
+            fontSize: 14,
+            color: "#a8a8a8",
+          },
+          text1: "Deletion Successful",
+          text2: `${room.name} has been deleted successfully`
+        });
+      }, 500);
+
     } catch (error) {
-      console.log("Error while deleting room:", error.message);
+      console.log("Error while deleting room:", error.message || error);
     }
   }
-
-  if (!room) return null; 
+  if (!visible || !room?.name) return null;
 
   return (
     <Modal animationType="slide" transparent={false} visible={visible}>
       <View style={styles.modalContainer}>
         <View style={styles.header}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Text style={styles.roomName}>{room.name}</Text>
-            <TouchableOpacity onPress={() => setDeleteConfirm(true)} style={styles.deleteRoomBtn}>
+            <Text style={styles.roomName}>{room?.name || ""}</Text>
+
+            <TouchableOpacity
+              onPress={() => setDeleteConfirm(true)}
+              style={styles.deleteRoomBtn}
+            >
               <Ionicons name="trash-outline" size={20} color="#000000" />
             </TouchableOpacity>
           </View>
@@ -140,13 +167,12 @@ export default function RoomModal({
         iconColor="red"
       />
 
-
       <ConfirmationModal
         visible={deleteConfirm}
         onClose={() => setDeleteConfirm(false)}
         message={`Are you sure you want to delete the room "${room.name}"?`}
         iconColor="red"
-        onConfirm={() => handleDeleteRoom(room.id)}
+        onConfirm={() => handleDeleteRoom(room.id, "123456789")}
       />
 
       <RenameModal

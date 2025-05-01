@@ -1,16 +1,11 @@
 import axios from 'axios';
-import { LOCAL_URL } from '../../util/auth';
+import { BASE_URL, LOCAL_URL } from '../../util/auth';
 import { store } from '../../store/store';
 import { updateLocalToken } from '../../store/slices/userSlice';
 
-export const registerWithInvitation = async () => {
-  const state = store.getState();
 
-  const invitation = state.hub.adminInvitationCode;
-  const hubSerialNumber = state.hub.currentHubSerialNumber;
-  const email = state.user.email;
-  const cloudToken = state.user.cloudToken;
 
+export const registerWithInvitation = async ({ invitation, email, cloudToken, hubSerialNumber }) => {
   try {
     const response = await axios.post(`${LOCAL_URL}api/auth/register`, {
       invitation,
