@@ -1,10 +1,10 @@
-package com.capstonebau2025.cloudserver.controller;
+package com.capstonebau2025.cloudserver.controller.remote;
 
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
-import com.capstonebau2025.cloudserver.dto.ExecuteCommandRequest;
-import com.capstonebau2025.cloudserver.dto.UpdateStateRequest;
+import com.capstonebau2025.cloudserver.dto.UpdateUserPermissionsRequest;
 import com.capstonebau2025.cloudserver.entity.User;
+import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
 import lombok.RequiredArgsConstructor;
@@ -13,95 +13,104 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/interactions")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Slf4j
-public class InteractionController {
+public class RemoteUserController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
+    private final AuthorizationService authorizationService;
 
-    @GetMapping
-    public ResponseEntity<?> getAllInteractions(@RequestParam String hubSerialNumber) {
+    @GetMapping("/roles")
+    public ResponseEntity<?> getAllRoles(@RequestParam String hubSerialNumber) {
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-        // Send command to hub to get all interactions
+
         RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("GET_ALL_INTERACTIONS")
+                .commandType("GET_ALL_ROLES")
                 .email(user.getEmail())
                 .build();
 
-        // Send command and wait for response (10 second timeout)
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                hubSerialNumber, message, 10);
+                hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
         return ResponseEntity.ok(response.getPayload());
     }
 
-    @PostMapping("/update-state")
-    public ResponseEntity<?> updateStateInteraction(
-            @RequestParam String hubSerialNumber,
-            @RequestBody UpdateStateRequest dto) {
-
+    @GetMapping
+    public ResponseEntity<?> getAllUsers(@RequestParam String hubSerialNumber) {
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
 
-        // Create and send command to hub
+
         RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("UPDATE_STATE")
+                .commandType("GET_ALL_USERS")
                 .email(user.getEmail())
-                .payload(dto)
                 .build();
 
-        // Send command and wait for response (5 second timeout)
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(response.getPayload());
     }
 
-    @PostMapping("/execute-command")
-    public ResponseEntity<?> executeCommand(
-            @RequestParam String hubSerialNumber,
-            @RequestBody ExecuteCommandRequest dto) {
-
-        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-
-        // Create and send command to hub
-        RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("EXECUTE_COMMAND")
-                .email(user.getEmail())
-                .payload(dto)
-                .build();
-
-        // Send command and wait for response (5 second timeout)
-        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                hubSerialNumber, message, 5);
-
-        // If we reach here, it means the response was successful
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/fetch-state/{stateValueId}")
-    public ResponseEntity<?> fetchStateInteraction(
-            @PathVariable Long stateValueId,
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(
+            @PathVariable Long userId,
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
-        // Create and send command to hub
         RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("FETCH_STATE")
+                .commandType("DELETE_USER")
                 .email(user.getEmail())
-                .payload(stateValueId)
+                .payload(userId)
                 .build();
 
-        // Send command and wait for response (5 second timeout)
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        // If we reach here, it means the response was successful
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/update-permissions")
+    public ResponseEntity<?> updateUserPermissions(
+            @RequestBody UpdateUserPermissionsRequest request,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("UPDATE_USER_PERMISSIONS")
+                .email(user.getEmail())
+                .payload(request)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{userId}/permissions")
+    public ResponseEntity<?> getUserPermissions(
+            @PathVariable Long userId,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("GET_USER_PERMISSIONS")
+                .email(user.getEmail())
+                .payload(userId)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
         return ResponseEntity.ok(response.getPayload());
     }
 }

@@ -1,5 +1,5 @@
 
-package com.capstonebau2025.cloudserver;
+package com.capstonebau2025.cloudserver.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

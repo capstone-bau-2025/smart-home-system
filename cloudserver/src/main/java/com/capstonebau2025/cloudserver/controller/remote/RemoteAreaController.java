@@ -1,4 +1,4 @@
-package com.capstonebau2025.cloudserver.controller;
+package com.capstonebau2025.cloudserver.controller.remote;
 
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
@@ -19,7 +19,7 @@ import java.util.Map;
 @RequestMapping("/api/areas")
 @RequiredArgsConstructor
 @Slf4j
-public class AreaController {
+public class RemoteAreaController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;

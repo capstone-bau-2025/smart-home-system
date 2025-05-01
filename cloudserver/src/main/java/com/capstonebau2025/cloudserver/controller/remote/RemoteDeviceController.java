@@ -1,8 +1,7 @@
-package com.capstonebau2025.cloudserver.controller;
+package com.capstonebau2025.cloudserver.controller.remote;
 
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
-import com.capstonebau2025.cloudserver.dto.UpdateUserPermissionsRequest;
 import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
@@ -12,80 +11,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/devices")
 @RequiredArgsConstructor
 @Slf4j
-public class UserController {
+public class RemoteDeviceController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
     private final AuthorizationService authorizationService;
 
-    @GetMapping("/roles")
-    public ResponseEntity<?> getAllRoles(@RequestParam String hubSerialNumber) {
-        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-
-
-        RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("GET_ALL_ROLES")
-                .email(user.getEmail())
-                .build();
-
-        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                hubSerialNumber, message, 5);
-
-        return ResponseEntity.ok(response.getPayload());
-    }
-
-    @GetMapping
-    public ResponseEntity<?> getAllUsers(@RequestParam String hubSerialNumber) {
-        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-
-
-        RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("GET_ALL_USERS")
-                .email(user.getEmail())
-                .build();
-
-        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                hubSerialNumber, message, 5);
-
-        return ResponseEntity.ok(response.getPayload());
-    }
-
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(
-            @PathVariable Long userId,
+    @PutMapping("/{id}/name")
+    public ResponseEntity<?> setDeviceName(
+            @PathVariable Long id,
+            @RequestParam String name,
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
         authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
-        RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("DELETE_USER")
-                .email(user.getEmail())
-                .payload(userId)
-                .build();
-
-        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
-                hubSerialNumber, message, 5);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/update-permissions")
-    public ResponseEntity<?> updateUserPermissions(
-            @RequestBody UpdateUserPermissionsRequest request,
-            @RequestParam String hubSerialNumber) {
-
-        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
-        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("deviceId", id);
+        payload.put("name", name);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("UPDATE_USER_PERMISSIONS")
+                .commandType("SET_DEVICE_NAME")
                 .email(user.getEmail())
-                .payload(request)
+                .payload(payload)
                 .build();
 
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
@@ -94,23 +49,86 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{userId}/permissions")
-    public ResponseEntity<?> getUserPermissions(
-            @PathVariable Long userId,
+    @PutMapping("/{id}/area")
+    public ResponseEntity<?> setDeviceArea(
+            @PathVariable Long id,
+            @RequestParam Long areaId,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+        authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("deviceId", id);
+        payload.put("areaId", areaId);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("SET_DEVICE_AREA")
+                .email(user.getEmail())
+                .payload(payload)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 5);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/ping")
+    public ResponseEntity<?> pingDevice(
+            @PathVariable Long id,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("PING_DEVICE")
+                .email(user.getEmail())
+                .payload(id)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 10);
+
+        return ResponseEntity.ok(response.getPayload());
+    }
+
+    @GetMapping("/by-area/{areaId}")
+    public ResponseEntity<?> getDevicesByArea(
+            @PathVariable Long areaId,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("GET_DEVICES_BY_AREA")
+                .email(user.getEmail())
+                .payload(areaId)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 10);
+
+        return ResponseEntity.ok(response.getPayload());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDevice(
+            @PathVariable Long id,
             @RequestParam String hubSerialNumber) {
 
         User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
         authorizationService.verifyAdminRole(user.getEmail(), hubSerialNumber);
 
         RemoteCommandMessage message = RemoteCommandMessage.builder()
-                .commandType("GET_USER_PERMISSIONS")
+                .commandType("DELETE_DEVICE")
                 .email(user.getEmail())
-                .payload(userId)
+                .payload(id)
                 .build();
 
         RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
                 hubSerialNumber, message, 5);
 
-        return ResponseEntity.ok(response.getPayload());
+        return ResponseEntity.noContent().build();
     }
 }

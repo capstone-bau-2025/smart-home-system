@@ -1,4 +1,4 @@
-package com.capstonebau2025.cloudserver.controller;
+package com.capstonebau2025.cloudserver.controller.remote;
 
 import com.capstonebau2025.cloudserver.dto.RemoteCommandMessage;
 import com.capstonebau2025.cloudserver.dto.RemoteCommandResponse;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/invitations")
 @RequiredArgsConstructor
 @Slf4j
-public class InvitationController {
+public class RemoteInvitationController {
 
     private final RemoteCommandProcessor commandProcessor;
     private final HubAccessService hubAccessService;
