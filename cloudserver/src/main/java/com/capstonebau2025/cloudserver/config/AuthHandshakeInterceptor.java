@@ -1,4 +1,4 @@
-package com.capstonebau2025.cloudserver;
+package com.capstonebau2025.cloudserver.config;
 
 import com.capstonebau2025.cloudserver.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;

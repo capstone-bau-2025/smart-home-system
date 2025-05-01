@@ -1,5 +1,5 @@
 
-package com.capstonebau2025.cloudserver;
+package com.capstonebau2025.cloudserver.controller;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;

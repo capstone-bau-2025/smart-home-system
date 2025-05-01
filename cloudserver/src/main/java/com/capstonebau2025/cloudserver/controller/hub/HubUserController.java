@@ -5,6 +5,8 @@ import com.capstonebau2025.cloudserver.entity.Hub;
 import com.capstonebau2025.cloudserver.service.HubService;
 import com.capstonebau2025.cloudserver.service.LinkService;
 import com.capstonebau2025.cloudserver.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ public class HubUserController {
     private final HubService hubService;
 
     @PostMapping("/validateUser")
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<UserValidationResponse> validateUser(@RequestBody UserValidationRequest request) {
 
         if(!hubService.hubExistsByToken(request.getToken())) {
@@ -36,6 +40,8 @@ public class HubUserController {
     }
 
     @PostMapping("/linkUser")
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<LinkUserResponse> linkUser(@RequestBody LinkUserRequest request) {
         Hub hub = hubService.getHubByToken(request.getToken());
 
@@ -43,6 +49,8 @@ public class HubUserController {
     }
 
     @DeleteMapping("/unlinkUser")
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<?> unlinkUser(@RequestBody UnlinkUserRequest request) {
         Hub hub = hubService.getHubByToken(request.getToken());
 

@@ -31,8 +31,8 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/hub/discover/",
-                                "/api/hub/configure/"
+                                "/api/hub/discover",
+                                "/api/hub/configure"
                         ).permitAll() // or check if .anonymous() should be used to skip token check
                         .anyRequest().authenticated()
                 )

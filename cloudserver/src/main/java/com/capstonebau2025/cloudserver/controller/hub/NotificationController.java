@@ -5,6 +5,8 @@ import com.capstonebau2025.cloudserver.entity.Hub;
 import com.capstonebau2025.cloudserver.service.FCMService;
 import com.capstonebau2025.cloudserver.service.HubService;
 import com.google.firebase.messaging.FirebaseMessagingException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +24,13 @@ public class NotificationController {
     private final FCMService fcmService;
 
     @PostMapping
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<?> send(@RequestBody NotificationRequest request) {
 
         Hub hub = hubService.getHubByToken(request.getToken());
         if(!hubService.isUserLinkedToHub(hub.getSerialNumber(), request.getEmail()))
             throw new RuntimeException("User is not linked to this hub");
-
 
         try {
             String response = fcmService.sendNotification(
