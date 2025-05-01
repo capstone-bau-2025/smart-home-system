@@ -15,90 +15,91 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebsocketClient {
     private static final Logger logger = LoggerFactory.getLogger(WebsocketClient.class);
+    private static final int RECONNECT_DELAY_SECONDS = 5;
 
     private final String hubId;
     private final String token;
     private StompSession session;
     private final WebSocketCommandHandler commandHandler;
+    private String serverUrl;
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private final AtomicBoolean reconnecting = new AtomicBoolean(false);
+    private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+    private WebSocketStompClient stompClient;
 
     public WebsocketClient(String hubId, String token, WebSocketCommandHandler commandHandler) {
         this.hubId = hubId;
         this.token = token;
         this.commandHandler = commandHandler;
+
+        // Initialize WebSocket client
+        List<Transport> transports = new ArrayList<>();
+        transports.add(new WebSocketTransport(new StandardWebSocketClient()));
+        this.stompClient = new WebSocketStompClient(new SockJsClient(transports));
+        this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
     }
 
     public void connectToCloud(String serverUrl) {
+        this.serverUrl = serverUrl;
+        connect();
+    }
+
+    private void connect() {
+        if (reconnecting.get()) {
+            return;
+        }
+
+        reconnecting.set(true);
+
         // Add token to URL for authentication
         String connectionUrl = serverUrl + "?token=" + token;
         logger.info("Connecting with URL: {}", connectionUrl);
 
-        // Setup WebSocket client
-        List<Transport> transports = new ArrayList<>();
-        transports.add(new WebSocketTransport(new StandardWebSocketClient()));
-        WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(transports));
-        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-
         try {
             // Connect and establish session
-            session = stompClient.connectAsync(connectionUrl, new StompSessionHandler() {
-                @Override
-                public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-                    logger.info("Connected to Cloud Server");
+            session = stompClient.connectAsync(connectionUrl, new ReconnectingStompSessionHandler()).get();
+            reconnecting.set(false);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Connection failed: {}", e.getMessage());
+            scheduleReconnect();
+        }
+    }
 
-                    // Pass the session to the command handler
-                    commandHandler.setStompSession(session);
+    private void scheduleReconnect() {
+        logger.info("Scheduling reconnection attempt in {} seconds", RECONNECT_DELAY_SECONDS);
+        reconnectExecutor.schedule(() -> {
+            reconnecting.set(false);
+            connect();
+        }, RECONNECT_DELAY_SECONDS, TimeUnit.SECONDS);
+    }
 
-                    // Subscribe to hub-specific topic
-                    session.subscribe("/topic/messages/" + hubId, new StompFrameHandler() {
-                        @Override
-                        public Type getPayloadType(StompHeaders headers) {
-                            return Message.class;
-                        }
+    public void disconnect() {
+        if (session != null && session.isConnected()) {
+            session.disconnect();
+        }
+        reconnectExecutor.shutdownNow();
+        isConnected.set(false);
+    }
 
-                        @Override
-                        public void handleFrame(StompHeaders headers, Object payload) {
-                            Message msg = (Message) payload;
-                            logger.info("Received from Cloud: {}", msg.getContent());
-                        }
-                    });
+    private class ReconnectingStompSessionHandler extends StompSessionHandlerAdapter {
+        @Override
+        public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+            logger.info("Connected to Cloud Server");
+            isConnected.set(true);
+            reconnecting.set(false);
 
-                    // Subscribe to hub-specific command topic
-                    session.subscribe("/topic/commands/" + hubId, new StompFrameHandler() {
-                        @Override
-                        public Type getPayloadType(StompHeaders headers) {
-                            return RemoteCommandMessage.class;
-                        }
+            // Pass the session to the command handler
+            commandHandler.setStompSession(session);
 
-                        @Override
-                        public void handleFrame(StompHeaders headers, Object payload) {
-                            RemoteCommandMessage message = (RemoteCommandMessage) payload;
-                            logger.info("Received command from Cloud: {}", message);
-
-                            // Forward the message to our command handler
-                            commandHandler.processCommand(hubId, message);
-                        }
-                    });
-
-                    logger.info("Subscribed to /topic/commands/{}", hubId);
-
-                    // Send a test message
-                    session.send("/app/message", new Message("Hello from " + hubId, hubId));
-                }
-
-                @Override
-                public void handleException(StompSession session, StompCommand command,
-                                            StompHeaders headers, byte[] payload, Throwable exception) {
-                    logger.error("Error: {}", exception.getMessage());
-                }
-
-                @Override
-                public void handleTransportError(StompSession session, Throwable exception) {
-                    logger.error("Transport error: {}", exception.getMessage());
-                }
-
+            // Subscribe to hub-specific topic
+            session.subscribe("/topic/messages/" + hubId, new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
                     return Message.class;
@@ -106,12 +107,58 @@ public class WebsocketClient {
 
                 @Override
                 public void handleFrame(StompHeaders headers, Object payload) {
-                    // Not used in this implementation
+                    Message msg = (Message) payload;
+                    logger.info("Received from Cloud: {}", msg.getContent());
                 }
-            }).get();
+            });
 
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            // Subscribe to hub-specific command topic
+            session.subscribe("/topic/commands/" + hubId, new StompFrameHandler() {
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return RemoteCommandMessage.class;
+                }
+
+                @Override
+                public void handleFrame(StompHeaders headers, Object payload) {
+                    RemoteCommandMessage message = (RemoteCommandMessage) payload;
+                    logger.info("Received command from Cloud: {}", message);
+
+                    // Forward the message to our command handler
+                    commandHandler.processCommand(hubId, message);
+                }
+            });
+
+            logger.info("Subscribed to /topic/commands/{}", hubId);
+
+            // Send a test message
+            session.send("/app/message", new Message("Hello from " + hubId, hubId));
+        }
+
+        @Override
+        public void handleException(StompSession session, StompCommand command,
+                                    StompHeaders headers, byte[] payload, Throwable exception) {
+            logger.error("Error in STOMP session: {}", exception.getMessage());
+        }
+
+        @Override
+        public void handleTransportError(StompSession session, Throwable exception) {
+            logger.error("Transport error: {}", exception.getMessage());
+            isConnected.set(false);
+
+            if (!reconnecting.get()) {
+                scheduleReconnect();
+            }
+        }
+
+        @Override
+        public Type getPayloadType(StompHeaders headers) {
+            return Message.class;
+        }
+
+        @Override
+        public void handleFrame(StompHeaders headers, Object payload) {
+            // Not used in this implementation
         }
     }
 
