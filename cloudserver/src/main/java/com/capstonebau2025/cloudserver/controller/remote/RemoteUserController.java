@@ -7,6 +7,7 @@ import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(
+    name = "remote-hub-control",
+    description = "Endpoints that forward requests to the hub for processing. They mirror hub endpoints but require an additional hubSerialNumber request parameter."
+)
 @Slf4j
 public class RemoteUserController {
 

@@ -6,6 +6,8 @@ import com.capstonebau2025.cloudserver.entity.Hub;
 import com.capstonebau2025.cloudserver.repository.HubRepository;
 import com.capstonebau2025.cloudserver.service.HubService;
 import com.capstonebau2025.cloudserver.service.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ public class HubController {
     private final JwtService jwtService;
 
     @PostMapping("/registerHub")
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<?> registerHub(@RequestBody HubRegistrationRequest request) {
         // Check if the hub already exists
         if (hubRepository.findBySerialNumber(request.getSerialNumber()).isPresent()) {
@@ -54,6 +58,8 @@ public class HubController {
     }
 
     @PostMapping("/hub-token")
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<Map<String, String>> getHubToken(@RequestBody GetTokenRequest request) {
         Hub hub = hubRepository.findBySerialNumber(request.getSerialNumber())
                 .orElseThrow(() -> new IllegalArgumentException("Hub not registered to cloud"));
@@ -69,6 +75,8 @@ public class HubController {
     }
 
     @PutMapping("/updateName")
+    @SecurityRequirements()
+    @Operation(summary = "HUB-only endpoint")
     public ResponseEntity<String> updateHubName(@RequestBody HubUpdateNameRequest request) {
         Hub hub = hubService.getHubByToken(request.getToken());
 

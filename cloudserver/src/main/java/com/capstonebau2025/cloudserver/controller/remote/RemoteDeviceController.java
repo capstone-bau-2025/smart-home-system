@@ -6,6 +6,7 @@ import com.capstonebau2025.cloudserver.entity.User;
 import com.capstonebau2025.cloudserver.service.AuthorizationService;
 import com.capstonebau2025.cloudserver.service.HubAccessService;
 import com.capstonebau2025.cloudserver.service.RemoteCommandProcessor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/devices")
 @RequiredArgsConstructor
+@Tag(name = "remote-hub-control")
 @Slf4j
 public class RemoteDeviceController {
 
