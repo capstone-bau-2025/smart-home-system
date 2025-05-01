@@ -156,7 +156,7 @@ export default function RoomModal({
         cancelLabel="Close"
         iconName="help-outline"
         iconColor="orange"
-        message={"Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+        message={"Here, you can manage this room by moving or removing devices, or deleting the room entirely."}
         title={"Configuring a Room"}
       />
 

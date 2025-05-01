@@ -63,7 +63,7 @@ const { areas, isLoading, refetchAreas } = useAreas('123456789');
           iconName="help-outline"
           iconColor="orange"
           message={
-            "In this screen, you can configure rooms (rename), add, and delete..."
+            "In this screen, you can add a new room or configure an existing one by selecting it"
           }
           title={"Manage Rooms"}
         />

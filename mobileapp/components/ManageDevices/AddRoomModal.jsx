@@ -94,7 +94,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
         <View style={styles.container}>
           <View style={{ flex: 1 }}>
             <EditInput
-              title={'Room name'}
+              title={'Room name (must be unique)'}
               value={roomName}
               setChange={(value) => {
                 setRoomName(value);
@@ -122,7 +122,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
           </View>
       
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveText}>Save</Text>
+            <Text style={styles.saveText}>Add</Text>
           </TouchableOpacity>
         </View>
     </DissmissKeyboard>
