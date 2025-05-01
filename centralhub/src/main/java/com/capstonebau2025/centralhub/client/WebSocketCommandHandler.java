@@ -39,8 +39,6 @@ public class WebSocketCommandHandler {
     private final UserService userService;
     private final InvitationService invitationService;
 
-    // Method to set the session from WebSocketClient
-    // Reference to the active WebSocket client session
     @Setter
     private StompSession stompSession;
 
@@ -140,7 +138,7 @@ public class WebSocketCommandHandler {
     }
 
     private RemoteCommandResponse handleGetAllInteractions(Long userId, RemoteCommandMessage message) {
-        log.info("Processing GET_ALL_INTERACTIONS command for user ID: {}", userId);
+
         var interactions = interactionService.getAllInteractions(userId);
 
         return RemoteCommandResponse.builder()
@@ -154,11 +152,9 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleUpdateState(Long userId, RemoteCommandMessage message) {
         try {
-            // Convert payload to UpdateStateRequest
             UpdateStateRequest request = objectMapper.convertValue(
                     message.getPayload(), UpdateStateRequest.class);
 
-            log.info("Processing UPDATE_STATE command: {}", request);
             interactionService.updateStateInteraction(userId, request.getStateValueId(), request.getValue());
 
             return RemoteCommandResponse.builder()
@@ -175,11 +171,9 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleExecuteCommand(Long userId, RemoteCommandMessage message) {
         try {
-            // Convert payload to ExecuteCommandRequest
             ExecuteCommandRequest request = objectMapper.convertValue(
                     message.getPayload(), ExecuteCommandRequest.class);
 
-            log.info("Processing EXECUTE_COMMAND command: {}", request);
             interactionService.commandInteraction(userId, request.getDeviceId(), request.getCommandId());
 
             return RemoteCommandResponse.builder()
@@ -196,10 +190,8 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleFetchState(Long userId, RemoteCommandMessage message) {
         try {
-            // Get stateValueId from payload
             Long stateValueId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing FETCH_STATE command for stateValueId: {}", stateValueId);
             String currentValue = interactionService.fetchStateInteraction(userId, stateValueId);
 
             return RemoteCommandResponse.builder()
@@ -222,7 +214,6 @@ public class WebSocketCommandHandler {
             Long deviceId = Long.valueOf(payload.get("deviceId").toString());
             String name = payload.get("name").toString();
 
-            log.info("Processing SET_DEVICE_NAME command for deviceId: {}, name: {}", deviceId, name);
             deviceService.setDeviceName(deviceId, name);
 
             return RemoteCommandResponse.builder()
@@ -243,7 +234,6 @@ public class WebSocketCommandHandler {
             Long deviceId = Long.valueOf(payload.get("deviceId").toString());
             Long areaId = Long.valueOf(payload.get("areaId").toString());
 
-            log.info("Processing SET_DEVICE_AREA command for deviceId: {}, areaId: {}", deviceId, areaId);
             deviceService.setDeviceArea(deviceId, areaId);
 
             return RemoteCommandResponse.builder()
@@ -262,7 +252,6 @@ public class WebSocketCommandHandler {
         try {
             Long deviceId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing PING_DEVICE command for deviceId: {}", deviceId);
             boolean isOnline = deviceService.pingDevice(deviceId);
 
             return RemoteCommandResponse.builder()
@@ -282,7 +271,6 @@ public class WebSocketCommandHandler {
         try {
             Long areaId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing GET_DEVICES_BY_AREA command for areaId: {}", areaId);
             List<DeviceInfoDTO> devices = deviceService.getDevicesByArea(areaId);
 
             return RemoteCommandResponse.builder()
@@ -302,7 +290,6 @@ public class WebSocketCommandHandler {
         try {
             Long deviceId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing DELETE_DEVICE command for deviceId: {}", deviceId);
             deviceService.deleteDevice(deviceId);
 
             return RemoteCommandResponse.builder()
@@ -323,7 +310,6 @@ public class WebSocketCommandHandler {
             String areaName = String.valueOf(payload.get("areaName").toString());
             Integer iconId = Integer.valueOf(payload.get("iconId").toString());
 
-            log.info("Processing ADD_AREA command for area name: {}", areaName);
             Area area = areaService.addArea(areaName, iconId);
 
             return RemoteCommandResponse.builder()
@@ -341,7 +327,6 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleGetAllAreas(RemoteCommandMessage message) {
         try {
-            log.info("Processing GET_ALL_AREAS command");
             List<Area> areas = areaService.getAllAreas();
 
             return RemoteCommandResponse.builder()
@@ -361,7 +346,6 @@ public class WebSocketCommandHandler {
         try {
             Long areaId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing DELETE_AREA command for areaId: {}", areaId);
             areaService.deleteArea(areaId);
 
             return RemoteCommandResponse.builder()
@@ -378,7 +362,6 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleGetAllRoles(RemoteCommandMessage message) {
         try {
-            log.info("Processing GET_ALL_ROLES command");
             List<Role> roles = userService.getAllRoles();
 
             return RemoteCommandResponse.builder()
@@ -396,7 +379,6 @@ public class WebSocketCommandHandler {
 
     private RemoteCommandResponse handleGetAllUsers(RemoteCommandMessage message) {
         try {
-            log.info("Processing GET_ALL_USERS command");
             List<UserDetailsDTO> users = userService.getAllUsers();
 
             return RemoteCommandResponse.builder()
@@ -416,7 +398,6 @@ public class WebSocketCommandHandler {
         try {
             Long userId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing DELETE_USER command for userId: {}", userId);
             userService.deleteUser(userId);
 
             return RemoteCommandResponse.builder()
@@ -436,7 +417,6 @@ public class WebSocketCommandHandler {
             UpdateUserPermissionsRequest request = objectMapper.convertValue(
                     message.getPayload(), UpdateUserPermissionsRequest.class);
 
-            log.info("Processing UPDATE_USER_PERMISSIONS command for targetUserId: {}", request.getTargetUserId());
             userService.updateUserPermissions(request.getTargetUserId(), request.getRoomIds());
 
             return RemoteCommandResponse.builder()
@@ -455,7 +435,6 @@ public class WebSocketCommandHandler {
         try {
             Long userId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing GET_USER_PERMISSIONS command for userId: {}", userId);
             List<Long> areaIds = userService.getUserPermissions(userId);
 
             return RemoteCommandResponse.builder()
@@ -475,7 +454,6 @@ public class WebSocketCommandHandler {
         try {
             Long roleId = objectMapper.convertValue(message.getPayload(), Long.class);
 
-            log.info("Processing GENERATE_INVITATION command for roleId: {}", roleId);
             GetInvitationResponse invitation = invitationService.generateInvitation(roleId);
 
             return RemoteCommandResponse.builder()
@@ -498,7 +476,6 @@ public class WebSocketCommandHandler {
         }
 
         String destination = "/app/responses/" + hubSerialNumber;
-        log.info("Sending response to cloud for hub {}: {}", hubSerialNumber, response);
         stompSession.send(destination, response);
     }
 
