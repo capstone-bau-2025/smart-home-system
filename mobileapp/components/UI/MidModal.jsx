@@ -1,4 +1,3 @@
-import React, { Children } from "react";
 import {
   Modal,
   View,
@@ -7,14 +6,15 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
-//a component that renders a small modal in the middle of the screen (can be used as a wrapper)
 export default function MidModal({
   visible,
   onClose,
-  children,cancelLabel,confirmLabel,
-  buttons
+  children,
+  cancelLabel,
+  confirmLabel,
+  buttons,
+  onConfirm,
 }) {
   return (
     <Modal
@@ -25,23 +25,21 @@ export default function MidModal({
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
-    
-      <View style={styles.modalContainer}>{children}
+          <View style={styles.modalContainer}>
+            {children}
 
-{buttons &&
-      <View style={styles.buttonsContainer}>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                          <Text style={styles.ButtonText}>{cancelLabel}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onClose} style={styles.confirmButton}>
-                          <Text style={styles.ButtonText}>{confirmLabel}</Text>
-                        </TouchableOpacity>
-                      </View>
-                      }
-      </View>
-      
+            {buttons && (
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Text style={styles.ButtonText}>{cancelLabel}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={onConfirm} style={styles.confirmButton}>
+                  <Text style={styles.ButtonText}>{confirmLabel}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
-        
       </TouchableWithoutFeedback>
     </Modal>
   );
@@ -53,7 +51,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    
   },
   modalContainer: {
     width: 350,
@@ -66,8 +63,8 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 'auto',
-    height:'auto'
+    width: "auto",
+    height: "auto",
   },
   closeButton: {
     marginTop: 20,
@@ -75,7 +72,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-
     width: 100,
     marginHorizontal: 10,
     alignItems: "center",
@@ -94,6 +90,6 @@ const styles = StyleSheet.create({
   ButtonText: {
     color: "white",
     fontSize: 16,
-    fontFamily:"Lexend-Regular",
+    fontFamily: "Lexend-Regular",
   },
 });

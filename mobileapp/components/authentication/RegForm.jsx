@@ -1,103 +1,85 @@
-import { useState, useContext } from "react";
 import { View, StyleSheet } from "react-native";
+import { Formik } from "formik";
+import * as Yup from "yup";
 import OvalButton from "../UI/OvalButton";
 import AuthInput from "../UI/AuthInput";
-//holds the login form and handles the register process (will be changed to formik later)
-export default function RegForm({register}) {
 
-
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [errors, setErrors] = useState({
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+export default function RegForm({ register }) {
+  // Updated Validation schema
+  const validationSchema = Yup.object().shape({
+    username: Yup.string()
+      .matches(/^[a-zA-Z0-9_]{8,20}$/, "Username must be 8-20 characters, can only contain letters, numbers, and _ ")
+      .required("Username is required!"),
+    email: Yup.string()
+      .email("Enter a valid email (e.g., user@example.com).")
+      .required("Email is required!"), // ✅ No domain checking now
+    password: Yup.string()
+      .matches(/^(?=.*[A-Z])[A-Za-z\d]{8,}$/, "Must be 8+ characters, at least 1 uppercase letter and has no special characters ")
+      .required("Password is required!"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password')], "Passwords do not match")
+      .required("Confirm password is required"),
   });
-
-  // Validation regex patterns
-  const usernameRegex = /^[a-zA-Z0-9_]{8,20}$/; // No special characters, only letters, numbers, and underscores
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const passwordRegex = /^(?=.*[A-Z])[A-Za-z\d]{8,}$/; // At least 8 chars, 1 uppercase, NO special characters
-
-  const handleRegister = () => {
-    let newErrors = { username: "", email: "", password: "", confirmPassword: "" };
-  
-
-    const allowedDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com","bahcesehir.edu.tr"];
-    const emailParts = email.split("@");
-  
-    
-    if (!username) newErrors.username = "Username is required!";
-    else if (!usernameRegex.test(username))
-      newErrors.username = "Username must be 8-20 characters, can only contain letters, numbers, and _ ";
-  
-
-    if (!email) {
-      newErrors.email = "Email is required!";
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = "Enter a valid email (e.g., user@example.com).";
-    } else if (!allowedDomains.includes(emailParts[1])) {
-      newErrors.email = "Only @gmail.com, @yahoo.com, @outlook.com, @hotmail.com, and @bahcesehir.edu.tr domains are allowed";
-    }
-  
-
-    if (!password) newErrors.password = "Password is required!";
-    else if (!passwordRegex.test(password))
-      newErrors.password = "Must be 8+ characters, at least 1 uppercase letter and has no special characters ";
-
-    if (!confirmPassword) newErrors.confirmPassword = "Confirm password is required";
-    else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
-  
-    setErrors(newErrors);
-
-    if (Object.values(newErrors).every((error) => error === "")) {
-      register(username, email, password);
-    }
-  };
-  
 
   return (
     <View style={styles.formContainer}>
-      <AuthInput
-        placeholder="Enter your username"
-        icon="person-outline"
-        value={username}
-        onChangeText={setUsername}
-        errorMessage={errors.username}
-      />
+      <Formik
+        initialValues={{
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        }}
+        validationSchema={validationSchema}
+        onSubmit={(values) => {
+          register(values.username, values.email, values.password);
+        }}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <>
+            <AuthInput
+              placeholder="Enter your username"
+              icon="person-outline"
+              value={values.username}
+              onChangeText={handleChange('username')}
+              onBlur={handleBlur('username')}
+              errorMessage={touched.username && errors.username}
+            />
 
-      <AuthInput
-        placeholder="Enter your email"
-        icon="mail-outline"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        errorMessage={errors.email}
-      />
+            <AuthInput
+              placeholder="Enter your email"
+              icon="mail-outline"
+              keyboardType="email-address"
+              value={values.email}
+              onChangeText={handleChange('email')}
+              onBlur={handleBlur('email')}
+              errorMessage={touched.email && errors.email}
+            />
 
-      <AuthInput
-        placeholder="Enter your password"
-        icon="lock-closed-outline"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        errorMessage={errors.password}
-      />
+            <AuthInput
+              placeholder="Enter your password"
+              icon="lock-closed-outline"
+              secureTextEntry
+              value={values.password}
+              onChangeText={handleChange('password')}
+              onBlur={handleBlur('password')}
+              errorMessage={touched.password && errors.password}
+            />
 
-      <AuthInput
-        placeholder="Confirm your password"
-        icon="lock-closed-outline"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        errorMessage={errors.confirmPassword}
-      />
+            <AuthInput
+              placeholder="Confirm your password"
+              icon="lock-closed-outline"
+              secureTextEntry
+              value={values.confirmPassword}
+              onChangeText={handleChange('confirmPassword')}
+              onBlur={handleBlur('confirmPassword')}
+              errorMessage={touched.confirmPassword && errors.confirmPassword}
+            />
 
-      <OvalButton text="Register" color="black" onPress={handleRegister} />
+            <OvalButton text="Register" color="black" onPress={handleSubmit} />
+          </>
+        )}
+      </Formik>
     </View>
   );
 }
@@ -105,7 +87,7 @@ export default function RegForm({register}) {
 const styles = StyleSheet.create({
   formContainer: {
     padding: 20,
-    justifyContent:'center',
-    alignContent:'center'
+    justifyContent: 'center',
+    alignContent: 'center',
   },
 });

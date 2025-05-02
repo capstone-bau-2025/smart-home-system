@@ -11,17 +11,57 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import InfoModal from "../UI/InfoModal";
+import { generateInviteCode } from "../../api/services/invitationService";
+
 
 //opens a modal for the admin to generate invitation codes for users to join the hub
 export default function TokenModal({ visible, onClose }) {
   const [selectedRole, setSelectedRole] = useState(null);
+  const[roleId, setRoleId] = useState(null);
   const [infoModal, setInfoModal] = useState(false);
+  const [inviteCode, setInviteCode] = useState('codebasedonrole');
 
-  const copyToClipboard = () => {
-    Clipboard.setStringAsync("codebasedonrole");
-    Alert.alert("Copied!", "Invite code copied to clipboard.");
+  const handleClose = () => {
+    onClose();
+    setSelectedRole(null);
+    setRoleId(null);
+    setInfoModal(false);
+    const timeout = setTimeout(() => {
+      setInviteCode('codebasedonrole');
+    }, 300); 
+  };
+  
+
+  const handleGenerateInvite = async (id) => {
+    try {
+      const result = await generateInviteCode(id);
+      setInviteCode(result.code);
+    } catch (error) {
+      Alert.alert('Error', 'Could not generate invite code.');
+    }
   };
 
+  const handleRoleSelection = async (roleName) => {
+    let roleId;
+  
+    if (roleName === 'Admin') roleId = 1;
+    else if (roleName === 'User') roleId = 2;
+    else if (roleName === 'Guest') roleId = 3;
+    else if(onClose) roleId = null
+    setSelectedRole(roleName);   
+    setRoleId(roleId);          
+  
+    await handleGenerateInvite(roleId); 
+  };
+
+const copyToClipboard = () => {
+  if (inviteCode) {
+    Clipboard.setStringAsync(inviteCode);
+    Alert.alert("Copied!", "Invite code copied to clipboard.");
+  } else {
+    Alert.alert("No code", "Please generate a code first.");
+  }
+};
   return (
     <>
       <Modal
@@ -29,9 +69,9 @@ export default function TokenModal({ visible, onClose }) {
         visible={visible}
         animationType="fade"
         hideModalContentWhileAnimating={true}
-        onRequestClose={onClose}
+        onRequestClose={handleClose}
       >
-        <TouchableWithoutFeedback onPress={onClose}>
+        <TouchableWithoutFeedback onPress={handleClose}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
               <View style={styles.modalContainer}>
@@ -42,7 +82,7 @@ export default function TokenModal({ visible, onClose }) {
                     onPress={copyToClipboard}
                     style={styles.codeContainer}
                   >
-                    <Text style={styles.inviteCode}>codebasedonrole</Text>
+                    <Text style={styles.inviteCode}>{inviteCode}</Text>
                     <Ionicons name="copy-outline" size={20} color="#FFA500" />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -58,7 +98,7 @@ export default function TokenModal({ visible, onClose }) {
                 </View>
 
                 {/* Role Selection Buttons */}
-                <Text style={styles.subtitle}>Select Role:</Text>
+                <Text style={styles.subtitle}>Select role to generate a code:</Text>
                 <View style={styles.roleButtonsContainer}>
                   {["Admin", "User", "Guest"].map((role) => (
                     <TouchableOpacity
@@ -67,7 +107,7 @@ export default function TokenModal({ visible, onClose }) {
                         styles.roleButton,
                         selectedRole === role && styles.selectedRoleButton,
                       ]}
-                      onPress={() => setSelectedRole(role)}
+                      onPress={() => handleRoleSelection(role)}
                     >
                       <Text
                         style={[
@@ -83,7 +123,7 @@ export default function TokenModal({ visible, onClose }) {
                 </View>
 
                 {/* Close Button */}
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
                   <Text style={styles.closeButtonText}>Close</Text>
                 </TouchableOpacity>
               </View>
@@ -97,7 +137,7 @@ export default function TokenModal({ visible, onClose }) {
           cancelLabel="Close"
           iconName="help-outline"
           iconColor="orange"
-          message={"To add a user...."}
+          message={"To add a user to the hub, first generate an invite code and share it with them. After they discover the hub, they can enter the code to join."}
           title={"Add a user"}
         />
       </Modal>
@@ -116,7 +156,7 @@ const styles = StyleSheet.create({
     width: 350,
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 20,
+    padding: 15,
     alignItems: "center",
     elevation: 5,
   },
@@ -145,6 +185,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginRight: 10,
     color: "#555",
+    width: 'auto',
   },
   inviteRow: {
     flexDirection: "row",

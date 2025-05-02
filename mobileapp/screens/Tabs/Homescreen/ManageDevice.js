@@ -13,14 +13,17 @@ import MainRoomList from "../../../components/ManageDevices/MainRoomList";
 import HeaderIcons from "../../../components/UI/HeaderIcons";
 import InfoModal from "../../../components/UI/InfoModal";
 import AddRoomModal from "../../../components/ManageDevices/AddRoomModal";
+import useAreas from "../../../hooks/useAreas";
 
-export default function ManageDevice({  currentHub,
+export default function ManageDevice({
+  currentHub,
   setAddModal,
-  setCogModal,
+  setCogModal, 
   setInfoModal,
   infoModal,
   addModal,
-  cogModal,}) {
+  cogModal,
+}) {
   const [selectedTab, setSelectedTab] = useState(hubs[0]);
   const roomCount = selectedTab.rooms.length;
   const deviceCount = selectedTab.rooms.reduce(
@@ -28,6 +31,7 @@ export default function ManageDevice({  currentHub,
     0
   );
 
+const { areas, isLoading, refetchAreas } = useAreas('123456789');
   return (
     <>
       <SafeAreaView style={styles.safeContainer}>
@@ -43,12 +47,13 @@ export default function ManageDevice({  currentHub,
           <Text style={styles.countText}>Devices: {deviceCount}</Text>
         </View>
 
-
         <MainRoomList
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
           hubs={hubs}
-          setVisible={setAddModal} 
+          areas={areas}
+          isLoading={isLoading}
+          refetchAreas={refetchAreas}
         />
 
         <InfoModal
@@ -58,12 +63,17 @@ export default function ManageDevice({  currentHub,
           iconName="help-outline"
           iconColor="orange"
           message={
-            "In this screen, you can configure rooms (rename), add, and delete..."
+            "In this screen, you can add a new room or configure an existing one by selecting it"
           }
           title={"Manage Rooms"}
         />
 
-      <AddRoomModal visible={addModal}  onClose={() => setAddModal(false)} title={`Add a room in ${selectedTab.name}`} />
+        <AddRoomModal
+          visible={addModal}
+          onClose={() => setAddModal(false)}
+          title={`Add a room in ${selectedTab.name}`}
+          refetchAreas={refetchAreas}
+        />
       </SafeAreaView>
     </>
   );
@@ -90,6 +100,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#e19b19",
   },
-
-
 });

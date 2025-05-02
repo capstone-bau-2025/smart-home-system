@@ -1,5 +1,3 @@
-
-
 import {
   StyleSheet,
   Text,
@@ -8,7 +6,6 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler";
 import HubsTabs from "../../../components/UI/HubsTabs";
 import { useState } from "react";
 import UsersList from "../../../components/ManageHub/UsersList";
@@ -18,6 +15,10 @@ import HeaderIcons from "../../../components/UI/HeaderIcons";
 import TokenModal from "../../../components/ManageHub/TokenModal";
 import RenameModal from "../../../components/UI/RenameModal";
 import MidModal from "../../../components/UI/MidModal";
+import { updateHubName } from "../../../api/services/hubService";
+import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
+import { setCurrentHub } from "../../../store/slices/hubSlice";
 
 export default function ManageHub({
   currentHub,
@@ -27,11 +28,12 @@ export default function ManageHub({
   infoModal,
   addModal,
   cogModal,
-}){
+}) {
   const [selectedTab, setSelectedTab] = useState(hubs[0]);
-  const [hubname, setHubName] = useState(currentHub.name);
+  const [hubname, setHubName] = useState(currentHub.name || "");
   const [userRenameModal, setUserRenameModal] = useState(false);
   const [userNewName, setUserNewname] = useState("");
+  const dispatch = useDispatch();
 
   const userCount = selectedTab.users.length;
 
@@ -40,10 +42,63 @@ export default function ManageHub({
     return acc;
   }, {});
 
+  async function handleUpdateHubName(newName) {
+    try {
+      const result = await updateHubName(newName);
+      console.log("Hub name updated: " + newName);
+      setHubName(newName);
+      dispatch(setCurrentHub({
+        serialNumber: currentHub.serialNumber, 
+        hubName: newName,
+        hubDetails: {
+          ...currentHub.hubDetails,
+          name: newName, 
+        },
+      }));
+      setCogModal(false);
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "success",
+        text1Style: {
+          fontFamily: "Lexend-Bold",
+          fontSize: 16,
+          color: "black",
+        },
+        text2Style: {
+          fontFamily: "Lexend-Regular",
+          fontSize: 14,
+          color: "#a8a8a8",
+        },
+        text1: "Name updated",
+        text2: `Hub name is now ${newName}.`,
+      });
+    } catch (error) {
+      console.log("Failed to update hub name:", error);
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        
+        type: "error",
+        text1Style: {
+          fontFamily: "Lexend-Bold",
+          fontSize: 16,
+          color: "black",
+        },
+        text2Style: {
+          fontFamily: "Lexend-Regular",
+          fontSize: 14,
+          color: "#a8a8a8",
+        },
+        text1: "Failed to update",
+        text2: `Hub name could not be updated.`,
+      });
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
-
 
       <HubsTabs
         hubs={hubs}
@@ -59,7 +114,10 @@ export default function ManageHub({
           </Text>
         ))}
       </View>
-      <UsersList users={selectedTab.users} setRenameModal={setUserRenameModal} />
+      <UsersList
+        users={selectedTab.users}
+        setRenameModal={setUserRenameModal}
+      />
 
       <InfoModal
         visible={infoModal}
@@ -67,14 +125,32 @@ export default function ManageHub({
         cancelLabel="Close"
         iconName="help-outline"
         iconColor="orange"
-        message={"In this screen, you can configure users' name, permissions, add, and delete"}
+        message={
+          "In this screen, you can configure users' name, permissions, add, and delete"
+        }
         title={"Manage Hubs"}
       />
       <TokenModal visible={addModal} onClose={() => setAddModal(false)} />
 
-      <RenameModal  visible={cogModal} setVisible={setCogModal} value={hubname} setValue={setHubName} title={'Change hub name'} placeholder={'enter a new hub name'}/>
-      
-      <RenameModal  visible={userRenameModal} setVisible={setUserRenameModal} value={userNewName} setValue={setUserNewname} title={'Change the user name'} placeholder={'enter a new user name'}/>
+      <RenameModal
+        visible={cogModal}
+        setVisible={setCogModal}
+        value={hubname}
+        setValue={setHubName}
+        title={"Change hub name"}
+        placeholder={"enter a new hub name"}
+        onConfirm={handleUpdateHubName}
+        
+      />
+
+      <RenameModal
+        visible={userRenameModal}
+        setVisible={setUserRenameModal}
+        value={userNewName}
+        setValue={setUserNewname}
+        title={"Change the user name"}
+        placeholder={"enter a new user name"}
+      />
     </SafeAreaView>
   );
 }

@@ -15,8 +15,8 @@ export default function SettingsDropdown({
   const navigation = useNavigation();
 
   const settingsData = [
-    { label: "Manage Hub", value: "MHub", icon: "tv-outline" },
-    { label: "Manage Devices", value: "MDevices", icon: "cube-outline" },
+    { label: "Manage Hub", value: "MHub", icon: "cube-outline" },
+    { label: "Manage Devices", value: "MDevices", icon: "tv-outline" },
   ];
 
   useEffect(() => {

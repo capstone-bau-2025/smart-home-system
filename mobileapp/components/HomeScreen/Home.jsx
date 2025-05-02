@@ -1,17 +1,23 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
 import { homeHub } from "../../Data/homehub";
-
+import { useState,useEffect } from "react";
+import { fetchRooms } from "../../api/services/areaService";
 import RoomCard from "./RoomCard";
-
 import HeaderDevices from "./HeaderDevices";
 
+
+
 //this is the feed that shows the rooms and devices in the home hub
-export default function Home() {
+export default function Home({data}) {
+
+
+
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={homeHub.rooms}
+        data={data}
         keyExtractor={(item, index) => index.toString()}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 15 }}
@@ -22,7 +28,8 @@ export default function Home() {
         )}
         renderItem={({ item }) => (
           <>
-            <RoomCard data={item} />
+            <RoomCard data={item} /> 
+
           </>
         )}
       />

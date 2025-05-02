@@ -1,102 +1,81 @@
-import { StyleSheet, Text, View, FlatList, Pressable } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
+import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import DiscoveryModal from "./DiscoveryModal";
-import { useState } from "react";
-
-//card that shows the discovered hubs, and when pressed it shows a modal with the hub details
-export default function DiscoverCard() {
-  const hubs = [
-    {
-      name: "JQxIu84zxC",
-      description: "Not Discovered, first time setup needed",
-      discovered: false,
-    },
-    {
-      name: "AxzIu14zxC",
-      description: "Discovered, invitation needed to connect",
-      discovered: true,
-    },
-    {
-      name: "Sa2eIu8zxC",
-      description: "Discovered, invitation needed to connect",
-      discovered: true,
-    },
-
-  ];
-
+// Card that shows either discovered hubs or devices based on the 
+export default function DiscoverCard({ hubs, onScanPress, isDevice }) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedHub, setSelectedHub] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handlePress = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
   return (
     <>
-      <FlatList
-        data={hubs}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <>
-            <Pressable
-              style={({ pressed }) => [
-                styles.container,
-                pressed && styles.pressed,
-              ]}
-              onPress={() => {
-                setSelectedHub(item);
-                setModalVisible(true);
-              }}
-            >
-              <View
-                style={[
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {hubs.map((item, index) => {
+          const isConfigured = item.name && item.name !== "string";
+
+          return (
+            <View key={index} style={styles.container}>
+              <Pressable
+                style={({ pressed }) => [
                   styles.card,
-                  { backgroundColor: item.discovered ? "#e0ffe0" : "#ffe0e0" },
+                  pressed && styles.pressed,
+                  {
+                    backgroundColor: isDevice
+                      ? "#D3D3D3"
+                      : isConfigured
+                      ? "#e0ffe0"
+                      : "#ffe0e0",
+                  },
                 ]}
+                onPress={() => handlePress(item)}
               >
                 <View>
                   <Text style={styles.nameText}>{item.name}</Text>
-                  <Text style={styles.descriptionText}>{item.description}</Text>
+                  <Text style={styles.descriptionText}>
+                    {isConfigured
+                      ? "Invitation code needed to connect"
+                      : "Setup required"}
+                  </Text>
                 </View>
                 <Ionicons
                   name="chevron-forward-outline"
                   size={20}
                   color="#888"
                 />
-              </View>
-            </Pressable>
-            <DiscoveryModal
-              visible={modalVisible}
-              setModalVisible={setModalVisible}
-              onClose={() => setModalVisible(false)}
-              title={
-                selectedHub?.discovered ? "Connect to hub" : "Configure Hub"
-              }
-              selectedHub={selectedHub}
-            />
-          </>
-        )}
-        ListFooterComponent={() => (
-          <View
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom:25
-            }}
-          >
-            <Pressable
-              style={({ pressed }) => [
-                styles.button,
-                pressed && styles.pressed,
-              ]}
-              onPress={() => console.log("Scan hubs")}
-            >
-              <Text style={styles.buttonText}>Look for hubs</Text>
-            </Pressable>
-          </View>
-        )}
+              </Pressable>
+            </View>
+          );
+        })}
+      </ScrollView>
+
+      <DiscoveryModal
+        visible={modalVisible}
+        setModalVisible={setModalVisible}
+        onClose={() => setModalVisible(false)}
+        title={
+          isDevice
+            ? "Device Details"
+            : selectedItem?.name && selectedItem.name !== "string"
+            ? "Connect to Hub"
+            : "Configure Hub"
+        }
+        selectedHub={selectedItem}
+        isConfigured={selectedItem?.name && selectedItem.name !== "string"}
       />
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    alignItems: "center",
+    paddingVertical: 10,
+  },
   nameText: {
     fontSize: 18,
     fontWeight: "bold",
@@ -121,21 +100,9 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: "center",
+    width: "100%",
   },
   pressed: {
     opacity: 0.7,
-  },
-  button: {
-    padding: 10,
-    backgroundColor: "#e19b19",
-    borderRadius: 10,
-    width: "80%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
   },
 });

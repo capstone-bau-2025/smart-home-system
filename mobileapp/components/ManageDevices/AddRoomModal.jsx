@@ -4,11 +4,15 @@ import FullScreenModal from '../UI/FullScreenModal';
 import EditInput from '../UI/EditInput';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { addRoom } from '../../api/services/areaService';
+import DissmissKeyboard from '../../components/utils/DismissKeyboard'
 
 // A modal that allows the user to add a room to the hub, it takes in a name and an icon
-export default function AddRoomModal({ visible, onClose, title,onSave }) {
+export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) {
   const [roomName, setRoomName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState(null);
+  const [showRoomNameError, setShowRoomNameError] = useState(false);
+  const [showIconError, setShowIconError] = useState(false);
 
   const iconOptions = [
 
@@ -33,7 +37,6 @@ export default function AddRoomModal({ visible, onClose, title,onSave }) {
       'car-outline',
       'leaf-outline',
       'game-controller-outline',
-    
   ];
 
   const renderIcon = ({ item }) => (
@@ -42,7 +45,10 @@ export default function AddRoomModal({ visible, onClose, title,onSave }) {
         styles.iconBox,
         selectedIcon === item && styles.selectedIconBox,
       ]}
-      onPress={() => setSelectedIcon(item)}
+      onPress={() => {
+        setSelectedIcon(item);
+        setShowIconError(false); 
+      }}
     >
       <Ionicons 
         name={item}
@@ -52,30 +58,74 @@ export default function AddRoomModal({ visible, onClose, title,onSave }) {
     </TouchableOpacity>
   );
 
+  async function handleSave() {
+    let hasError = false;
+  
+    if (!roomName.trim()) {
+      setShowRoomNameError(true);
+      hasError = true;
+    }
+  
+    // Uncomment if icon is required
+    // if (!selectedIcon) {
+    //   setShowIconError(true);
+    //   hasError = true;
+    // }
+  
+    if (hasError) return;
+  
+    try {
+      const result = await addRoom(roomName, '123456789');
+      console.log('Room added:', result);
+      await refetchAreas(); 
+      setRoomName('');
+      setSelectedIcon(null);
+      setShowRoomNameError(false);
+      setShowIconError(false);
+      onClose();
+    } catch (error) {
+      console.log('Error while adding room:', error.response?.data || error.message);
+    }
+  }
+  
   return (
     <FullScreenModal onClose={onClose} visible={visible} title={title}>
-      <View style={styles.container}>
-        <EditInput
-          title={'Room name'}
-          value={roomName}
-          setChange={(value) => setRoomName(value)}
-          placeholder={'bedroom, kitchen, living room, etc...'}
-        />
-
-        <Text style={styles.sectionTitle}>Choose Icon</Text>
-        <FlatList
-          data={iconOptions}
-          renderItem={renderIcon}
-          keyExtractor={(item) => item}
-          numColumns={5}
-          contentContainerStyle={styles.iconGrid}
-          style={{ maxHeight: '70%' }} 
-        />
-
-        <TouchableOpacity style={styles.saveButton} onPress={onSave}>
-          <Text style={styles.saveText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+    <DissmissKeyboard>
+        <View style={styles.container}>
+          <View style={{ flex: 1 }}>
+            <EditInput
+              title={'Room name (must be unique)'}
+              value={roomName}
+              setChange={(value) => {
+                setRoomName(value);
+                if (value.trim()) setShowRoomNameError(false);
+              }}
+              placeholder={'bedroom, kitchen, living room, etc...'}
+            />
+            {showRoomNameError && (
+              <Text style={styles.validationText}>Room name is required</Text>
+            )}
+      
+            <Text style={styles.sectionTitle}>Choose Icon</Text>
+            {showIconError && (
+              <Text style={styles.validationText}>Icon is required</Text>
+            )}
+            
+            <FlatList
+              data={iconOptions}
+              renderItem={renderIcon}
+              keyExtractor={(item) => item}
+              numColumns={5}
+              contentContainerStyle={styles.iconGrid}
+              style={{ flexGrow: 0 }}
+            />
+          </View>
+      
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+    </DissmissKeyboard>
     </FullScreenModal>
   );
 }
@@ -83,6 +133,8 @@ export default function AddRoomModal({ visible, onClose, title,onSave }) {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    flex: 1, 
+    justifyContent: 'space-between', 
   },
   sectionTitle: {
     fontSize: 16,
@@ -111,11 +163,17 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop:20
+    marginBottom: 15,
   },
   saveText: {
     color: 'white',
     fontSize: 16,
     fontFamily: 'Lexend-Regular',
   },
+  validationText: {
+    color: 'red',
+    fontSize: 12,
+    marginHorizontal: 6,
+    fontFamily: 'Lexend-Regular',
+  }
 });
