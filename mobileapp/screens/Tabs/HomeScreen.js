@@ -9,11 +9,11 @@ import Home from "../../components/HomeScreen/Home";
 import useInitAppData from "../../hooks/useInitAppData";
 import useAreas from "../../hooks/useAreas";
 import { getActiveBaseUrl } from "../../util/auth";
-
+import { fetchAreas } from "../../api/services/areaService";
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [refreshing, setRefreshing] = useState(false);
   useEffect(() => {
     (async () => {
       await getActiveBaseUrl();
@@ -27,8 +27,21 @@ export default function HomeScreen() {
   
   useEffect(() => {
     setRooms(areas);
+    console.log(areas)
   }, [areas]);
 
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      const { data } = await fetchAreas('123456789');
+      setRooms(data);
+    } catch (err) {
+      console.warn('Refresh error:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
     <StatusBar barStyle="dark-content" backgroundColor="white" />
@@ -38,7 +51,7 @@ export default function HomeScreen() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <Home data={rooms}/>
+      <Home data={rooms} onRefresh={handleRefresh}   refreshing={refreshing}/>
     </SafeAreaView>
   );
 }

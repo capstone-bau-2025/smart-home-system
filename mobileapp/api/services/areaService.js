@@ -4,15 +4,16 @@ import { store } from "../../store/store";
 
 const path = `${LOCAL_URL}api/areas/`;
 
-export const addRoom = async (areaName, hubSerialNumber) => {
+export const addRoom = async (areaName, iconID, hubSerialNumber) => {
   const localToken = store.getState().user.localToken;
 
   const response = await axios.post(
-    `${path}add?areaName=${areaName}`,
+    `${path}add?areaName=${areaName}&iconId=${iconID}`,
     {},
     {
       headers: {
         Authorization: `Bearer ${localToken}`,
+        parameter: hubSerialNumber,
       },
     }
   );

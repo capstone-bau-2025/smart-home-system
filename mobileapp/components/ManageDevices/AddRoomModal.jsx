@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { addRoom } from '../../api/services/areaService';
 import DissmissKeyboard from '../../components/utils/DismissKeyboard'
-
+import { iconOptions } from '../../util/helperFunctions';
+import Toast from 'react-native-toast-message';
 // A modal that allows the user to add a room to the hub, it takes in a name and an icon
 export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) {
   const [roomName, setRoomName] = useState('');
@@ -14,34 +15,6 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
   const [showRoomNameError, setShowRoomNameError] = useState(false);
   const [showIconError, setShowIconError] = useState(false);
 
-  const iconOptions = {
-    1: 'home-outline',
-    2: 'bed-outline',
-    3: 'tv-outline',
-    4: 'water-outline',
-    5: 'restaurant-outline',
-    6: 'desktop-outline',
-    7: 'cafe-outline',
-    8: 'car-outline',
-    9: 'leaf-outline',
-    10: 'game-controller-outline',
-    11: 'shirt-outline',
-    12: 'basket-outline',
-    13: 'sparkles-outline',
-    14: 'happy-outline',
-    15: 'people-outline',
-    16: 'print-outline',
-    17: 'laptop-outline',
-    18: 'sunny-outline',
-    19: 'cart-outline',
-    20: 'musical-notes-outline',
-    21: 'body-outline',
-    22: 'paw-outline',
-    23: 'heart-outline',
-    24: 'book-outline',
-    25: 'football-outline',
-  };
-  
   const renderIcon = ({ item }) => {
     const [iconNumber, iconName] = item;
   
@@ -82,7 +55,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
     if (hasError) return;
   
     try {
-      const result = await addRoom(roomName, '123456789');
+      const result = await addRoom(roomName, selectedIcon, '123456789');
       console.log('Room added:', result);
       await refetchAreas(); 
       setRoomName('');
@@ -90,6 +63,24 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
       setShowRoomNameError(false);
       setShowIconError(false);
       onClose();
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+      
+        type: "success",
+        text1Style: {
+          fontFamily: "Lexend-Bold",
+          fontSize: 16,
+          color: "black",
+        },
+        text2Style: {
+          fontFamily: "Lexend-Regular",
+          fontSize: 14,
+          color: "#a8a8a8",
+        },
+        text1: "Room added successfully",
+        text2: `${roomName} has been added`,
+      });
     } catch (error) {
       console.log('Error while adding room:', error.response?.data || error.message);
     }

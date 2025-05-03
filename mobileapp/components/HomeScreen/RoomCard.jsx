@@ -2,15 +2,16 @@ import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import DeviceCard from './DeviceCard';
-
+import { iconOptions } from '../../util/helperFunctions';
 
 //holds the rooms and devices under them
 export default function RoomCard({ data }) {
+  const iconName = iconOptions[data.icon];
   const leftColumn = [];
   const rightColumn = [];
   let leftHeight = 0;
   let rightHeight = 0;
-
+ 
   const getDeviceHeight = (device) =>
     device.type === 'enum' || device.type === 'range' ? 135 : 60;
 
@@ -30,7 +31,7 @@ export default function RoomCard({ data }) {
     <View style={styles.entireRoom}>
       {/* Room Header */}
       <View style={styles.roomHeader}>
-        <Ionicons name='home-outline' style={styles.icon} size={25} />
+        <Ionicons name={iconName} style={styles.icon} size={25} />
         <Text style={styles.roomName}>{data.name}</Text>
       </View>
 

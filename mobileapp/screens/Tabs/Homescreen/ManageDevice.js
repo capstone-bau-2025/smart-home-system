@@ -25,13 +25,13 @@ export default function ManageDevice({
   cogModal,
 }) {
   const [selectedTab, setSelectedTab] = useState(hubs[0]);
-  const roomCount = selectedTab.rooms.length;
   const deviceCount = selectedTab.rooms.reduce(
     (total, room) => total + room.devices.length,
     0
   );
-
-const { areas, isLoading, refetchAreas } = useAreas('123456789');
+  
+  const { areas, isLoading, refetchAreas } = useAreas('123456789');
+  const roomCount = areas.length;
   return (
     <>
       <SafeAreaView style={styles.safeContainer}>
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     backgroundColor: "white",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 30: 0,  },
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight: 0,  },
   countContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

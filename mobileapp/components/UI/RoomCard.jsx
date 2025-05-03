@@ -1,10 +1,15 @@
 import React from "react";
-import { TouchableOpacity, Text, View, StyleSheet,Platform } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "../../constants/Colors";
+import { iconOptions } from "../../util/helperFunctions";
 
-//this is the room card thats found in the roomsgridlist
 export default function RoomCard({
   room,
   icon,
@@ -15,61 +20,115 @@ export default function RoomCard({
   devShown,
   editShown,
 }) {
+  const isGeneral = room.name === "GENERAL";
+
+  const iconName = isGeneral ? "apps-outline" : iconOptions[icon];
+  const iconTint = isGeneral ? "#000" : iconColor;
+
   return (
-    <TouchableOpacity onPress={onPress} style={styles.roomContainer}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={isGeneral ? styles.generalContainer : styles.roomContainer}
+    >
+      <View
+        style={[
+          styles.content,
+          isGeneral
+            ? styles.generalRoom
+            : { backgroundColor: color || Colors.primary100 },
+        ]}
+      >
+        {/* Room Name */}
+        <Text style={isGeneral ? styles.generalName : styles.roomName}>
+          {room.name}
+        </Text>
 
-<View style={[styles.content, { backgroundColor: color || Colors.primary100 }]}>
-          <Text style={styles.roomName}>{room.name}</Text>
-          <Ionicons
-            style={[styles.icon, { color: iconColor }]}
-            name={icon}
-            size={30}
-          />
+        {/* Icon */}
+        <Ionicons
+          style={styles.icon}
+          name={iconName}
+          size={30}
+          color={iconTint}
+        />
 
-          {devShown !== false && (
-            <View style={styles.deviceContainer}>
-              <Text style={styles.deviceCount}>
-                {devices?.length || 0} Devices {""}
-              </Text>
+        {/* Device count & edit */}
+        {devShown !== false && (
+          <View style={styles.deviceContainer}>
+            <Text
+              style={[
+                styles.deviceCount,
+                isGeneral && { color: "#333" },
+              ]}
+            >
+              {devices?.length || 0} Devices
+            </Text>
 
-              {editShown !== false && (
-                <Ionicons name="create-outline" size={18} color="white" />
-              )}
-            </View>
-          )}
-        </View>
-
+            {editShown !== false && (
+              <Ionicons
+                name="create-outline"
+                size={18}
+                color={isGeneral ? "#333" : "white"}
+              />
+            )}
+          </View>
+        )}
+      </View>
     </TouchableOpacity>
   );
 }
 
+const baseSize = Platform.OS === "ios" ? 120 : 110;
+
 const styles = StyleSheet.create({
   roomContainer: {
-    height: Platform.OS === 'ios' ? 120 : 110,
-    width: Platform.OS === 'ios' ? 120 : 110,
+    height: baseSize,
+    width: baseSize,
     marginVertical: 10,
     marginHorizontal: 7,
     borderRadius: 20,
-
     overflow: "hidden",
-    
   },
-
-  roomName: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "white",
-    fontFamily:"Lexend-Regular"
+  generalContainer: {
+    height: baseSize,
+    width: baseSize,
+    marginVertical: 10,
+    marginHorizontal: 7,
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "gold",
+    backgroundColor: "#fff8e1",
   },
   content: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 5,
-
   },
-  icon: { marginVertical: 8 },
-  deviceCount: { fontSize: 14, color: "white", marginTop: 5,fontFamily:"Lexend-Regular" },
+  generalRoom: {
+    backgroundColor: "#fff8e1",
+  },
+  roomName: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "white",
+    fontFamily: "Lexend-Regular",
+  },
+  generalName: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "black",
+    fontFamily: "Lexend-Bold",
+  },
+  icon: {
+    marginVertical: 8,
+  },
+  deviceCount: {
+    fontSize: 14,
+    color: "white",
+    marginTop: 5,
+    fontFamily: "Lexend-Regular",
+  },
   deviceContainer: {
     flexDirection: "row",
     alignItems: "center",

@@ -9,7 +9,7 @@ import HeaderDevices from "./HeaderDevices";
 
 
 //this is the feed that shows the rooms and devices in the home hub
-export default function Home({data}) {
+export default function Home({data,onRefresh, refreshing}) {
 
 
 
@@ -26,6 +26,8 @@ export default function Home({data}) {
             <HeaderDevices />
           </View>
         )}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
         renderItem={({ item }) => (
           <>
             <RoomCard data={item} /> 
