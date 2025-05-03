@@ -47,14 +47,16 @@ export default function ManageHub({
       const result = await updateHubName(newName);
       console.log("Hub name updated: " + newName);
       setHubName(newName);
-      dispatch(setCurrentHub({
-        serialNumber: currentHub.serialNumber, 
-        hubName: newName,
-        hubDetails: {
-          ...currentHub.hubDetails,
-          name: newName, 
-        },
-      }));
+      dispatch(
+        setCurrentHub({
+          serialNumber: currentHub.serialNumber,
+          hubName: newName,
+          hubDetails: {
+            ...currentHub.hubDetails,
+            name: newName,
+          },
+        })
+      );
       setCogModal(false);
       Toast.show({
         topOffset: 60,
@@ -78,7 +80,7 @@ export default function ManageHub({
       Toast.show({
         topOffset: 60,
         swipeable: true,
-        
+
         type: "error",
         text1Style: {
           fontFamily: "Lexend-Bold",
@@ -100,12 +102,13 @@ export default function ManageHub({
     <SafeAreaView style={styles.safeContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
-      <HubsTabs
-        hubs={hubs}
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-      />
-
+    
+        <HubsTabs
+          hubs={hubs}
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+        />
+  
       <View style={styles.countContainer}>
         <Text style={styles.countText}>Total Users: {userCount}</Text>
         {Object.entries(roleCounts).map(([role, count]) => (
@@ -140,7 +143,6 @@ export default function ManageHub({
         title={"Change hub name"}
         placeholder={"enter a new hub name"}
         onConfirm={handleUpdateHubName}
-        
       />
 
       <RenameModal
@@ -157,7 +159,7 @@ export default function ManageHub({
 
 const styles = StyleSheet.create({
   safeContainer: {
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 50 : 0,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
 
     alignItems: "center",
     flex: 1,
@@ -182,4 +184,5 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     paddingHorizontal: 15,
   },
+  
 });

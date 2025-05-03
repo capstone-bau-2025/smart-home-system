@@ -32,6 +32,25 @@ export const fetchUsers = async (hubSerialNumber) => { //fetch users according t
 };
 
 
+// export const fetchAllUsers = async (hubSerialNumber) => { 
+//   try {
+//     const token = await AsyncStorage.getItem('userToken');
+//     const response = await axios.get(`${BASE_URL}api/users/user-details`, {
+//       params: { hubSerialNumber },
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         Accept: 'application/json',
+//       },
+//     });
+
+//     console.log('Users:', response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching users for hub:', error.response?.data || error.message);
+//     throw error;
+//   }
+// };
+
 //fetch users accordin to the hub SN to store the user ID and role in the redux store 
 export const findAndStoreUserDetails = async () => {
   const state = store.getState();
@@ -51,3 +70,4 @@ export const findAndStoreUserDetails = async () => {
     console.error('User ID match failed:', err.response?.data || err.message);
   }
 };
+

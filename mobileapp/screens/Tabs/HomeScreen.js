@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View,Platform,StatusBar } from "react-native";
 import React, { useState, useEffect } from "react";
 import TopRightBlob from "../../components/svg/TopRightBlob";
 import Header from "../../components/HomeScreen/Header";
@@ -8,10 +8,17 @@ import Colors from "../../constants/Colors";
 import Home from "../../components/HomeScreen/Home";
 import useInitAppData from "../../hooks/useInitAppData";
 import useAreas from "../../hooks/useAreas";
+import { getActiveBaseUrl } from "../../util/auth";
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      await getActiveBaseUrl();
+    })();
+  }, []);
 
   useInitAppData();
   
@@ -24,6 +31,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+    <StatusBar barStyle="dark-content" backgroundColor="white" />
       <TopRightBlob />
       <Header setModalVisible={setModalVisible} />
       <HubInfoModal
@@ -41,5 +49,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryBackground,
     alignItems: "center",
     justifyContent: "flex-start",
+    paddingTop: Platform.OS === "android" ? 10: 0,
   },
 });

@@ -45,7 +45,8 @@
     "react-native-svg": "15.11.2",
     "react-native-toast-message": "^2.3.0",
     "react-redux": "^9.2.0",
-    "yup": "^1.6.1"
+    "yup": "^1.6.1",
+    "expo-network": "~7.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0"

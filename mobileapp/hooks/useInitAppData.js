@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchHubs } from '../api/services/hubService';
-import { findAndStoreUserDetails } from '../api/services/userService';
+import { fetchAllUsers, findAndStoreUserDetails } from '../api/services/userService';
 import { addUserHub, setCurrentHub } from '../store/slices/hubSlice';
 
 export default function useInitAppData() {
@@ -16,9 +16,10 @@ export default function useInitAppData() {
       try {
         await findAndStoreUserDetails();
 
+  
         const response = await fetchHubs();
         const hub = response?.data;
-
+ 
         if (hub?.serialNumber) {
           dispatch(addUserHub(hub));
           dispatch(setCurrentHub({

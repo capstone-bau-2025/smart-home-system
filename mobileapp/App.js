@@ -14,10 +14,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
-import { BaseToast } from "react-native-toast-message";
 import ConfigureAutomation from "./screens/Tabs/AutomationScreen/ConfigureAutomation"
 import Trigger from "./screens/Tabs/AutomationScreen/Trigger";
 import StatusChange from "./screens/Tabs/AutomationScreen/StatusChange";
@@ -30,8 +29,7 @@ import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { useSelector } from "react-redux";
-
-
+import useInitAppData from "./hooks/useInitAppData";
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
@@ -54,6 +52,7 @@ export default function App() {
 function RootApp() {
   const { isLoading, userToken } = useContext(AuthContext);
   const [currentHub, setCurrentHub] = useState("Hub1");
+  const [baseUrl, setBaseUrl] = useState(null);
 
   const [fontsLoaded] = useFonts({
     "Lexend-Bold": require("./assets/fonts/Lexend-Bold.ttf"),
@@ -61,6 +60,11 @@ function RootApp() {
     "Urbanist-Thin": require("./assets/fonts/Urbanist-Thin.ttf"),
     "Urbanist-Regular": require("./assets/fonts/Urbanist-Regular.ttf"),
   });
+
+
+  
+
+
 
   if (isLoading || !fontsLoaded) {
     return (
@@ -324,6 +328,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerIcons: {
-    marginTop: 5,
+
   },
 });

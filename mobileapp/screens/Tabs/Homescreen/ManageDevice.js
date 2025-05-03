@@ -35,13 +35,15 @@ const { areas, isLoading, refetchAreas } = useAreas('123456789');
   return (
     <>
       <SafeAreaView style={styles.safeContainer}>
-        <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+
 
         <HubsTabs
           hubs={hubs}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
         />
+
         <View style={styles.countContainer}>
           <Text style={styles.countText}>Rooms: {roomCount}</Text>
           <Text style={styles.countText}>Devices: {deviceCount}</Text>
@@ -84,8 +86,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     backgroundColor: "white",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 50 : 0,
-  },
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 30: 0,  },
   countContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -14,49 +14,56 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
   const [showRoomNameError, setShowRoomNameError] = useState(false);
   const [showIconError, setShowIconError] = useState(false);
 
-  const iconOptions = [
-
-      // 'sofa-outline',           
-      // 'bed-outline',            
-      // 'table-chair',            
-      // 'toilet',                
-      // 'shower-head',           
-      // 'wardrobe-outline',      
-      // 'ceiling-light-outline',
-      // 'desk-lamp',              
-      // 'television-outline',     
-      // 'fridge-outline',  
-   
-      'home-outline',
-      'bed-outline',
-      'tv-outline',
-      'water-outline',
-      'restaurant-outline',
-      'desktop-outline',
-      'cafe-outline',
-      'car-outline',
-      'leaf-outline',
-      'game-controller-outline',
-  ];
-
-  const renderIcon = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.iconBox,
-        selectedIcon === item && styles.selectedIconBox,
-      ]}
-      onPress={() => {
-        setSelectedIcon(item);
-        setShowIconError(false); 
-      }}
-    >
-      <Ionicons 
-        name={item}
-        size={30}
-        color={selectedIcon === item ? '#fff' : '#444'}
-      />
-    </TouchableOpacity>
-  );
+  const iconOptions = {
+    1: 'home-outline',
+    2: 'bed-outline',
+    3: 'tv-outline',
+    4: 'water-outline',
+    5: 'restaurant-outline',
+    6: 'desktop-outline',
+    7: 'cafe-outline',
+    8: 'car-outline',
+    9: 'leaf-outline',
+    10: 'game-controller-outline',
+    11: 'shirt-outline',
+    12: 'basket-outline',
+    13: 'sparkles-outline',
+    14: 'happy-outline',
+    15: 'people-outline',
+    16: 'print-outline',
+    17: 'laptop-outline',
+    18: 'sunny-outline',
+    19: 'cart-outline',
+    20: 'musical-notes-outline',
+    21: 'body-outline',
+    22: 'paw-outline',
+    23: 'heart-outline',
+    24: 'book-outline',
+    25: 'football-outline',
+  };
+  
+  const renderIcon = ({ item }) => {
+    const [iconNumber, iconName] = item;
+  
+    return (
+      <TouchableOpacity
+        style={[
+          styles.iconBox,
+          selectedIcon === iconNumber && styles.selectedIconBox,
+        ]}
+        onPress={() => {
+          setSelectedIcon(iconNumber);
+          setShowIconError(false);
+        }}
+      >
+        <Ionicons 
+          name={iconName}
+          size={30}
+          color={selectedIcon === iconNumber ? '#fff' : '#444'}
+        />
+      </TouchableOpacity>
+    );
+  };
 
   async function handleSave() {
     let hasError = false;
@@ -66,11 +73,11 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
       hasError = true;
     }
   
-    // Uncomment if icon is required
-    // if (!selectedIcon) {
-    //   setShowIconError(true);
-    //   hasError = true;
-    // }
+  
+    if (!selectedIcon) {
+      setShowIconError(true);
+      hasError = true;
+    }
   
     if (hasError) return;
   
@@ -112,7 +119,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
             )}
             
             <FlatList
-              data={iconOptions}
+              data={Object.entries(iconOptions)}
               renderItem={renderIcon}
               keyExtractor={(item) => item}
               numColumns={5}
