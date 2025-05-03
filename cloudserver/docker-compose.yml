@@ -11,13 +11,29 @@ services:
       POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-volumes:
-  postgres_data:
+  cloudserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cloudserver_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+    restart: always
+
+#volumes:
+#  postgres_data:
