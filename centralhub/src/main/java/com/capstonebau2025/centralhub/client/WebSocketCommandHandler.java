@@ -9,10 +9,8 @@ import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
 import com.capstonebau2025.centralhub.exception.*;
 import com.capstonebau2025.centralhub.repository.UserRepository;
+import com.capstonebau2025.centralhub.service.*;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
-import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
-import com.capstonebau2025.centralhub.service.AreaService;
-import com.capstonebau2025.centralhub.service.UserService;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +36,8 @@ public class WebSocketCommandHandler {
     private final AreaService areaService;
     private final UserService userService;
     private final InvitationService invitationService;
+    private final StreamingService streamingService;
+    private final SurveillanceService surveillanceService;
 
     @Setter
     private StompSession stompSession;
@@ -113,6 +113,13 @@ public class WebSocketCommandHandler {
                     break;
                 case "GENERATE_INVITATION":
                     response = handleGenerateInvitation(message);
+                    break;
+                case "INITIATE_CAMERA_STREAM":
+                    handleInitiateCameraStream(message);
+                    response = null;
+                    break;
+                case "GET_STREAMING_DEVICES":
+                    response = handleGetStreamingDevices(message);
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
@@ -499,5 +506,81 @@ public class WebSocketCommandHandler {
                 .build();
 
         sendResponse(hubSerialNumber, response);
+    }
+
+    private RemoteCommandResponse handleGetStreamingDevices(RemoteCommandMessage message) {
+        try {
+            String email = message.getEmail();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            List<DeviceInfoDTO> devices = surveillanceService.getStreamingDevices(user.getId());
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Streaming devices retrieved successfully")
+                    .payload(devices)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_STREAMING_DEVICES command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void handleInitiateCameraStream(RemoteCommandMessage message) {
+        try {
+            // No response is needed as we'll handle the streaming separately
+            CameraStreamRequest request = objectMapper.convertValue(
+                    message.getPayload(), CameraStreamRequest.class);
+
+            // Get user from email
+            String email = message.getEmail();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            // Start a new thread to handle the streaming to avoid blocking WebSocket thread
+            new Thread(() -> {
+                try {
+                    // Use the surveillance service to get the camera stream and send it to cloud
+                    streamingService.streamCameraToCloud(
+                            user.getId(),
+                            request.getCameraId(),
+                            request.getSessionId());
+                } catch (Exception e) {
+                    log.error("Error streaming camera feed to cloud: {}", e.getMessage(), e);
+                }
+            }).start();
+
+        } catch (Exception e) {
+            log.error("Error processing INITIATE_CAMERA_STREAM command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    // Inner class to deserialize the camera stream request
+    private static class CameraStreamRequest {
+        private Long cameraId;
+        private String sessionId;
+
+        // Default constructor for Jackson
+        public CameraStreamRequest() {}
+
+        public Long getCameraId() {
+            return cameraId;
+        }
+
+        public void setCameraId(Long cameraId) {
+            this.cameraId = cameraId;
+        }
+
+        public String getSessionId() {
+            return sessionId;
+        }
+
+        public void setSessionId(String sessionId) {
+            this.sessionId = sessionId;
+        }
     }
 }
