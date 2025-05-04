@@ -23,7 +23,7 @@ export const fetchUsers = async (hubSerialNumber) => { //fetch users according t
       },
     });
 
-    console.log('Users:', response.data);
+    console.log('Users from /users:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching users for hub:', error.response?.data || error.message);
@@ -71,3 +71,24 @@ export const findAndStoreUserDetails = async () => {
   }
 };
 
+
+export const fetchUserDetails = async () => {
+  try {
+    const token = await AsyncStorage.getItem("userToken");
+    const res = await axios.get(`${BASE_URL}api/users/user-details`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+
+    console.log("================================================================================");
+    console.log('USER DETAILS:', res.data);
+    console.log("================================================================================");
+
+    return res.data;
+  } catch (err) {
+    console.error('User details fetch failed:', err.response?.data || err.message);
+    throw err;
+  }
+};

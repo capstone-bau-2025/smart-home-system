@@ -29,6 +29,7 @@ import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { useSelector } from "react-redux";
+import { startActiveUrlMonitor } from "./util/auth";
 import useInitAppData from "./hooks/useInitAppData";
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -54,6 +55,9 @@ function RootApp() {
   const [currentHub, setCurrentHub] = useState("Hub1");
   const [baseUrl, setBaseUrl] = useState(null);
 
+  // useEffect(() => {
+  //   startActiveUrlMonitor();
+  // }, []);
   const [fontsLoaded] = useFonts({
     "Lexend-Bold": require("./assets/fonts/Lexend-Bold.ttf"),
     "Lexend-Regular": require("./assets/fonts/Lexend-Regular.ttf"),

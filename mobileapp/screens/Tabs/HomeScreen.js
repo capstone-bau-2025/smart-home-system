@@ -1,5 +1,5 @@
 import { StyleSheet, View,Platform,StatusBar } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import TopRightBlob from "../../components/svg/TopRightBlob";
 import Header from "../../components/HomeScreen/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ import useInitAppData from "../../hooks/useInitAppData";
 import useAreas from "../../hooks/useAreas";
 import { getActiveBaseUrl } from "../../util/auth";
 import { fetchAreas } from "../../api/services/areaService";
+import { fetchUserDetails } from "../../api/services/userService";
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,10 +18,17 @@ export default function HomeScreen() {
   useEffect(() => {
     (async () => {
       await getActiveBaseUrl();
+    
     })();
   }, []);
 
   useInitAppData();
+  
+  useEffect(() => {
+    (async () => {
+      await fetchUserDetails();
+    })();
+  }, []);
   
   const { areas} = useAreas('123456789');
   const [rooms, setRooms] = useState([]);
