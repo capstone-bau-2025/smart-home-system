@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  centralhub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: centralhub_app
+    ports:
+      - "8080:8080"  # Adjust if your centralhub uses a different port
+    # Comment out volumes for testing
+    # volumes:
+    #   - mosquitto-config:/mosquitto/config
+    #   - mosquitto-data:/mosquitto/data
+    #   - mosquitto-log:/mosquitto/log
+    environment:
+      - spring.datasource.url=jdbc:h2:file:/app/data/dev-h2-db
+      - mqtt.broker.url=tcp://mosquitto:1883
+      - cloud.server.url=http://host.docker.internal:8082  # Access cloud server on host machine
+    restart: unless-stopped
+    networks:
+      - centralhub-network
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto_broker
+    ports:
+      - "1883:1883"  # MQTT port
+      - "9001:9001"  # WebSockets port
+    # Comment out volumes for testing
+    # volumes:
+    #   - mosquitto-config:/mosquitto/config
+    #   - mosquitto-data:/mosquitto/data
+    #   - mosquitto-log:/mosquitto/log
+    networks:
+      - centralhub-network
+    restart: unless-stopped
+
+# Comment out volume definitions
+# volumes:
+#   h2-data:
+#   mosquitto-config:
+#   mosquitto-data:
+#   mosquitto-log:
+
+networks:
+  centralhub-network:
+    driver: bridge
