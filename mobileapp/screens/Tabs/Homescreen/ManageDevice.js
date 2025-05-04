@@ -14,9 +14,9 @@ import HeaderIcons from "../../../components/UI/HeaderIcons";
 import InfoModal from "../../../components/UI/InfoModal";
 import AddRoomModal from "../../../components/ManageDevices/AddRoomModal";
 import useAreas from "../../../hooks/useAreas";
-
+import { useSelector } from "react-redux";
 export default function ManageDevice({
-  currentHub,
+ 
   setAddModal,
   setCogModal, 
   setInfoModal,
@@ -24,14 +24,16 @@ export default function ManageDevice({
   addModal,
   cogModal,
 }) {
-  const [selectedTab, setSelectedTab] = useState(hubs[0]);
-  const deviceCount = selectedTab.rooms.reduce(
-    (total, room) => total + room.devices.length,
-    0
-  );
   
-  const { areas, isLoading, refetchAreas } = useAreas('123456789');
+  const currentHub = useSelector((state) => state.hub.currentHub);  
+  const userHubs = useSelector((state) => state.hub.userHubs);
+  const [selectedTab, setSelectedTab] = useState([]); //userHubs[0]
+  const { areas, isLoading, refetchAreas } = useAreas(selectedTab?.serialNumber);
+  
+  
+  
   const roomCount = areas.length;
+  const deviceCount = 0;
   return (
     <>
       <SafeAreaView style={styles.safeContainer}>
@@ -39,23 +41,20 @@ export default function ManageDevice({
 
 
         <HubsTabs
-          hubs={hubs}
+          hubs={userHubs}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
         />
 
-        <View style={styles.countContainer}>
-          <Text style={styles.countText}>Rooms: {roomCount}</Text>
-          <Text style={styles.countText}>Devices: {deviceCount}</Text>
-        </View>
 
         <MainRoomList
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
-          hubs={hubs}
           areas={areas}
           isLoading={isLoading}
           refetchAreas={refetchAreas}
+          roomCount={roomCount}
+          deviceCount={deviceCount}
         />
 
         <InfoModal

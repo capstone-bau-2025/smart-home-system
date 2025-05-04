@@ -39,7 +39,7 @@ export default function UsersList({ users, setRenameModal }) {
     <>
       <ScrollableList
         data={users}
-        textFields={["name", "role"]}
+        textFields={["username", "role"]}
         buttonConfig={[
           {
             icon: "key-outline",

@@ -24,6 +24,7 @@ export const getAllRooms = async (hubSerialNumber) => {
   const localToken = store.getState().user.localToken;
 
   const response = await axios.get(`${path}get-all`, {
+    params: {hubSerialNumber},
     headers: {
       Authorization: `Bearer ${localToken}`,
     },
@@ -35,6 +36,7 @@ export const deleteRoom = async (areaId, hubSerialNumber) => {
   const localToken = store.getState().user.localToken;
 
   const response = await axios.delete(`${path}${areaId}`, {
+    params: {hubSerialNumber}, //new
     headers: {
       Authorization: `Bearer ${localToken}`,
     },
@@ -45,7 +47,9 @@ export const deleteRoom = async (areaId, hubSerialNumber) => {
 export const fetchAreas = async (hubSerialNumber) => {
   try {
     const roomsData = await getAllRooms(hubSerialNumber);
-    return { data: roomsData };
+    return {
+       data: roomsData,
+     };
   } catch (error) {
     console.log("Error fetching rooms:", error);
     return { error };

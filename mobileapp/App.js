@@ -249,9 +249,7 @@ function HomeStackNavigator({ currentHub, setCurrentHub }) {
               <HeaderIcons
                 onInfoPress={() => setInfoModal(true)}
                 onAddPress={() => setAddModal(true)}
-                onCogPress={() =>
-                  console.log("Cog pressed, rename hub and delete")
-                }
+                cogHidden={true}
                 custompadding={true}
               />
             </View>

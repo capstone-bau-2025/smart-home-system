@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchHubs } from '../api/services/hubService';
-import { fetchAllUsers, findAndStoreUserDetails } from '../api/services/userService';
-import { addUserHub, setCurrentHub } from '../store/slices/hubSlice';
+import { fetchUserDetails } from '../api/services/userService';
+import { setUserHubs, setCurrentHub } from '../store/slices/hubSlice';
+import { setUserId, setUsername, setEmail } from '../store/slices/userSlice';
 
 export default function useInitAppData() {
   const user = useSelector((state) => state.user);
@@ -14,27 +14,19 @@ export default function useInitAppData() {
       if (!user.email || initialized) return;
 
       try {
-        await findAndStoreUserDetails();
+        const data = await fetchUserDetails(); // { email, username, hubsConnected: [ { name, role, serialNumber } ] }
 
-  
-        const response = await fetchHubs();
-        const hub = response?.data;
- 
-        if (hub?.serialNumber) {
-          dispatch(addUserHub(hub));
-          dispatch(setCurrentHub({
-            serialNumber: hub.serialNumber,
-            hubName: hub.name,
-            hubDetails: {
-              location: hub.location,
-              status: hub.status,
-              name: hub.name,
-            },
-          }));
-          console.log("App initialized hub:", hub);
+        dispatch(setEmail(data.email));
+        dispatch(setUsername(data.username));
+        dispatch(setUserHubs(data.hubsConnected));
+
+        if (data.hubsConnected.length > 0) {
+          dispatch(setCurrentHub(data.hubsConnected[0])); // Default to first hub
         }
+
+        console.log("✅ User details & hubs initialized:", data);
       } catch (err) {
-        console.error("Init error:", err);
+        console.error("❌ Init error:", err);
       } finally {
         setInitialized(true);
       }

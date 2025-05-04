@@ -16,7 +16,7 @@ export const fetchUsers = async (hubSerialNumber) => { //fetch users according t
     const token = await AsyncStorage.getItem('userToken');
 
     const response = await axios.get(`${BASE_URL}api/users`, {
-      params: { hubSerialNumber },
+      params: {hubSerialNumber},
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
@@ -52,14 +52,14 @@ export const fetchUsers = async (hubSerialNumber) => { //fetch users according t
 // };
 
 //fetch users accordin to the hub SN to store the user ID and role in the redux store 
-export const findAndStoreUserDetails = async () => {
+export const findAndStoreUserDetails = async (hubSerialNumber) => {
   const state = store.getState();
   const { email } = state.user;
   // const hubSerialNumber = state.hub.currentHubSerialNumber;
   // const token = state.user.localToken;
 
   try {
-    const users = await fetchUsers('123456789'); 
+    const users = await fetchUsers(hubSerialNumber); 
     const match = users.find((u) => u.email === email);
     if (match) {
       store.dispatch(setUserId(match.id));

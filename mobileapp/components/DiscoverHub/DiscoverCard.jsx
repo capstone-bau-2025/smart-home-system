@@ -16,7 +16,7 @@ export default function DiscoverCard({ hubs, onScanPress, isDevice }) {
     <>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {hubs.map((item, index) => {
-          const isConfigured = item.name && item.name !== "string";
+          const isConfigured = item.status && item.status !== "SETUP";
 
           return (
             <View key={index} style={styles.container}>
@@ -60,12 +60,12 @@ export default function DiscoverCard({ hubs, onScanPress, isDevice }) {
         title={
           isDevice
             ? "Device Details"
-            : selectedItem?.name && selectedItem.name !== "string"
+            : selectedItem?.status && selectedItem.status !== "SETUP"
             ? "Connect to Hub"
             : "Configure Hub"
         }
         selectedHub={selectedItem}
-        isConfigured={selectedItem?.name && selectedItem.name !== "string"}
+        isConfigured={selectedItem?.status && selectedItem.status !== "SETUP"}
       />
     </>
   );

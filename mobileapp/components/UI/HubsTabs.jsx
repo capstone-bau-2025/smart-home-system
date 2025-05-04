@@ -6,20 +6,21 @@ export default function HubsTabs({ hubs, setSelectedTab, selectedTab, color = "o
 <>
       <FlatList
         data={hubs}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.serialNumber}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => setSelectedTab(item)} style={styles.hubItem}>
+      
             <Text
               style={[
                 styles.hubText,
-                selectedTab.id === item.id && { color, fontWeight: "bold" }, 
+                selectedTab.serialNumber === item.serialNumber && { color, fontWeight: "bold" }, 
               ]}
             >
               {item.name}
             </Text>
-            {selectedTab.id === item.id && <View style={[styles.underline, { backgroundColor: color }]} />}
+            {selectedTab.serialNumber === item.serialNumber && <View style={[styles.underline, { backgroundColor: color }]} />}
           </TouchableOpacity>
         )}
       />

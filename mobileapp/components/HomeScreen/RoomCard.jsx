@@ -31,7 +31,7 @@ export default function RoomCard({ data }) {
     <View style={styles.entireRoom}>
       {/* Room Header */}
       <View style={styles.roomHeader}>
-        <Ionicons name={iconName} style={styles.icon} size={25} />
+        <Ionicons name={data.name === "GENERAL" ? 'apps-outline' : iconName} style={styles.icon} size={25} />
         <Text style={styles.roomName}>{data.name}</Text>
       </View>
 

@@ -10,27 +10,30 @@ import useInitAppData from "../../hooks/useInitAppData";
 import useAreas from "../../hooks/useAreas";
 import { getActiveBaseUrl } from "../../util/auth";
 import { fetchAreas } from "../../api/services/areaService";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserHubs, setCurrentHub } from "../../store/slices/hubSlice";
 import { fetchUserDetails } from "../../api/services/userService";
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
+  const currentHub = useSelector((state) => state.hub.currentHub);
+  const hubSerialNumber = currentHub?.serialNumber; 
+  
+
+  //will be moved to app.js
   useEffect(() => {
     (async () => {
       await getActiveBaseUrl();
-    
     })();
   }, []);
 
-  useInitAppData();
+  useInitAppData(); //fetch user details and hubs on app load to set redux state
   
-  useEffect(() => {
-    (async () => {
-      await fetchUserDetails();
-    })();
-  }, []);
+
   
-  const { areas} = useAreas('123456789');
+  const {areas} = useAreas(hubSerialNumber);
   const [rooms, setRooms] = useState([]);
   
   useEffect(() => {
@@ -42,8 +45,17 @@ export default function HomeScreen() {
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      const { data } = await fetchAreas('123456789');
+  
+    
+      const { data } = await fetchAreas(hubSerialNumber);
       setRooms(data);
+
+      const userData = await fetchUserDetails();
+      dispatch(setUserHubs(userData.hubsConnected));
+      dispatch(setCurrentHub(
+        userData.hubsConnected.find(h => h.serialNumber === hubSerialNumber) || null
+      ));
+      
     } catch (err) {
       console.warn('Refresh error:', err);
     } finally {

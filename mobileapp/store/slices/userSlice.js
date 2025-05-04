@@ -7,6 +7,7 @@ const userSlice = createSlice({
     cloudToken: null,     //""
     localToken: null,   
     email: null,
+    username: null,
     userId: null,
   },
   reducers: {
@@ -32,8 +33,14 @@ const userSlice = createSlice({
     setUserId(state, action) {
       state.userId = action.payload;
     },
+    setUsername(state, action) {
+      state.username = action.payload;
+    },
+    setEmail(state, action) {
+      state.email = action.payload;
+    }
   },
 });
 
-export const { setUser, updateLocalToken, clearUser, setUserRole, setUserId } = userSlice.actions;
+export const { setUser, updateLocalToken, clearUser, setUserRole, setUserId, setEmail,setUsername } = userSlice.actions;
 export default userSlice.reducer;
