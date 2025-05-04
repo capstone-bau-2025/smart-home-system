@@ -211,26 +211,26 @@ class Device:
                 self.client.disconnect()
 
     def _on_paired(self):
-        """Called when device is paired - start hardware simulation"""
+        """Called when device is paired - start hardware device"""
         self.logger.info("Device paired successfully")
-        self._start_simulation()
+        self._start_device()
 
     def stop(self):
         """Stop the device"""
-        self._stop_simulation()
+        self._stop_device()
         if self.client:
             self.client.loop_stop()
             self.client.disconnect()
         self.logger.info("Device stopped")
 
     # Abstract methods to be implemented by subclasses
-    def _start_simulation(self):
-        """Start the hardware simulation"""
-        raise NotImplementedError("Subclasses must implement _start_simulation")
+    def _start_device(self):
+        """Start the hardware device"""
+        raise NotImplementedError("Subclasses must implement _start_device")
 
-    def _stop_simulation(self):
-        """Stop the hardware simulation"""
-        raise NotImplementedError("Subclasses must implement _stop_simulation")
+    def _stop_device(self):
+        """Stop the hardware device"""
+        raise NotImplementedError("Subclasses must implement _stop_device")
 
     def handle_ping(self, message):
         """Handle PING message"""

@@ -2,11 +2,12 @@
 import cv2
 import socket
 import threading
+import random
 from datetime import datetime
 from flask import Flask, Response
 from device_base import Device
 
-class CameraDevice(Device):
+class DeviceImp(Device):
     def __init__(self, device_config, broker="localhost", port=1883):
         super().__init__(device_config, broker, port)
 
@@ -27,7 +28,7 @@ class CameraDevice(Device):
     def _on_paired(self):
         """Override - Called when device is paired"""
         self.logger.info("Device paired successfully")
-        self._start_simulation()
+        self._start_device()
         # Publish device started event
         self.publish_event(1)  # DEVICE_STARTED event
 
@@ -52,7 +53,7 @@ class CameraDevice(Device):
             self.logger.error(f"Error getting IP address: {e}")
             return "localhost"
 
-    def _start_simulation(self):
+    def _start_device(self):
         """Start the camera server"""
         if self.flask_thread is None or not self.flask_thread.is_alive():
             self.flask_thread = threading.Thread(
@@ -62,7 +63,7 @@ class CameraDevice(Device):
             self.flask_thread.start()
             self.logger.info("Camera stream server started on port 8000")
 
-    def _stop_simulation(self):
+    def _stop_device(self):
         """Stop camera and release resources"""
         self.set_camera_state("OFF")
         # Flask server will stop when the process ends
@@ -287,3 +288,50 @@ class CameraDevice(Device):
 
         self.publish_response(message_id, response)
         self.logger.info(f"Responded to GET_STREAMING_LINK message with ID: {message_id}")
+
+def get_device_config():
+    uid = random.randint(1000, 9999)
+
+    return {
+        "uid": uid,
+        "model": "Camera_Model_Z1",
+        "description": "Streaming camera with auto-shutdown feature",
+        "type": "CAMERA",
+        "support_streaming": True,
+        "states": [
+            {
+                "number": 1,
+                "is_mutable": True,
+                "name": "status",
+                "type": "ENUM",
+                "choices": ["ON", "OFF"]
+            },
+            {
+                "number": 2,
+                "is_mutable": True,
+                "name": "duration",
+                "type": "RANGE",
+                "min_range": 5,
+                "max_range": 120
+            }
+        ],
+        "commands": [
+            {
+                "number": 1,
+                "name": "RESTART",
+                "description": "Restart camera device"
+            }
+        ],
+        "events": [
+            {
+                "number": 1,
+                "name": "DEVICE_STARTED",
+                "description": "Device has started or restarted"
+            },
+            {
+                "number": 2,
+                "name": "AUTO_SHUTDOWN",
+                "description": "Camera turned off automatically after duration elapsed"
+            }
+        ]
+    }

@@ -25,13 +25,21 @@ if __name__ == "__main__":
     # Add devices (using convenience methods or generic method)
     logger.info("Creating devices...")
 
-    # Using convenience methods
-    # manager.add_camera_device()
-    # manager.add_plant_monitor_device()
+    import camera_device
+    import plant_device
+    import curtain_device
+    import door_device
+
+    manager.add_device(plant_device)
+    manager.add_device(camera_device)
+    manager.add_device(curtain_device)
+    manager.add_device(door_device)
 
     # Using generic method - just specify the module path
-    manager.add_device("plant_device", "plant_config")
-    manager.add_device("camera_device", "camera_config")
+    # manager.add_device("plant_device")
+    # manager.add_device("camera_device")
+    # manager.add_device("curtain_device")
+    # manager.add_device("door_device")
 
     # Start all devices
     logger.info("Starting device manager...")

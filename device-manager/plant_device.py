@@ -5,7 +5,7 @@ import threading
 from datetime import datetime
 from device_base import Device
 
-class PlantMonitorDevice(Device):
+class DeviceImp(Device):
     def __init__(self, device_config, broker="localhost", port=1883):
         super().__init__(device_config, broker, port)
 
@@ -24,31 +24,31 @@ class PlantMonitorDevice(Device):
         self.moisture_low_threshold = 30.0
         self.water_tank_empty_threshold = 10.0
 
-        # Simulation parameters
+        # device parameters
         self.update_interval = 5  # seconds
         self.sim_thread = None
         self.sim_running = False
 
-    def _start_simulation(self):
-        """Start the hardware simulation"""
+    def _start_device(self):
+        """Start the hardware device"""
         if self.sim_thread is not None and self.sim_thread.is_alive():
             return
 
         self.sim_running = True
-        self.sim_thread = threading.Thread(target=self._simulation_loop)
+        self.sim_thread = threading.Thread(target=self._device_loop)
         self.sim_thread.daemon = True
         self.sim_thread.start()
-        self.logger.info("Plant hardware simulation started")
+        self.logger.info("Plant hardware device started")
 
-    def _stop_simulation(self):
-        """Stop the hardware simulation"""
+    def _stop_device(self):
+        """Stop the hardware device"""
         self.sim_running = False
         if self.sim_thread is not None:
             self.sim_thread.join(timeout=1)
-        self.logger.info("Plant hardware simulation stopped")
+        self.logger.info("Plant hardware device stopped")
 
-    def _simulation_loop(self):
-        """Main simulation loop that updates sensor values"""
+    def _device_loop(self):
+        """Main device loop that updates sensor values"""
         while self.sim_running:
             # Naturally decrease soil moisture over time
             self.soil_moisture -= random.uniform(0.2, 0.8)
@@ -220,3 +220,71 @@ class PlantMonitorDevice(Device):
         }
 
         self.publish_response(message_id, response)
+
+def get_device_config():
+    uid = random.randint(1000, 9999)
+
+    return {
+        "uid": uid,
+        "model": "PLANT_MONITOR_1000",
+        "description": "Smart Plant Monitoring and Irrigation System",
+        "type": "SENSOR",
+        "support_streaming": False,
+        "states": [
+            {
+                "number": 1,
+                "is_mutable": False,
+                "name": "soil_moisture",
+                "type": "RANGE",
+                "min_range": 0,
+                "max_range": 100
+            },
+            {
+                "number": 2,
+                "is_mutable": False,
+                "name": "soil_ph",
+                "type": "RANGE",
+                "min_range": 3.0,
+                "max_range": 9.0
+            },
+            {
+                "number": 3,
+                "is_mutable": True,
+                "name": "watering_duration",
+                "type": "RANGE",
+                "min_range": 5,
+                "max_range": 120
+            },
+            {
+                "number": 4,
+                "is_mutable": True,
+                "name": "watering_status",
+                "type": "ENUM",
+                "choices": ["OFF", "ON"]
+            }
+        ],
+        "commands": [
+            {
+                "number": 1,
+                "name": "START_WATERING",
+                "description": "Start watering the plant"
+            },
+            {
+                "number": 2,
+                "name": "STOP_WATERING",
+                "description": "Stop watering the plant"
+            }
+        ],
+        "events": [
+            {
+                "number": 1,
+                "name": "LOW_MOISTURE_ALERT",
+                "description": "Soil moisture below threshold"
+            },
+            {
+                "number": 2,
+                "name": "WATER_TANK_EMPTY",
+                "description": "Water tank needs refilling"
+            }
+        ]
+    }
