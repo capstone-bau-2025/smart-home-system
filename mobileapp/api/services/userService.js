@@ -82,13 +82,81 @@ export const fetchUserDetails = async () => {
       },
     });
 
-    console.log("================================================================================");
-    console.log('USER DETAILS:', res.data);
-    console.log("================================================================================");
 
     return res.data;
   } catch (err) {
     console.error('User details fetch failed:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
+
+export const userPermsissions = async (userId, hubSerialNumber) => {
+  try {
+    const token = await AsyncStorage.getItem("userToken");
+    const res = await axios.get(`${BASE_URL}api/users/${userId}/permissions`, {
+      params: {hubSerialNumber },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+
+    console.log("User Permissions:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error('User permissions fetch failed:', err.response?.data || err.message);
+    throw err;
+  }
+
+
+}
+export const updateUserPermissions = async (targetUserId, roomIds, hubSerialNumber) => {
+  const state = store.getState();
+  const token = state.user.localToken;
+
+  const payload = {
+    targetUserId,
+    roomIds
+  };
+
+  try {
+    const res = await axios.post(`${BASE_URL}api/users/update-permissions`, payload, {
+      headers:
+      {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        
+      },
+      params: { hubSerialNumber },
+    });
+
+    console.log('Permissions updated successfully');
+    return res.data;
+  } catch (err) {
+    console.error('Failed to update permissions:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
+
+export const deleteUser = async (userId, hubSerialNumber) => {
+  const state = store.getState();
+  const token = state.user.localToken;
+
+  try {
+    const res = await axios.delete(`${BASE_URL}api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      params: { hubSerialNumber },
+    });
+
+    console.log('User deleted successfully:', res.data);
+    return res.data;
+  } catch (err) {
+    console.error('Error deleting user:', err);
     throw err;
   }
 };

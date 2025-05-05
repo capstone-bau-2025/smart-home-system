@@ -9,29 +9,31 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import DiscoverCard from "../../../components/DiscoverHub/DiscoverCard";
 import { fetchHubs } from "../../../api/services/hubService";
+import { discoverDevices } from "../../../api/services/deviceDiscoverService";
+import { useSelector } from "react-redux";
+
 
 export default function DiscoverDevice() {
+  const currentHub = useSelector((state) => state.hub.currentHub);
   const [hubs, setHubs] = useState([]);
   const [loading, setLoading] = useState(false); //true
 
-  // const loadHubs = async () => {
-  //   setLoading(true);
-  //   const { data, error } = await fetchHubs();
-  //   if (error) {
-  //     console.log("Error fetching hubs");
-  //   } else {
-  //     setHubs(data);
-  //   }
-  //   setLoading(false);
-  // };
-
-  // useEffect(() => {
-  //   loadHubs();
-  // }, []);
-
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const res = await discoverDevices();
+        const devices = Object.values(res); 
+        console.log('DEVICES DISCOVERED:', devices); 
+      } catch (err) {
+        console.error("Failed to discover devices:", err);
+      }
+    };
+  
+    fetchDevices();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (

@@ -11,13 +11,11 @@ import DropdownModal from "../UI/DropdownModal";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentHub } from "../../store/slices/hubSlice";
 
-export default function HubDropdown({ currentHub, }) {
+export default function HubDropdown({ currentHub }) {
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
 
   const userHubs = useSelector((state) => state.hub.userHubs);
-
-  const noHub = "Hub not found";
 
   const dropdownData = userHubs.map((hub) => ({
     label: hub.name || "Unnamed Hub",
@@ -26,7 +24,7 @@ export default function HubDropdown({ currentHub, }) {
   }));
 
   const handleSelectHub = (hub) => {
-    console.log('Selected Hub: ', hub)
+    console.log("Selected Hub: ", hub);
     if (hub) {
       dispatch(setCurrentHub(hub));
     }
@@ -49,6 +47,7 @@ export default function HubDropdown({ currentHub, }) {
               ? currentHub.name
               : noHub}
           </Text>
+
           <Ionicons
             name="chevron-down-outline"
             size={20}
@@ -59,7 +58,6 @@ export default function HubDropdown({ currentHub, }) {
       </TouchableOpacity>
 
       <DropdownModal
-  
         data={dropdownData}
         setVisible={setModalVisible}
         visible={modalVisible}

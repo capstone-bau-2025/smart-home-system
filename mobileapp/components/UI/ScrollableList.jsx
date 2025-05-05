@@ -21,6 +21,8 @@ export default function ScrollableList({
   handlePress,
   toggleSwitch,
   pressableTab,
+  refreshing,
+  onRefresh
 }) {
   if (!data || data.length === 0) {
     return( 
@@ -33,9 +35,11 @@ export default function ScrollableList({
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.id.toString()} //.toString()
+      keyExtractor={(item) => item.id.toString()} 
       contentContainerStyle={styles.listContainer}
       showsVerticalScrollIndicator={false}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       renderItem={({ item }) => {
         const isEnabled = item.status === "Active";
 

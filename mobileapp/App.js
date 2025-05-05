@@ -27,6 +27,7 @@ import NewAutomation from "./screens/Tabs/AutomationScreen/NewAutomation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
+import { toastConfig } from "./constants/ToastConfig";
 import { store } from "./store/store";
 import { useSelector } from "react-redux";
 import { startActiveUrlMonitor } from "./util/auth";
@@ -45,7 +46,7 @@ export default function App() {
           <RootApp />
         </AuthContextProvider>
 </Provider>
-      <Toast/>
+      <Toast  config={toastConfig}/>
     </SafeAreaProvider>
   );
 }

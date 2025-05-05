@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentHub, setUserHubs } from "../../../store/slices/hubSlice";
 import { fetchUserDetails } from "../../../api/services/userService";
 import { fetchUsers } from "../../../api/services/userService";
+import { setUserId } from "../../../store/slices/userSlice";
 export default function ManageHub({
   setAddModal,
   setCogModal,
@@ -30,24 +31,35 @@ export default function ManageHub({
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
   const [users, setUsers] = useState([]);
-  const [selectedTab, setSelectedTab] = useState([]); userHubs[0]
-
+  const [selectedTab, setSelectedTab] = useState(userHubs[0]);
   useEffect(() => {
     const fetchUsersAsync = async () => {
       if (!selectedTab?.serialNumber) return;
+  
       try {
-        const res = await fetchUsers(selectedTab.serialNumber);
-        setUsers(res);
-        console.log("Users: ", res);
+        const usersRes = await fetchUsers(selectedTab.serialNumber);
+        const userDetails = await fetchUserDetails();
+  
+        const matchedUser = usersRes.find(
+          (user) => user.email === userDetails.email
+        );
+
+
+
+        if (matchedUser) {
+          dispatch(setUserId(matchedUser.id));
+        }
+  
+        setUsers(usersRes);
       } catch (err) {
-        console.error("Failed to fetch users:", err);
+        console.error("Failed to fetch users or user details:", err);
       }
     };
   
     fetchUsersAsync();
-  }, [selectedTab]); 
+  }, [selectedTab]);
 
-  console.log(userHubs);
+
   const [hubname, setHubName] = useState(currentHub?.name || "");
   const [userRenameModal, setUserRenameModal] = useState(false);
   const [userNewName, setUserNewname] = useState("");
@@ -91,16 +103,6 @@ export default function ManageHub({
         topOffset: 60,
         swipeable: true,
         type: "success",
-        text1Style: {
-          fontFamily: "Lexend-Bold",
-          fontSize: 16,
-          color: "black",
-        },
-        text2Style: {
-          fontFamily: "Lexend-Regular",
-          fontSize: 14,
-          color: "#a8a8a8",
-        },
         text1: "Name updated",
         text2: `Hub name is now ${newName}.`,
       });
@@ -139,6 +141,7 @@ export default function ManageHub({
         setRenameModal={setUserRenameModal}
       />
 
+      
       <InfoModal
         visible={infoModal}
         onClose={() => setInfoModal(false)}

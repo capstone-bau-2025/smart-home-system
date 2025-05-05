@@ -52,16 +52,6 @@ export default function DiscoveryModal({
         type: "success",
         text1: `Connected successfully`,
         text2: `You are now connected to ${selectedHub.name}`,
-        text1Style: {
-          fontFamily: "Lexend-Bold",
-          fontSize: 16,
-          color: "black",
-        },
-        text2Style: {
-          fontFamily: "Lexend-Regular",
-          fontSize: 14,
-          color: "#a8a8a8",
-        },
       });
 
       const joinedHub = {
@@ -130,16 +120,6 @@ export default function DiscoveryModal({
           type: "success",
           text1: `${value} configured successfully`,
           text2: `You are now the admin of this hub`,
-          text1Style: {
-            fontFamily: "Lexend-Bold",
-            fontSize: 16,
-            color: "black",
-          },
-          text2Style: {
-            fontFamily: "Lexend-Regular",
-            fontSize: 14,
-            color: "#a8a8a8",
-          },
         });
 
         onClose();

@@ -9,6 +9,7 @@ const userSlice = createSlice({
     email: null,
     username: null,
     userId: null,
+    permissions:[],
   },
   reducers: {
     setUser(state, action) {
@@ -17,6 +18,10 @@ const userSlice = createSlice({
       state.localToken = action.payload.localToken ?? null;
       state.email = action.payload.email ?? null; 
     },
+    setPermissions(state, action) {
+      state.permissions = action.payload;
+    },
+
     updateLocalToken(state, action) {
       state.localToken = action.payload.localToken;
     },
@@ -42,5 +47,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, updateLocalToken, clearUser, setUserRole, setUserId, setEmail,setUsername } = userSlice.actions;
+export const { setUser, updateLocalToken, clearUser, setUserRole, setUserId, setEmail,setUsername, setPermissions} = userSlice.actions;
 export default userSlice.reducer;

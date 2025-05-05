@@ -27,7 +27,7 @@ export default function ManageDevice({
   
   const currentHub = useSelector((state) => state.hub.currentHub);  
   const userHubs = useSelector((state) => state.hub.userHubs);
-  const [selectedTab, setSelectedTab] = useState([]); //userHubs[0]
+  const [selectedTab, setSelectedTab] = useState(userHubs[0]); 
   const { areas, isLoading, refetchAreas } = useAreas(selectedTab?.serialNumber);
   
   

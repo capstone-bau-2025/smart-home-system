@@ -13,6 +13,7 @@ import { fetchAreas } from "../../api/services/areaService";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserHubs, setCurrentHub } from "../../store/slices/hubSlice";
 import { fetchUserDetails } from "../../api/services/userService";
+import { setAreas } from "../../store/slices/areaSlice";
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,10 +35,13 @@ export default function HomeScreen() {
 
   
   const {areas} = useAreas(hubSerialNumber);
+
   const [rooms, setRooms] = useState([]);
   
   useEffect(() => {
     setRooms(areas);
+    dispatch(setAreas(areas)); 
+    
     console.log(areas)
   }, [areas]);
 
