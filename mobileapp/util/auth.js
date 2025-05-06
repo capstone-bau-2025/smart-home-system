@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AppState, Platform } from "react-native";
 
-const LOCAL_IP = "192.168.1.62";
+const LOCAL_IP = "192.168.1.62"; //change this to whaterever expo is running on 
 const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
 
 export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`;
@@ -17,10 +17,7 @@ export async function getActiveBaseUrl() {
       timeout: 1500,
       validateStatus: (status) => status === 200 || status === 403,
     });
-    if (ACTIVE_URL !== LOCAL_URL) {
-      console.log("✅ Switched to LOCAL_URL:", LOCAL_URL);
-      ACTIVE_URL = LOCAL_URL;
-    }
+    console.log("✅ LOCAL_URL reachable");
     return LOCAL_URL;
   } catch (err) {
     console.warn("❌ LOCAL_URL unreachable:", err.message);
@@ -31,33 +28,41 @@ export async function getActiveBaseUrl() {
       timeout: 1500,
       validateStatus: (status) => status === 200 || status === 403,
     });
-    if (ACTIVE_URL !== BASE_URL) {
-      console.log("☁️ Switched to BASE_URL:", BASE_URL);
-      ACTIVE_URL = BASE_URL;
-    }
+    console.log("☁️ BASE_URL reachable");
     return BASE_URL;
   } catch (err) {
     console.warn("❌ BASE_URL unreachable:", err.message);
   }
 
   console.error("❌ No available server. LOCAL and BASE URLs both failed.");
-  ACTIVE_URL = null;
-  throw new Error("No available server.");
+  return null;
 }
 
+export function stopActiveUrlMonitor() {
+  if (pingInterval) {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
+}
 // Start periodic monitoring (use on app load)
 //100000
-export function startActiveUrlMonitor(intervalMs = 10000) {
+export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
   const checkAndUpdateUrl = async () => {
-    console.log("🔄 Pinging LOCAL_URL and BASE_URL to update ACTIVE_URL...");
     try {
-      await getActiveBaseUrl();
+      const newUrl = await getActiveBaseUrl();
+      if (newUrl && newUrl !== ACTIVE_URL) {
+        ACTIVE_URL = newUrl;
+        console.log("🌐 ACTIVE_URL updated to:", newUrl);
+        if (onUrlChange) onUrlChange(newUrl);
+      }
     } catch (e) {
       console.warn("⚠️ Failed to update ACTIVE_URL:", e.message);
     }
   };
 
   const handleAppStateChange = (nextAppState) => {
+    console.log("📱 App is now:", nextAppState); 
+
     if (nextAppState === "active") {
       if (!pingInterval) {
         checkAndUpdateUrl();
@@ -69,18 +74,8 @@ export function startActiveUrlMonitor(intervalMs = 10000) {
   };
 
   AppState.addEventListener("change", handleAppStateChange);
-
-  // Start immediately
   checkAndUpdateUrl();
   pingInterval = setInterval(checkAndUpdateUrl, intervalMs);
-}
-
-// Stop monitoring manually if needed
-export function stopActiveUrlMonitor() {
-  if (pingInterval) {
-    clearInterval(pingInterval);
-    pingInterval = null;
-  }
 }
 
 export { ACTIVE_URL };

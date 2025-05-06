@@ -45,7 +45,7 @@ export default function HubDropdown({ currentHub }) {
           >
             {currentHub?.name && currentHub.name !== "Central Hub"
               ? currentHub.name
-              : noHub}
+              : 'noHub'}
           </Text>
 
           <Ionicons
