@@ -46,6 +46,30 @@ public class SurveillanceService {
         streamFromDevice(deviceUrl, response);
     }
 
+    /**
+     * Streams camera feed to the provided output stream
+     */
+    public void streamCameraFeedToOutput(Long userId, Long cameraId, OutputStream outputStream) {
+        // Validate user has access to this camera
+        if (!permissionService.isPermittedDevice(userId, cameraId)) {
+            throw new PermissionException("User is not permitted to access this camera device.");
+        }
+
+        // Get device stream URL
+        String deviceUrl = getDeviceStreamUrl(cameraId);
+        if (deviceUrl == null) {
+            throw new ResourceNotFoundException("Camera stream URL not found");
+        }
+
+        try {
+            // Stream from camera to the output stream
+            streamFromCameraToOutput(deviceUrl, outputStream);
+        } catch (IOException e) {
+            log.error("Error streaming camera feed to output: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to stream camera: " + e.getMessage(), e);
+        }
+    }
+
     public String getDeviceStreamUrl(Long deviceId) {
         Device device = deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Camera not found with ID: " + deviceId));
@@ -83,6 +107,30 @@ public class SurveillanceService {
         } catch (IOException e) {
             log.info("Client disconnected from stream: {}", e.getMessage());
             // Don't treat client disconnect as an error
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * Streams from camera to the provided output stream
+     */
+    private void streamFromCameraToOutput(String deviceUrl, OutputStream outputStream) throws IOException {
+        HttpURLConnection connection = null;
+        try {
+            connection = createDeviceConnection(deviceUrl);
+
+            try (InputStream in = connection.getInputStream()) {
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int bytesRead;
+
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                    outputStream.flush(); // Important: flush after each chunk
+                }
+            }
         } finally {
             if (connection != null) {
                 connection.disconnect();
