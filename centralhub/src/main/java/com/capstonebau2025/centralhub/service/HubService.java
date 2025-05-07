@@ -95,7 +95,9 @@ public class HubService {
         Hub hub = getHub();
         hub.setName(request.getHubName());
         hub.setStatus(Hub.Status.RUNNING);
+
         hubRepository.save(hub);
+        cloudClient.updateHubName(request.getHubName());
 
         Role adminRole = roleRepository.findByName("ADMIN");
 
