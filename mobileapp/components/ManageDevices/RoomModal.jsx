@@ -16,7 +16,9 @@ import {
   deleteDevice,
   updateDeviceArea,
 } from "../../api/services/deviceService";
+import { store } from "../../store/store";
 import { deleteRoom } from "../../api/services/areaService";
+import { useSelector } from "react-redux";
 
 export default function RoomModal({
   visible,
@@ -26,10 +28,11 @@ export default function RoomModal({
   setRoomModalVisible,
   refetchAreas,
   devices,
-  rooms
+  rooms,
 }) {
   const navigation = useNavigation();
 
+  const localToken = store.getState().user.localToken;
   const [moveDevice, setMoveDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [renameModal, setRenameModal] = useState(false);
@@ -37,11 +40,36 @@ export default function RoomModal({
   const [infoModal, setInfoModal] = useState(false);
   const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
   const [deleteRoomModal, setDeleteRoomModal] = useState(false);
+  const currentHub = useSelector((state) => state.hub.currentHub);
+  const hubSerialNumber = currentHub?.serialNumber;
 
   function handleDevicePress(device) {
     setSelectedDevice(device);
     setMoveDevice(true);
   }
+
+  const handleMoveDevice = async (targetRoomId) => {
+    if (!selectedDevice?.uid) {
+      console.warn("Device UID is undefined");
+      return;
+    }
+
+    try {
+      await updateDeviceArea(
+        selectedDevice.uid,
+        targetRoomId,
+        localToken,
+        hubSerialNumber
+      );
+      Toast.show({ type: "success", text1: "Device moved" });
+      await refetchAreas();
+    } catch (err) {
+      console.error("Failed to move device", err);
+    } finally {
+      setMoveDevice(false);
+      setSelectedDevice(null);
+    }
+  };
 
   function handleAddPress() {
     navigation.push("DiscoverDevice");
@@ -55,11 +83,7 @@ export default function RoomModal({
 
   async function handleDeleteDevice() {
     try {
-      await deleteDevice(
-        selectedDevice.id,
-        selectedTab.localToken,
-        selectedTab.serialNumber
-      );
+      await deleteDevice(selectedDevice.uid, localToken, hubSerialNumber);
       Toast.show({
         type: "success",
         text1: "Device removed",
@@ -94,10 +118,10 @@ export default function RoomModal({
       if (selectedDevice && renameText.trim()) {
         try {
           await updateDeviceName(
-            selectedDevice.id,
+            selectedDevice.uid,
             renameText,
-            selectedTab.localToken,
-            selectedTab.serialNumber
+            localToken,
+            hubSerialNumber
           );
           Toast.show({
             type: "success",
@@ -180,22 +204,7 @@ export default function RoomModal({
             rooms={rooms}
             selectedTab={selectedTab}
             selectedDevice={selectedDevice}
-            onMove={async (targetRoomId) => {
-              try {
-                await updateDeviceArea(
-                  selectedDevice.id,
-                  targetRoomId,
-                  selectedTab.localToken,
-                  selectedTab.serialNumber
-                );
-                Toast.show({ type: "success", text1: "Device moved" });
-                await refetchAreas();
-              } catch (err) {
-                console.error("Failed to move device", err);
-              } finally {
-                setMoveDevice(false);
-              }
-            }}
+            onMove={handleMoveDevice}
           />
         )}
       </View>

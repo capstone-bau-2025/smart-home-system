@@ -46,7 +46,7 @@ export const updateDeviceArea = async (deviceId, areaId, token,hubSerialNumber) 
       },
     }
   );
-
+ 
   return response.data;
 };
 
