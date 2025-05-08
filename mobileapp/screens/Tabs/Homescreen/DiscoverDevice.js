@@ -9,31 +9,34 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import React, { useState, useEffect, use } from "react";
-import DiscoverCard from "../../../components/DiscoverHub/DiscoverCard";
-import { fetchHubs } from "../../../api/services/hubService";
-import { discoverDevices } from "../../../api/services/deviceDiscoverService";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-
+import { discoverDevices } from "../../../api/services/deviceDiscoverService";
+import { discoveredDevices } from "../../../Data/discoveredDevices";
+import DeviceDiscoveredCard from "../../../components/DiscoverDevices/DeviceDiscoveredCard";
 
 export default function DiscoverDevice() {
   const currentHub = useSelector((state) => state.hub.currentHub);
-  const [hubs, setHubs] = useState([]);
-  const [loading, setLoading] = useState(false); //true
+  // const [devices, setDevices] = useState(discoveredDevices);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const res = await discoverDevices();
-        const devices = Object.values(res); 
-        console.log('DEVICES DISCOVERED:', devices); 
-      } catch (err) {
-        console.error("Failed to discover devices:", err);
-      }
-    };
-  
-    fetchDevices();
-  }, []);
+  // const fetchDevices = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const res = await discoverDevices();
+  //     setDevices(res);
+  //     console.log("DEVICES DISCOVERED:", res);
+  //   } catch (err) {
+  //     console.error("Failed to discover devices:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   setDevices(discoveredDevices);
+  // }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -44,13 +47,13 @@ export default function DiscoverDevice() {
       ) : (
         <>
           <Text style={styles.title}>Scanned Devices</Text>
-          <DiscoverCard hubs={hubs} isDevice={true}/>
-          {/* onScanPress={loadHubs}  */}
+          <DeviceDiscoveredCard data={discoveredDevices} />
         </>
       )}
+
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        onPress={""}
+        onPress={console.log('"Discovering devices...")}')}
       >
         <Text style={styles.buttonText}>Look for devices</Text>
       </Pressable>

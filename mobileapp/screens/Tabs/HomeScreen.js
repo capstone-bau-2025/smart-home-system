@@ -15,7 +15,7 @@ import { setUserHubs, setCurrentHub } from "../../store/slices/hubSlice";
 import { fetchUserDetails } from "../../api/services/userService";
 import { setUrl } from "../../store/slices/urlSlice";
 import { setAreas } from "../../store/slices/areaSlice";
-import { getDeviceByRoom } from "../../api/services/deviceService";
+import { getDeviceByArea } from "../../api/services/deviceService";
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -26,38 +26,37 @@ export default function HomeScreen() {
   const hubSerialNumber = currentHub?.serialNumber;
   const currentUrl = useSelector((state) => state.url.currentUrl);
 
-  useEffect(() => {
-    startActiveUrlMonitor((newUrl) => {
-      dispatch(setUrl(newUrl));
-      console.log("🌐 ACTIVE_URL updated to:", newUrl);
-    });
-  
-  
-    (async () => {
-      try {
-        const initialUrl = await getActiveBaseUrl();
-        dispatch(setUrl(initialUrl));
-      } catch (err) {
-        console.error("Failed to set initial active URL:", err.message);
-      }
-    })();
-  }, []);
-
-  useInitAppData(); //fetch user details and hubs on app load to set redux state
-
-
   // useEffect(() => {
-  //   if (!hubSerialNumber) return;
+  //   startActiveUrlMonitor((newUrl) => {
+  //     dispatch(setUrl(newUrl));
+  //     console.log("🌐 ACTIVE_URL updated to:", newUrl);
+  //   });
+  
   
   //   (async () => {
   //     try {
-  //       const devices = await getDeviceByRoom(1, hubSerialNumber);
-  //       console.log("Devices in room 1:", devices);
+  //       const initialUrl = await getActiveBaseUrl();
+  //       dispatch(setUrl(initialUrl));
   //     } catch (err) {
-  //       console.warn("Error fetching devices:", err?.response?.data || err.message || err);
+  //       console.error("Failed to set initial active URL:", err.message);
   //     }
   //   })();
-  // }, [hubSerialNumber]);
+  // }, []);
+
+  useInitAppData(); //fetch user details and hubs on app load to set redux state
+
+  useEffect(() => {
+    if (!hubSerialNumber) return;
+  
+    (async () => {
+      try {
+        const devices = await getDeviceByArea(1, hubSerialNumber);
+        console.log("Devices in room 1:", devices);
+      } catch (err) {
+        console.warn("Error fetching devices:", err?.response?.data || err.message || err);
+      }
+    })();
+  }, [hubSerialNumber]);
 
   const { areas } = useAreas(hubSerialNumber);
 
@@ -92,6 +91,8 @@ export default function HomeScreen() {
       setRefreshing(false);
     }
   };
+
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />

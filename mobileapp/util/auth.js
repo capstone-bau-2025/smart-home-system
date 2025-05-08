@@ -1,41 +1,33 @@
 import axios from "axios";
 import { AppState, Platform } from "react-native";
+import * as Network from 'expo-network';
 
-const LOCAL_IP = "192.168.1.62"; //change this to whaterever expo is running on 
+const LOCAL_IP = "192.168.1.62"; 
 const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
 
-export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`;
-export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`;
+export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub
+export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`; // cloud
 
 let ACTIVE_URL = null;
 let pingInterval = null;
 
-// Get current active URL (tries local first, then fallback to cloud)
+// 🔍 Determine base URL based on connection type (wifi or not)
 export async function getActiveBaseUrl() {
   try {
-    const res = await axios.get(LOCAL_URL, {
-      timeout: 1500,
-      validateStatus: (status) => status === 200 || status === 403,
-    });
-    console.log("✅ LOCAL_URL reachable");
-    return LOCAL_URL;
-  } catch (err) {
-    console.warn("❌ LOCAL_URL unreachable:", err.message);
-  }
+    const networkState = await Network.getNetworkStateAsync();
+    console.log('NETWORK STATE:', networkState);
+    const isWifi = networkState?.type === Network.NetworkStateType.WIFI;
+    console.log(networkState)
+    const selectedUrl = isWifi ? LOCAL_URL : BASE_URL;
 
-  try {
-    const res = await axios.get(BASE_URL, {
-      timeout: 1500,
-      validateStatus: (status) => status === 200 || status === 403,
-    });
-    console.log("☁️ BASE_URL reachable");
-    return BASE_URL;
-  } catch (err) {
-    console.warn("❌ BASE_URL unreachable:", err.message);
-  }
+    console.log("📡 Network type:", networkState.type);
+    console.log("🌐 ACTIVE_URL determined as:", selectedUrl);
 
-  console.error("❌ No available server. LOCAL and BASE URLs both failed.");
-  return null;
+    return selectedUrl;
+  } catch (err) {
+    console.error("❌ Failed to determine network type:", err.message);
+    return BASE_URL; 
+  }
 }
 
 export function stopActiveUrlMonitor() {
@@ -44,8 +36,7 @@ export function stopActiveUrlMonitor() {
     pingInterval = null;
   }
 }
-// Start periodic monitoring (use on app load)
-//100000
+
 export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
   const checkAndUpdateUrl = async () => {
     try {
@@ -61,8 +52,7 @@ export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
   };
 
   const handleAppStateChange = (nextAppState) => {
-    console.log("📱 App is now:", nextAppState); 
-
+    console.log("📱 App is now:", nextAppState);
     if (nextAppState === "active") {
       if (!pingInterval) {
         checkAndUpdateUrl();

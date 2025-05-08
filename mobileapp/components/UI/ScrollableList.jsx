@@ -35,7 +35,7 @@ export default function ScrollableList({
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.id.toString()} 
+      keyExtractor={(item, index) => (item?.id ?? index).toString()}
       contentContainerStyle={styles.listContainer}
       showsVerticalScrollIndicator={false}
       refreshing={refreshing}

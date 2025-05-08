@@ -5,7 +5,7 @@ import { LOCAL_URL } from "../../util/auth";
 import { store } from "../../store/store";
 
 
-export const getDeviceByRoom = async (areaId, hubSerialNumber) => {
+export const getDeviceByArea = async (areaId, hubSerialNumber) => {
   const localToken = store.getState().user.localToken;
   const response = await axios.get(`${LOCAL_URL}api/devices/by-area/${areaId}`, {
 

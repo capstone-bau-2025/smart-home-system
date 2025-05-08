@@ -12,10 +12,11 @@ export default function MainRoomList({
   refetchAreas,
   roomCount,
   deviceCount,
+  devices
 }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
-
+ 
   function clickHandler(room) {
     console.log(room);
     setSelectedRoom(room);
@@ -54,6 +55,7 @@ export default function MainRoomList({
         onRoomPress={clickHandler}
         devShown={true}
         editShown={true}
+        devices={devices}
       />
 
       <RoomModal
@@ -66,6 +68,9 @@ export default function MainRoomList({
         selectedTab={selectedTab}
         setRoomModalVisible={setModalVisible}
         refetchAreas={refetchAreas}
+        devices={devices}
+        selectedRoom={selectedRoom}
+
       />
     </>
   );

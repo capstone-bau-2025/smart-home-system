@@ -32,3 +32,29 @@ export const discoverDevices = async () => {
   }
 
 }
+
+
+export const configureDevice = async (uid, hubSerialNumber) => {
+  const localToken = store.getState().user.localToken;
+
+  try {
+    const response = await axios.post(
+      `${LOCAL_URL}/api/device-discovery/${uid}`,
+      {
+        params: { hubSerialNumber },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+          Authorization: `Bearer ${localToken}`,
+        },
+      }
+    );
+
+    console.log("Device configured:", response.data);
+    return response.data;
+
+  } catch (error) {
+    console.error("Device configuration error:", error);
+    throw error;
+  }
+};

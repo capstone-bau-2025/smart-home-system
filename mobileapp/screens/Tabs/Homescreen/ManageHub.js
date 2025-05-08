@@ -40,15 +40,15 @@ export default function ManageHub({
         const usersRes = await fetchUsers(selectedTab.serialNumber);
         const userDetails = await fetchUserDetails();
   
-        const matchedUser = usersRes.find(
-          (user) => user.email === userDetails.email
-        );
+        // const matchedUser = usersRes.find(
+        //   (user) => user.email === userDetails.email
+        // );
 
 
 
-        if (matchedUser) {
-          dispatch(setUserId(matchedUser.id));
-        }
+        // if (matchedUser) {
+        //   dispatch(setUserId(matchedUser.id));
+        // }
   
         setUsers(usersRes);
       } catch (err) {

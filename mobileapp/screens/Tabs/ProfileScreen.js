@@ -16,8 +16,8 @@ export default function ProfileScreen() {
   const userEmail = useSelector((state) => state.user.email);
   const userName = useSelector((state) => state.user.username);
   const currentHub = useSelector((state) => state.hub.currentHub);
-  console.log(currentHub)
-
+  const userId = useSelector((state) => state.user.userId);
+  const userPerms = useSelector((state) => state.user.userPerms);
   const { logout, user } = useContext(AuthContext); 
 
 
@@ -50,12 +50,22 @@ export default function ProfileScreen() {
 
         <View style={styles.infoRow}>
           <Ionicons name="cube-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{currentHub.name}</Text>
+          <Text style={styles.infoText}>{currentHub?.name || 'name'}</Text>
         </View>
 
         <View style={styles.infoRow}>
           <Ionicons name="briefcase-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{currentHub.role}</Text>
+          <Text style={styles.infoText}>{currentHub?.role || 'role'}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="id-card-outline" size={22} color="#2aa8a8" />
+          <Text style={styles.infoText}>{userId}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="checkmark-done-outline" size={22} color="#2aa8a8" />
+          <Text style={styles.infoText}>{userPerms}</Text>
         </View>
       </View>
       
