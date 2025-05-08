@@ -70,6 +70,7 @@ export default function MainRoomList({
         refetchAreas={refetchAreas}
         devices={devices}
         selectedRoom={selectedRoom}
+        rooms={areas}
 
       />
     </>

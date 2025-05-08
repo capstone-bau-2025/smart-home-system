@@ -26,16 +26,17 @@ export default function RoomModal({
   setRoomModalVisible,
   refetchAreas,
   devices,
+  rooms
 }) {
   const navigation = useNavigation();
- 
+
   const [moveDevice, setMoveDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [renameModal, setRenameModal] = useState(false);
   const [renameText, setRenameText] = useState("");
   const [infoModal, setInfoModal] = useState(false);
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
+  const [deleteRoomModal, setDeleteRoomModal] = useState(false);
 
   function handleDevicePress(device) {
     setSelectedDevice(device);
@@ -48,11 +49,11 @@ export default function RoomModal({
   }
 
   function handleRemovePress(device) {
-    setConfirmModal(true);
+    setDeleteDeviceModal(true);
     setSelectedDevice(device);
   }
 
-  async function handleConfirmDelete() {
+  async function handleDeleteDevice() {
     try {
       await deleteDevice(
         selectedDevice.id,
@@ -64,7 +65,7 @@ export default function RoomModal({
         text1: "Device removed",
       });
       await refetchAreas();
-      setConfirmModal(false);
+      setDeleteDeviceModal(false);
       setSelectedDevice(null);
     } catch (err) {
       console.error("Failed to delete device", err);
@@ -79,7 +80,7 @@ export default function RoomModal({
         topOffset: 60,
         swipeable: true,
         type: "success",
-        text1: "Room deleted",
+        text1: "Room deletion successful",
         text2: `${room.name} was deleted`,
       });
       onClose();
@@ -125,7 +126,7 @@ export default function RoomModal({
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Text style={styles.roomName}>{room?.name || ""}</Text>
             <TouchableOpacity
-              onPress={() => setDeleteConfirm(true)}
+              onPress={() => setDeleteRoomModal(true)}
               style={styles.deleteRoomBtn}
             >
               <Ionicons name="trash-outline" size={20} color="#000000" />
@@ -176,6 +177,7 @@ export default function RoomModal({
               setSelectedDevice(null);
             }}
             room={room}
+            rooms={rooms}
             selectedTab={selectedTab}
             selectedDevice={selectedDevice}
             onMove={async (targetRoomId) => {
@@ -186,10 +188,7 @@ export default function RoomModal({
                   selectedTab.localToken,
                   selectedTab.serialNumber
                 );
-                Toast.show({
-                  type: "success",
-                  text1: "Device moved",
-                });
+                Toast.show({ type: "success", text1: "Device moved" });
                 await refetchAreas();
               } catch (err) {
                 console.error("Failed to move device", err);
@@ -212,29 +211,30 @@ export default function RoomModal({
       />
 
       <ConfirmationModal
-        visible={confirmModal}
-        onClose={() => setConfirmModal(false)}
-        message={`Remove device ${selectedDevice?.name}?`}
+        visible={deleteDeviceModal}
+        onClose={() => setDeleteDeviceModal(false)}
+        message={`Are you sure you want to delete the device "${selectedDevice?.name}"?`}
         iconColor="red"
-        onConfirm={handleConfirmDelete}
+        onConfirm={handleDeleteDevice}
       />
 
       <ConfirmationModal
-        visible={deleteConfirm}
-        onClose={() => setDeleteConfirm(false)}
-        message={`Delete the room "${room.name}"?`}
+        visible={deleteRoomModal}
+        onClose={() => setDeleteRoomModal(false)}
+        message={`Are you sure you want to delete the room "${room.name}"?`}
         iconColor="red"
         onConfirm={() => handleDeleteRoom(room.id, selectedTab.serialNumber)}
       />
 
-      {/* <RenameModal
+      <RenameModal
         visible={renameModal}
         title="Rename Device"
         value={renameText}
         onChange={setRenameText}
         setVisible={setRenameModal}
         placeholder="Enter new name"
-      /> */}
+        onConfirm={() => {}}
+      />
     </Modal>
   );
 }
