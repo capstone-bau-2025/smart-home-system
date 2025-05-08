@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres_db
+    container_name: smart_home_postgres_db
     restart: always
     environment:
       POSTGRES_USER: myuser
@@ -11,8 +11,8 @@ services:
       POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
       interval: 10s
@@ -23,17 +23,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cloudserver_app
+    container_name: smart_home_cloud_server
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/mydatabase
-      SPRING_DATASOURCE_USERNAME: myuser
-      SPRING_DATASOURCE_PASSWORD: mypassword
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://smart_home_postgres_db:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=mypassword
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
     restart: always
 
-#volumes:
-#  postgres_data:
+volumes:
+  postgres_data:
+    name: smart_home_cloud_server_data
