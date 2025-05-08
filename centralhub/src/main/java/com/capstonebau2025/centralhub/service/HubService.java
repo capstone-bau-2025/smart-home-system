@@ -37,7 +37,7 @@ public class HubService {
     @PostConstruct
     @Transactional
     public Hub initializeHubIfNeeded() {
-        logger.info("Checking if Hub configuration exists");
+
         if (hubRepository.count() == 0) {
             logger.info("Creating default Hub configuration");
             Hub hub = Hub.builder()
@@ -54,11 +54,16 @@ public class HubService {
             roleRepository.save(Role.builder().name("GUEST").description("Guest user role").build());
 
             hubRepository.save(hub);
+        }
+
+        Hub hub = getHub();
+
+        if (hub.getKey() == null) {
             HubRegistrationResponse response = cloudClient.registerHub(hub);
             setHubKey(response.getKey());
-            return hub;
         }
-        return getHub();
+
+        return hub;
     }
 
     public void setHubKey(String key) {
