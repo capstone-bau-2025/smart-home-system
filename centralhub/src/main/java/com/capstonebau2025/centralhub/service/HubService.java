@@ -1,6 +1,7 @@
 package com.capstonebau2025.centralhub.service;
 
 import com.capstonebau2025.centralhub.client.CloudClient;
+import com.capstonebau2025.centralhub.dto.cloudComm.HubRegistrationResponse;
 import com.capstonebau2025.centralhub.dto.localRequests.ConfigureHubRequest;
 import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.dto.HubInfoResponse;
@@ -11,6 +12,7 @@ import com.capstonebau2025.centralhub.repository.HubRepository;
 import com.capstonebau2025.centralhub.repository.RoleRepository;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +34,10 @@ public class HubService {
             .orElseThrow(() -> new RuntimeException("Hub configurations missing."));
     }
 
+    @PostConstruct
     @Transactional
     public Hub initializeHubIfNeeded() {
+        logger.info("Checking if Hub configuration exists");
         if (hubRepository.count() == 0) {
             logger.info("Creating default Hub configuration");
             Hub hub = Hub.builder()
@@ -49,7 +53,10 @@ public class HubService {
             roleRepository.save(Role.builder().name("USER").description("Default user role").build());
             roleRepository.save(Role.builder().name("GUEST").description("Guest user role").build());
 
-            return hubRepository.save(hub);
+            hubRepository.save(hub);
+            HubRegistrationResponse response = cloudClient.registerHub(hub);
+            setHubKey(response.getKey());
+            return hub;
         }
         return getHub();
     }
