@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   Modal,
   View,
@@ -8,89 +8,156 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import Toast from "react-native-toast-message"; 
+import Toast from "react-native-toast-message";
+import { useSelector, useDispatch } from "react-redux";
+import { updateUserPermissions, userPermsissions } from "../../api/services/userService";
+import { setPermissions } from "../../store/slices/userSlice";
 
-//opens a modal that makes it possible to change the permissions of a user
-export default function PermsModal({ visible, onClose, userId, users, updatePermissions }) {
+export default function PermsModal({
+  visible,
+  onClose,
+  userId,
+  users,
+  hubSerialNumber,
+  userName,
+}) {
+  const dispatch = useDispatch();
+
   const selectedUser = users.find((user) => user.id === userId);
+
+  const rooms = useSelector((state) => state.area.areas);
+  const currentHub = useSelector((state) => state.hub.currentHub);
+  const currentUserRole = currentHub?.role;
   const [userPerms, setUserPerms] = useState({});
+  const isAdmin = selectedUser?.role === "ADMIN";
+  const isNotAdmin = currentUserRole !== "ADMIN";
+  const isLocked = isAdmin || isNotAdmin;
 
-  useEffect(() => {
-    if (selectedUser) {
-      setUserPerms(selectedUser.perms || {});
-    }
-  }, [selectedUser]);
-
-  const togglePermission = (room) => {
+  const togglePermission = (roomId) => {
+    const id = String(roomId);
     setUserPerms((prev) => ({
       ...prev,
-      [room]: !prev[room],
+      [id]: !prev[id],
     }));
   };
 
-  const handleSave = () => {
-    updatePermissions(userId, userPerms);
+  const handleSave = async () => {
+    try {
+      const allowedRoomIds = Object.entries(userPerms)
+      .filter(([_, allowed]) => allowed)
+      .map(([roomId]) => parseInt(roomId));
 
-    Toast.show({
-      type: "success",
-      text1: "Permissions Updated",
-      text2: `${selectedUser?.name}'s permissions have been saved.`,
-      position: "top",
-      visibilityTime: 4000,
-      autoHide: true,
-      topOffset: 60,
-    });
+    
+    await updateUserPermissions(userId, allowedRoomIds, hubSerialNumber);
 
-    onClose();
+
+      Toast.show({
+        type: "success",
+        text1: "Permissions Updated",
+        text2: `Permissions have been updated.`,
+        position: "top",
+        autoHide: true,
+        topOffset: 60,
+      });
+
+      onClose();
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to update permissions",
+        text2: err.message || "Unknown error",
+        position: "top",
+      });
+    }
   };
 
-  return (
-    <>
-      <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
-        <TouchableWithoutFeedback onPress={onClose}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.title}>{selectedUser?.name}'s Permissions</Text>
-
-                <ScrollView style={styles.scrollContainer}>
-                  {selectedUser?.perms ? (
-                    Object.entries(userPerms).map(([room, access]) => (
-                      <View key={room} style={styles.permItem}>
-                        <Text style={styles.roomText}>{room}</Text>
-                        <TouchableOpacity
-                          style={[styles.toggleButton, access ? styles.allowed : styles.denied]}
-                          onPress={() => togglePermission(room)}
-                        >
-                          <Text style={styles.toggleButtonText}>
-                            {access ? "✅ Allowed" : "❌ Denied"}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    ))
-                  ) : (
-                    <Text style={styles.noPerms}>No permissions found.</Text>
-                  )}
-                </ScrollView>
-
-                <View style={styles.buttonRow}>
-                  <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                    <Text style={styles.closeButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-
+  useEffect(() => {
+    const initPerms = async () => {
+      if (!userId || !hubSerialNumber || rooms.length === 0) return;
   
+      try {
+        const res = await userPermsissions(userId, hubSerialNumber);
+        const allowedRoomIds = res || [];
 
-    </>
+        const initialPerms = {};
+        rooms.forEach((room) => {
+          initialPerms[String(room.id)] = allowedRoomIds.includes(room.id);
+        });
+  
+        setUserPerms(initialPerms);
+      } catch (err) {
+        console.error("Error fetching permissions:", err);
+      }
+    };
+  
+    if (visible) {
+      initPerms();
+    }
+  }, [userId, hubSerialNumber, rooms, visible]);
+
+  return (
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.title}>{userName?.split("@")[0]}'s Permissions</Text>
+
+              {isLocked && (
+                <Text style={styles.lockedText}>You can't edit these permissions.</Text>
+              )}
+
+              <ScrollView style={styles.scrollContainer}>
+                {rooms.map((room) => {
+                  const access = userPerms[String(room.id)] ?? false;
+
+                  return (
+                    <View key={room.id} style={styles.permItem}>
+                      <Text style={styles.roomText}>{room.name}</Text>
+                      <TouchableOpacity
+                        disabled={isLocked}
+                        style={[
+                          styles.toggleButton,
+                          isLocked
+                            ? styles.disabled
+                            : access
+                            ? styles.allowed
+                            : styles.denied,
+                        ]}
+                        onPress={() => togglePermission(room.id)}
+                      >
+                        <Text style={styles.toggleButtonText}>
+                          {isLocked
+                            ? "🔒 Locked"
+                            : access
+                            ? "✅ Allowed"
+                            : "❌ Denied"}
+                        </Text>
+                        
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+
+              <View style={styles.buttonRow}>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Text style={styles.closeButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleSave}
+                  style={styles.saveButton}
+                  disabled={isLocked}
+                >
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
   );
 }
 
@@ -113,8 +180,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 10,
     color: "#333",
+  },
+  lockedText: {
+    color: "#888",
+    fontSize: 14,
+    marginBottom: 10,
   },
   scrollContainer: {
     width: "100%",
@@ -123,13 +195,14 @@ const styles = StyleSheet.create({
   permItem: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   roomText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
   },
@@ -144,16 +217,13 @@ const styles = StyleSheet.create({
   denied: {
     backgroundColor: "#FF3B30",
   },
+  disabled: {
+    backgroundColor: "#ccc",
+  },
   toggleButtonText: {
     color: "white",
     fontSize: 14,
     fontWeight: "bold",
-  },
-  noPerms: {
-    fontSize: 16,
-    color: "#888",
-    textAlign: "center",
-    marginTop: 20,
   },
   buttonRow: {
     flexDirection: "row",

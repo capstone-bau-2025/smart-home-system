@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   },
   highlightedText: {
     fontFamily: "Lexend-Bold",
-    color: "#2aa8a8",
+    color: "#ff9831",
   },
   buttonsContainer: {
     flexDirection: "row",

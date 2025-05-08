@@ -23,7 +23,7 @@ export default function AutomationScreen({ currentHub, navigation }) {
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <StatusBar/>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
         <View style={styles.header}>
           <HeaderIcons onInfoPress={() => setInfoModal(true)} onAddPress={() => navigation.push('NewAutomation')}/>
         </View>
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
-    paddingTop: Platform.OS === "android" ? 30 : 0,
+    paddingTop: Platform.OS === "android" ? 50 : 0,
 
   },
 });

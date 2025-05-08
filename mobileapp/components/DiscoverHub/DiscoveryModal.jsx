@@ -7,13 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import {
   setAdminInvitationCode,
   addUserHub,
-  setCurrentHub
+  setCurrentHub,
 } from "../../store/slices/hubSlice";
 import { setUserRole } from "../../store/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Toast from "react-native-toast-message";
 import { registerWithInvitation } from "../../api/services/invRegisterService";
-
 
 //modal that opens when hub card is pressed
 export default function DiscoveryModal({
@@ -21,20 +20,19 @@ export default function DiscoveryModal({
   onClose,
   title,
   selectedHub,
-  isConfigured
+  isConfigured,
 }) {
   const [value, setValue] = useState("");
   const dispatch = useDispatch();
   const hubState = useSelector((state) => state.hub);
   const user = useSelector((state) => state.user);
 
-
   const handleConnectHub = async () => {
     if (!value.trim()) {
       console.log("Invitation code is required.");
       return;
     }
-  
+
     try {
       const result = await registerWithInvitation({
         invitation: value,
@@ -42,12 +40,12 @@ export default function DiscoveryModal({
         cloudToken: user.cloudToken,
         hubSerialNumber: selectedHub.serialNumber,
       });
-  
+
       if (!result) {
         console.log("Invalid or missing result from backend");
         return;
       }
-  
+
       Toast.show({
         topOffset: 60,
         swipeable: true,
@@ -55,22 +53,21 @@ export default function DiscoveryModal({
         text1: `Connected successfully`,
         text2: `You are now connected to ${selectedHub.name}`,
       });
-  
+
       const joinedHub = {
         serialNumber: selectedHub.serialNumber,
-        hubName: selectedHub.name, 
+        hubName: selectedHub.name,
         hubDetails: {
           status: selectedHub.status,
           location: selectedHub.location,
           name: selectedHub.name,
         },
       };
-  
+
       dispatch(addUserHub(joinedHub));
       dispatch(setCurrentHub(joinedHub));
-  
+
       onClose();
-  
     } catch (error) {
       console.log("Failed to join hub:", error);
     }
@@ -86,10 +83,10 @@ export default function DiscoveryModal({
           return;
         }
         console.log("Hub configured successfully:", result);
-        
+
         dispatch(setUserRole(result.role));
         dispatch(setAdminInvitationCode(result.code));
-        
+
         const newHub = {
           serialNumber: selectedHub.serialNumber,
           hubName: value,
@@ -100,42 +97,32 @@ export default function DiscoveryModal({
             // discovered: selectedHub.discovered,
           },
         };
-        
+
         dispatch(addUserHub(newHub));
-        dispatch(setCurrentHub({
-          serialNumber: newHub.serialNumber,
-          hubName: newHub.hubName,
-          hubDetails: newHub.hubDetails,
-        }));
-        
-        
+        dispatch(
+          setCurrentHub({
+            serialNumber: newHub.serialNumber,
+            hubName: newHub.hubName,
+            hubDetails: newHub.hubDetails,
+          })
+        );
+
         await registerWithInvitation({
           invitation: result.code,
           email: user.email,
           cloudToken: user.cloudToken,
           hubSerialNumber: selectedHub.serialNumber,
         });
-        
+
         Toast.show({
           topOffset: 60,
           swipeable: true,
           type: "success",
           text1: `${value} configured successfully`,
           text2: `You are now the admin of this hub`,
-          text1Style: {
-            fontFamily: "Lexend-Bold",
-            fontSize: 16,
-            color: "black",
-          },
-          text2Style: {
-            fontFamily: "Lexend-Regular",
-            fontSize: 14,
-            color: "#a8a8a8",
-          },
         });
-        
+
         onClose();
-        
       } catch (error) {
         console.log("Failed to configure hub:", error);
       }
@@ -143,7 +130,6 @@ export default function DiscoveryModal({
       console.log("Hub name is required");
     }
   };
-  
 
   return (
     <FullScreenModal visible={visible} onClose={onClose} title={title}>
@@ -195,13 +181,21 @@ export default function DiscoveryModal({
             <View style={styles.input}>
               <EditInput
                 placeholder={"enter name"}
-                title={"Enter hub name"}
+                title={"Enter hub name (required)"}
                 setChange={setValue}
                 value={value}
-                confirmButton={true} 
-                onConfirm={handleConfigureHub}
+                // confirmButton={true}
+                // onConfirm={handleConfigureHub}
               />
-
+              <Pressable
+                style={({ pressed }) => [
+                  styles.button,
+                  pressed && styles.pressed,
+                ]}
+                onPress={handleConfigureHub}
+              >
+                <Text style={styles.text}>confirm</Text>
+              </Pressable>
             </View>
           </View>
         </>

@@ -14,10 +14,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
-import { BaseToast } from "react-native-toast-message";
 import ConfigureAutomation from "./screens/Tabs/AutomationScreen/ConfigureAutomation"
 import Trigger from "./screens/Tabs/AutomationScreen/Trigger";
 import StatusChange from "./screens/Tabs/AutomationScreen/StatusChange";
@@ -28,10 +27,11 @@ import NewAutomation from "./screens/Tabs/AutomationScreen/NewAutomation";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
+import { toastConfig } from "./constants/ToastConfig";
 import { store } from "./store/store";
 import { useSelector } from "react-redux";
-
-
+import { startActiveUrlMonitor } from "./util/auth";
+import useInitAppData from "./hooks/useInitAppData";
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
@@ -46,7 +46,7 @@ export default function App() {
           <RootApp />
         </AuthContextProvider>
 </Provider>
-      <Toast/>
+      <Toast  config={toastConfig}/>
     </SafeAreaProvider>
   );
 }
@@ -54,13 +54,22 @@ export default function App() {
 function RootApp() {
   const { isLoading, userToken } = useContext(AuthContext);
   const [currentHub, setCurrentHub] = useState("Hub1");
+  const [baseUrl, setBaseUrl] = useState(null);
 
+  // useEffect(() => {
+  //   startActiveUrlMonitor();
+  // }, []);
   const [fontsLoaded] = useFonts({
     "Lexend-Bold": require("./assets/fonts/Lexend-Bold.ttf"),
     "Lexend-Regular": require("./assets/fonts/Lexend-Regular.ttf"),
     "Urbanist-Thin": require("./assets/fonts/Urbanist-Thin.ttf"),
     "Urbanist-Regular": require("./assets/fonts/Urbanist-Regular.ttf"),
   });
+
+
+  
+
+
 
   if (isLoading || !fontsLoaded) {
     return (
@@ -241,9 +250,7 @@ function HomeStackNavigator({ currentHub, setCurrentHub }) {
               <HeaderIcons
                 onInfoPress={() => setInfoModal(true)}
                 onAddPress={() => setAddModal(true)}
-                onCogPress={() =>
-                  console.log("Cog pressed, rename hub and delete")
-                }
+                cogHidden={true}
                 custompadding={true}
               />
             </View>
@@ -324,6 +331,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerIcons: {
-    marginTop: 5,
+
   },
 });

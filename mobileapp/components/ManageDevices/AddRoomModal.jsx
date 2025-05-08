@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { addRoom } from '../../api/services/areaService';
 import DissmissKeyboard from '../../components/utils/DismissKeyboard'
-
+import { iconOptions } from '../../util/helperFunctions';
+import Toast from 'react-native-toast-message';
 // A modal that allows the user to add a room to the hub, it takes in a name and an icon
 export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) {
   const [roomName, setRoomName] = useState('');
@@ -14,49 +15,28 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
   const [showRoomNameError, setShowRoomNameError] = useState(false);
   const [showIconError, setShowIconError] = useState(false);
 
-  const iconOptions = [
-
-      // 'sofa-outline',           
-      // 'bed-outline',            
-      // 'table-chair',            
-      // 'toilet',                
-      // 'shower-head',           
-      // 'wardrobe-outline',      
-      // 'ceiling-light-outline',
-      // 'desk-lamp',              
-      // 'television-outline',     
-      // 'fridge-outline',  
-   
-      'home-outline',
-      'bed-outline',
-      'tv-outline',
-      'water-outline',
-      'restaurant-outline',
-      'desktop-outline',
-      'cafe-outline',
-      'car-outline',
-      'leaf-outline',
-      'game-controller-outline',
-  ];
-
-  const renderIcon = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.iconBox,
-        selectedIcon === item && styles.selectedIconBox,
-      ]}
-      onPress={() => {
-        setSelectedIcon(item);
-        setShowIconError(false); 
-      }}
-    >
-      <Ionicons 
-        name={item}
-        size={30}
-        color={selectedIcon === item ? '#fff' : '#444'}
-      />
-    </TouchableOpacity>
-  );
+  const renderIcon = ({ item }) => {
+    const [iconNumber, iconName] = item;
+  
+    return (
+      <TouchableOpacity
+        style={[
+          styles.iconBox,
+          selectedIcon === iconNumber && styles.selectedIconBox,
+        ]}
+        onPress={() => {
+          setSelectedIcon(iconNumber);
+          setShowIconError(false);
+        }}
+      >
+        <Ionicons 
+          name={iconName}
+          size={30}
+          color={selectedIcon === iconNumber ? '#fff' : '#444'}
+        />
+      </TouchableOpacity>
+    );
+  };
 
   async function handleSave() {
     let hasError = false;
@@ -66,16 +46,16 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
       hasError = true;
     }
   
-    // Uncomment if icon is required
-    // if (!selectedIcon) {
-    //   setShowIconError(true);
-    //   hasError = true;
-    // }
+  
+    if (!selectedIcon) {
+      setShowIconError(true);
+      hasError = true;
+    }
   
     if (hasError) return;
   
     try {
-      const result = await addRoom(roomName, '123456789');
+      const result = await addRoom(roomName, selectedIcon, '123456789');
       console.log('Room added:', result);
       await refetchAreas(); 
       setRoomName('');
@@ -83,6 +63,13 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
       setShowRoomNameError(false);
       setShowIconError(false);
       onClose();
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "success",
+        text1: "Room added successfully",
+        text2: `${roomName} has been added`,
+      });
     } catch (error) {
       console.log('Error while adding room:', error.response?.data || error.message);
     }
@@ -112,7 +99,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
             )}
             
             <FlatList
-              data={iconOptions}
+              data={Object.entries(iconOptions)}
               renderItem={renderIcon}
               keyExtractor={(item) => item}
               numColumns={5}

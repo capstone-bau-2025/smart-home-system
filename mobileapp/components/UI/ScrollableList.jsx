@@ -21,17 +21,25 @@ export default function ScrollableList({
   handlePress,
   toggleSwitch,
   pressableTab,
+  refreshing,
+  onRefresh
 }) {
   if (!data || data.length === 0) {
-    return <Text style={styles.emptyText}>No data found</Text>;
+    return( 
+    <View  style={styles.listContainer}>
+      <Text style={styles.emptyText}>No data found</Text>
+    </View>
+    )
   }
 
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item, index) => (item?.id ?? index).toString()}
       contentContainerStyle={styles.listContainer}
       showsVerticalScrollIndicator={false}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       renderItem={({ item }) => {
         const isEnabled = item.status === "Active";
 
@@ -90,18 +98,19 @@ export default function ScrollableList({
           </>
         ) : (
           <View style={styles.itemContainer}>
-            <View style={styles.textContainer}>
+            <View key={item.id} style={styles.textContainer}>
               <Text
                 style={styles.itemText}
                 numberOfLines={5}
                 ellipsizeMode="tail"
               >
-                {textFields.map((field, index) => (
-                  <Text key={index}>
-                    {item[field]}
-                    {index < textFields.length - 1 ? " - " : ""}
-                  </Text>
-                ))}
+                {textFields
+                  .map((field) =>
+                    field === "username"
+                      ? item[field]?.split("@")[0]
+                      : item[field]?.toLowerCase()
+                  )
+                  .join(" - ")}
               </Text>
             </View>
 

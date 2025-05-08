@@ -14,11 +14,12 @@ export default function ProfileScreen() {
   const dispatch = useDispatch();
   const userRole = useSelector((state) => state.user.userRole);
   const userEmail = useSelector((state) => state.user.email);
-  const hubId = useSelector((state) => state.hub.hubId);
-  const hubName = useSelector((state) => state.hub.hubName);
-
-
+  const userName = useSelector((state) => state.user.username);
+  const currentHub = useSelector((state) => state.hub.currentHub);
+  const userId = useSelector((state) => state.user.userId);
+  const userPerms = useSelector((state) => state.user.userPerms);
   const { logout, user } = useContext(AuthContext); 
+
 
   return (
     <View style={styles.container}>
@@ -43,10 +44,31 @@ export default function ProfileScreen() {
         </View> */}
 
         <View style={styles.infoRow}>
+          <Ionicons name="person-outline" size={22} color="#2aa8a8" />
+          <Text style={styles.infoText}>{userName}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="cube-outline" size={22} color="#2aa8a8" />
+          <Text style={styles.infoText}>{currentHub?.name || 'name'}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
           <Ionicons name="briefcase-outline" size={22} color="#2aa8a8" />
-          <Text style={styles.infoText}>{userRole}</Text>
+          <Text style={styles.infoText}>{currentHub?.role || 'role'}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="id-card-outline" size={22} color="#2aa8a8" />
+          <Text style={styles.infoText}>{userId}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="checkmark-done-outline" size={22} color="#2aa8a8" />
+          <Text style={styles.infoText}>{userPerms}</Text>
         </View>
       </View>
+      
 
       {/* Logout Button */}
       <OvalButton text="Logout" color="black" onPress={logout} />
