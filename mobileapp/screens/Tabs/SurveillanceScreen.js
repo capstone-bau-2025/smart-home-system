@@ -26,7 +26,7 @@ export default function SurveillanceScreen() {
 
   const [streamModalVisible, setStreamModalVisible] = useState(false);
   const userHubs = useSelector((state) => state.hub.userHubs);
-  const [selectedTab, setSelectedTab] = useState(userHubs[0]);
+  const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
   const [cameras, setCameras] = useState([
     {
       id: 1,
@@ -40,7 +40,6 @@ export default function SurveillanceScreen() {
       description: "Front door security camera",
       type: "CAMERA",
     },
-  
   ]);
   const [loading, setLoading] = useState(true);
   const [selectedCamera, setSelectedCamera] = useState(null);
