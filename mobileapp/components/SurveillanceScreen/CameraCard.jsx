@@ -1,19 +1,17 @@
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Dimensions } from 'react-native';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
 
-export default function CameraCard({ camera, onPress, }) {
 
 
+export default function CameraCard({ camera, onPress }) {
   return (
     <Pressable style={styles.card} onPress={() => onPress(camera)}>
-      {/* Icon/Preview */}
       <View style={styles.preview}>
-        <Ionicons name="camera-outline" size={36} color="#bbb" />
+        <Ionicons name="videocam-outline" size={90} color="#bbb" />
       </View>
 
-      {/* Info Row */}
       <View style={styles.infoRow}>
         <View>
           <Text style={styles.name}>{camera.name}</Text>
@@ -31,7 +29,6 @@ export default function CameraCard({ camera, onPress, }) {
         </View>
         <Ionicons name="chevron-forward-outline" size={16} color="#aaa" />
       </View>
-      
     </Pressable>
   );
 }
@@ -40,10 +37,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#ffc2597f',
     borderRadius: 8,
-    marginBottom: 12,
+    margin: 10,
+    width:170,
     overflow: 'hidden',
-    width: '100%',
-    marginTop:20,
   },
   preview: {
     height: 120,
@@ -80,4 +76,3 @@ const styles = StyleSheet.create({
     color: '#dc3545',
   },
 });
- 

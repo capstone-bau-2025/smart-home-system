@@ -4,6 +4,7 @@ import {
   View,
   Platform,
   ScrollView,
+  FlatList,
 } from "react-native";
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -19,10 +20,13 @@ import CameraCard from "../../components/SurveillanceScreen/CameraCard";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getAllCameras } from "../../api/services/surveillanceService";
+
 export default function SurveillanceScreen() {
   const [infoModal, setInfoModal] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(hubs[0]);
+
   const [streamModalVisible, setStreamModalVisible] = useState(false);
+  const userHubs = useSelector((state) => state.hub.userHubs);
+  const [selectedTab, setSelectedTab] = useState(userHubs[0]);
   const [cameras, setCameras] = useState([
     {
       id: 1,
@@ -36,6 +40,7 @@ export default function SurveillanceScreen() {
       description: "Front door security camera",
       type: "CAMERA",
     },
+  
   ]);
   const [loading, setLoading] = useState(true);
   const [selectedCamera, setSelectedCamera] = useState(null);
@@ -68,7 +73,7 @@ export default function SurveillanceScreen() {
 
       <View style={styles.bgCamera1}>
         <Ionicons
-          name="camera-outline"
+          name="videocam-outline"
           size={150}
           color="rgba(255,123,0,0.08)"
           style={{ transform: [{ rotate: "-15deg" }] }}
@@ -77,7 +82,7 @@ export default function SurveillanceScreen() {
 
       <View style={styles.bgCamera2}>
         <Ionicons
-          name="camera-outline"
+          name="videocam-outline"
           size={120}
           color="rgba(255,123,0,0.06)"
           style={{ transform: [{ rotate: "20deg" }] }}
@@ -97,7 +102,7 @@ export default function SurveillanceScreen() {
           name="camera-outline"
           size={150}
           color="rgba(255,13,0,0.07)"
-          style={{ transform: [{ rotate: "25deg" }] }}
+          style={{ transform: [{ rotate: "-20deg" }] }}
         />
       </View>
 
@@ -118,19 +123,27 @@ export default function SurveillanceScreen() {
       <View style={styles.cardSection}>
         <View style={styles.tabs}>
           <HubsTabs
-            hubs={hubs}
+            hubs={userHubs}
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
           />
         </View>
 
-        <ScrollView
+        <FlatList
+          data={cameras}
           contentContainerStyle={styles.scrollArea}
-        >
-          {cameras.map((camera) => (
-            <CameraCard camera={camera} onPress={handleCameraPress} key={camera.uid}/>
-          ))}
-        </ScrollView>
+          numColumns={2}
+          renderItem={({ item: camera }) => (
+            <CameraCard
+              camera={camera}
+              onPress={handleCameraPress}
+              key={camera.uid}
+            />
+          )}
+          keyExtractor={(item) => item.uid.toString()}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        />
       </View>
 
       <StreamModal
@@ -154,8 +167,6 @@ export default function SurveillanceScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "flex-start",
-    alignItems: "center",
     flex: 1,
     backgroundColor: Colors.primaryBackground,
   },
@@ -178,7 +189,7 @@ const styles = StyleSheet.create({
   bgCamera2: {
     position: "absolute",
     bottom: 180,
-    right: -40,
+    right: 10,
   },
   bgCamera3: {
     position: "absolute",
@@ -188,17 +199,13 @@ const styles = StyleSheet.create({
   bgCircle: {
     position: "absolute",
     top: 300,
-    right: -60,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: "rgba(255, 173, 59, 0.07)",
+    right: -40,
+
     alignItems: "center",
     justifyContent: "center",
   },
   cardSection: {
     flex: 1,
-    justifyContent: "flex-start",
   },
   scrollArea: {
     paddingTop: 10,
@@ -210,5 +217,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 20,
     marginBottom: 10,
+
+    alignItems: "center",
   },
 });

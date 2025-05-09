@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryBackground,
     paddingTop: Platform.OS === "android" ? 15 : 60,
     alignItems: "center",
-    
+
     
   },
   header: {

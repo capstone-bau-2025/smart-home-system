@@ -15,7 +15,7 @@ export default function CamerasBg() {
         <Ionicons name="camera-outline" size={130} color="rgba(100,210,255,0.05)" />
       </View>
       <View style={styles.bgCamera4}>
-        <Ionicons name="camera-outline" size={100} color="rgba(90,90,90,0.04)" />
+        <Ionicons name="viedocam-outline" size={100} color="rgba(90,90,90,0.04)" />
       </View>
     </>
   );
