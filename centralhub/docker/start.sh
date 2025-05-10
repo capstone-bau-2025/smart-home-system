@@ -21,7 +21,7 @@ sed -i 's|/etc/mosquitto/dynamic-security.json|/app/data/mosquitto/dynamic-secur
 
 # Start Mosquitto in background with logs to file
 echo "Starting Mosquitto broker..."
-/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf > /app/logs/mosquitto.log 2>&1 &
+/usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf &
 MOSQUITTO_PID=$!
 
 # Wait a moment for Mosquitto to start
