@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   centralhub:
     build:
@@ -12,7 +10,7 @@ services:
       - "9001:9001"  # WebSockets port
     environment:
       - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/dev-h2-db
-      - CLOUD_SERVER_URL=http://172.17.0.1:8082
+      - CLOUD_SERVER_URL=http://172.17.0.1:8082 # Replace with your actual cloud server URL
     volumes:
       - central_hub_data:/app/data
     restart: unless-stopped

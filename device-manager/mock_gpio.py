@@ -45,3 +45,9 @@ def OUT():
 
 def BCM():
     return None
+
+def HIGH():
+    return None
+
+def LOW():
+    return None

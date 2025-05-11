@@ -41,6 +41,8 @@ public class AutomationAction {
     @ManyToOne
     @JoinColumn(name = "states_value_id")
     private StateValue stateValue;
+
+    @Column(name = "action_value")
     private String value;
 
     public enum ActionType {
