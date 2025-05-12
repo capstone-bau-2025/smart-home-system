@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerIcons: {
-
+    marginTop:7,
+    paddingVertical:10
   },
 });

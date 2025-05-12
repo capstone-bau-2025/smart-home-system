@@ -38,7 +38,7 @@ export default function AutomationsList({
     });
   };
 
-  const autoData = autoState.filter((item) => item.hubId === currentHub);
+  // const autoData = autoState.filter((item) => item.hubId === currentHub);
 
   return (
     <>
@@ -47,7 +47,7 @@ export default function AutomationsList({
       </View>
 
       <ScrollableList
-        data={autoData}
+        data={autoState}
         toggle={true}
         toggleSwitch={handleToggleAutomation}
         handlePress={handlePress}

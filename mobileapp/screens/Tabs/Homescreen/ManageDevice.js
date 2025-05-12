@@ -25,9 +25,11 @@ export default function ManageDevice({
 }) {
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
-  const [selectedTab, setSelectedTab] = useState(userHubs[0]);
+  const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
   const devices = useSelector((state) => state.devices.devices);
-  const { areas, isLoading, refetchAreas } = useAreas(selectedTab?.serialNumber);
+  const { areas, isLoading, refetchAreas } = useAreas(
+    selectedTab?.serialNumber
+  );
 
   const [allDevices, setAllDevices] = useState(devices);
 
@@ -73,7 +75,7 @@ export default function ManageDevice({
         refetchAreas={refetchAreas}
         roomCount={roomCount}
         deviceCount={deviceCount}
-        devices={allDevices} 
+        devices={allDevices}
       />
 
       <InfoModal
@@ -91,7 +93,7 @@ export default function ManageDevice({
       <AddRoomModal
         visible={addModal}
         onClose={() => setAddModal(false)}
-        title={`Add a room in ${selectedTab.name}`}
+        title={`Add a room in ${selectedTab?.name || "Unknown"}`}
         refetchAreas={refetchAreas}
       />
     </SafeAreaView>

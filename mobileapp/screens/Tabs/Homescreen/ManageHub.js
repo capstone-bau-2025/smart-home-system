@@ -31,7 +31,7 @@ export default function ManageHub({
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
   const [users, setUsers] = useState([]);
-  const [selectedTab, setSelectedTab] = useState(userHubs[0]);
+  const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
   useEffect(() => {
     const fetchUsersAsync = async () => {
       if (!selectedTab?.serialNumber) return;

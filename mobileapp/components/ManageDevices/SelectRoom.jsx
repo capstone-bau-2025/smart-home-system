@@ -18,11 +18,15 @@ export default function SelectRoom({
   selectedTab,
   selectedDevice,
   onMove,
+  selectTargetRoom,
+  setSelectTargetRoom,
 }) {
   const [confirm, setConfirm] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
 
+  
   function pressHandler(newRoom) {
+      console.log("Pressed Room:", newRoom);
     setSelectedRoom(newRoom);
     setConfirm(true);
   }

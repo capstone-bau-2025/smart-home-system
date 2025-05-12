@@ -63,10 +63,10 @@ export default function ProfileScreen() {
           <Text style={styles.infoText}>{userId}</Text>
         </View>
 
-        <View style={styles.infoRow}>
+        {/* <View style={styles.infoRow}>
           <Ionicons name="checkmark-done-outline" size={22} color="#2aa8a8" />
           <Text style={styles.infoText}>{userPerms}</Text>
-        </View>
+        </View> */}
       </View>
       
 
