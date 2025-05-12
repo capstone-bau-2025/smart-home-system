@@ -2,7 +2,7 @@ import axios from "axios";
 import { AppState, Platform } from "react-native";
 import * as Network from 'expo-network';
 
-const LOCAL_IP = "192.168.1.62"; 
+const LOCAL_IP = "192.168.1.36"; 
 const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
 
 export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub
