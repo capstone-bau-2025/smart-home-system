@@ -29,8 +29,6 @@ public class WebsocketClient {
     private static final Logger logger = LoggerFactory.getLogger(WebsocketClient.class);
     private static final int RECONNECT_DELAY_SECONDS = 5;
 
-    private final String hubSerialNumber;
-    private final String token;
     private StompSession session;
     private final WebSocketCommandHandler commandHandler;
 
@@ -42,11 +40,10 @@ public class WebsocketClient {
     @Value("${cloud.server.url}")
     private String serverUrl;
 
-    public WebsocketClient(CloudClient cloudClient, HubService hubService, WebSocketCommandHandler commandHandler) {
-        Hub hub = hubService.getHub();
+    @Value("${serial-number}")
+    private String serialNumber;
 
-        this.hubSerialNumber = hub.getSerialNumber();
-        this.token = cloudClient.getHubToken(hub);
+    public WebsocketClient(WebSocketCommandHandler commandHandler) {
         this.commandHandler = commandHandler;
 
         // Initialize WebSocket client
@@ -68,7 +65,7 @@ public class WebsocketClient {
         reconnecting.set(true);
 
         // Add token to URL for authentication ws://localhost:8082/hub-socket
-        String connectionUrl = serverUrl.replaceFirst("^http", "ws") + "/hub-socket?token=" + token;
+        String connectionUrl = serverUrl.replaceFirst("^http", "ws") + "/hub-socket?token=" + CloudAuthClient.hubToken;
         logger.info("Connecting with URL: {}", connectionUrl);
 
         try {
@@ -108,7 +105,7 @@ public class WebsocketClient {
             commandHandler.setStompSession(session);
 
             // Subscribe to hub-specific topic
-            session.subscribe("/topic/messages/" + hubSerialNumber, new StompFrameHandler() {
+            session.subscribe("/topic/messages/" + serialNumber, new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
                     return Message.class;
@@ -122,7 +119,7 @@ public class WebsocketClient {
             });
 
             // Subscribe to hub-specific command topic
-            session.subscribe("/topic/commands/" + hubSerialNumber, new StompFrameHandler() {
+            session.subscribe("/topic/commands/" + serialNumber, new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
                     return RemoteCommandMessage.class;
@@ -134,14 +131,14 @@ public class WebsocketClient {
                     logger.info("Received command from Cloud: {}", message);
 
                     // Forward the message to our command handler
-                    commandHandler.processCommand(hubSerialNumber, message);
+                    commandHandler.processCommand(serialNumber, message);
                 }
             });
 
-            logger.info("Subscribed to /topic/commands/{}", hubSerialNumber);
+            logger.info("Subscribed to /topic/commands/{}", serialNumber);
 
             // Send a test message
-            session.send("/app/message", new Message("Hello from " + hubSerialNumber, hubSerialNumber));
+            session.send("/app/message", new Message("Hello from " + serialNumber, serialNumber));
         }
 
         @Override

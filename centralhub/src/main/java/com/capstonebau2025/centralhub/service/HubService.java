@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service;
 
+import com.capstonebau2025.centralhub.client.CloudAuthClient;
 import com.capstonebau2025.centralhub.client.CloudClient;
 import com.capstonebau2025.centralhub.dto.cloudComm.HubRegistrationResponse;
 import com.capstonebau2025.centralhub.dto.localRequests.ConfigureHubRequest;
@@ -55,15 +56,7 @@ public class HubService {
 
             hubRepository.save(hub);
         }
-
-        Hub hub = getHub();
-
-        if (hub.getKey() == null) {
-            HubRegistrationResponse response = cloudClient.registerHub(hub);
-            setHubKey(response.getKey());
-        }
-
-        return hub;
+        return getHub();
     }
 
     public void setHubKey(String key) {

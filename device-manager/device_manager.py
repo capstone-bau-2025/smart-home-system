@@ -1,8 +1,6 @@
 # device_manager.py
 import logging
 import threading
-import importlib
-import inspect
 
 class DeviceManager:
     def __init__(self, broker="localhost", port=1883):
@@ -24,6 +22,7 @@ class DeviceManager:
         try:
             device_config = device_module.get_device_config()
             device = device_module.DeviceImp(device_config, self.broker, self.port)
+            device_model = device_config["model"]
 
             # Add camera-specific handlers if needed
             if device_config["type"] == "CAMERA":
@@ -32,7 +31,7 @@ class DeviceManager:
 
             # Add device to manager's list
             self.devices.append(device)
-            self.logger.info(f"Added device {device.device_uid} of model {device_config["model"]}")
+            self.logger.info(f"Added device {device.device_uid} of model {device_model}")
             return device
 
         except Exception as e:
