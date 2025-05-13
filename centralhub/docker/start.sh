@@ -2,10 +2,8 @@
 
 # Create data and logs directories
 mkdir -p /app/data/mosquitto
-mkdir -p /app/logs
 chmod 777 /app/data
 chmod 777 /app/data/mosquitto
-chmod 777 /app/logs
 
 # Initialize dynamic security if the file doesn't exist
 if [ ! -f /app/data/mosquitto/dynamic-security.json ]; then
@@ -31,9 +29,6 @@ sleep 2
 echo "Starting Spring Boot application..."
 java -jar /app/app.jar &
 SPRING_PID=$!
-
-# Optional: To log Java app to file instead, use:
-# java -jar /app/app.jar > /app/logs/java-app.log 2>&1 &
 
 # Handle signals to gracefully shut down both services
 trap "kill $MOSQUITTO_PID $SPRING_PID; exit" SIGINT SIGTERM
