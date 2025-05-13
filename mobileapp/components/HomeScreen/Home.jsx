@@ -14,6 +14,7 @@ export default function Home({data,onRefresh, refreshing}) {
 
 
 
+
   return (
     <View style={styles.container}>
       <FlatList

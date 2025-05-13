@@ -14,11 +14,13 @@ export default function RoomCard({ data }) {
   let rightHeight = 0;
 
   const devices = useSelector((state) => state.devices.devices);
+
   const roomDevices = devices.filter((device) => device.areaId === data.id);
+  
 
   const getDeviceHeight = (device) =>
     device.type === 'ENUM' || device.type === 'RANGE' ? 135 : 60;
-
+  
   roomDevices.forEach((device) => {
     const estimatedHeight = getDeviceHeight(device);
 
@@ -42,6 +44,7 @@ export default function RoomCard({ data }) {
         />
         <Text style={styles.roomName}>{data.name}</Text>
       </View>
+      
 
       {/* Balanced Two Column Layout */}
       <View style={styles.twoColumnGrid}>

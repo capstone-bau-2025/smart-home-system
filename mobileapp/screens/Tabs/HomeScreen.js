@@ -1,90 +1,145 @@
-import { StyleSheet, View, Platform, StatusBar,Text } from "react-native";
-import React, { useState, useEffect, } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { StyleSheet, View, Platform, StatusBar, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
 import TopRightBlob from "../../components/svg/TopRightBlob";
 import Header from "../../components/HomeScreen/Header";
-import { SafeAreaView } from "react-native-safe-area-context";
 import HubInfoModal from "../../components/HomeScreen/HubInfoModal";
-import Colors from "../../constants/Colors";
 import Home from "../../components/HomeScreen/Home";
 import useInitAppData from "../../hooks/useInitAppData";
 import useAreas from "../../hooks/useAreas";
-import { getActiveBaseUrl, startActiveUrlMonitor } from "../../util/auth";
 import { fetchAreas } from "../../api/services/areaService";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserHubs, setCurrentHub } from "../../store/slices/hubSlice";
 import { fetchUserDetails } from "../../api/services/userService";
-import { setUrl } from "../../store/slices/urlSlice";
-import { setAreas } from "../../store/slices/areaSlice";
 import { getDeviceByArea } from "../../api/services/deviceService";
+import { fetchAllInteractions } from "../../api/services/interactionService";
+import { setUserHubs, setCurrentHub } from "../../store/slices/hubSlice";
+import { setAreas } from "../../store/slices/areaSlice";
+import { setDevices } from "../../store/slices/devicesSlice";
+import Colors from "../../constants/Colors";
 
 export default function HomeScreen() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
+
   const currentHub = useSelector((state) => state.hub.currentHub);
   const hubSerialNumber = currentHub?.serialNumber;
   const currentUrl = useSelector((state) => state.url.currentUrl);
 
-  // useEffect(() => {
-  //   startActiveUrlMonitor((newUrl) => {
-  //     dispatch(setUrl(newUrl));
-  //     console.log("🌐 ACTIVE_URL updated to:", newUrl);
-  //   });
-  
-  
-  //   (async () => {
-  //     try {
-  //       const initialUrl = await getActiveBaseUrl();
-  //       dispatch(setUrl(initialUrl));
-  //     } catch (err) {
-  //       console.error("Failed to set initial active URL:", err.message);
-  //     }
-  //   })();
-  // }, []);
-
-  useInitAppData(); //fetch user details and hubs on app load to set redux state
-
-  useEffect(() => {
-    if (!hubSerialNumber) return;
-  
-    (async () => {
-      try {
-        const devices = await getDeviceByArea(1, hubSerialNumber);
-        console.log("Devices in room 1:", devices);
-      } catch (err) {
-        console.warn("Error fetching devices:", err?.response?.data || err.message || err);
-      }
-    })();
-  }, [hubSerialNumber]);
-
+  useInitAppData();                       
   const { areas } = useAreas(hubSerialNumber);
 
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [rooms, setRooms] = useState([]);
+
+    // useEffect(() => {
+    // // Keep Redux in sync with ACTIVE_URL changes from native side
+    // startActiveUrlMonitor((newUrl) => {
+    //   dispatch(setUrl(newUrl));
+    //   console.log("🌐 ACTIVE_URL updated to:", newUrl);
+    // });
+
+    // // Set initial ACTIVE_URL on mount
+    // (async () => {
+    //   try {
+    //     const initialUrl = await getActiveBaseUrl();
+    //     dispatch(setUrl(initialUrl));
+    //   } catch (err) {
+    //     console.error("Failed to set initial active URL:", err.message);
+    //   }
+    // })();
+    //   }, []);
+  /** ─────────────────────────────────────────────────────────────
+   *  Helper: fetch interactions + metadata, merge, dispatch
+   * ───────────────────────────────────────────────────────────── */
+  const loadDevices = useCallback(async () => {
+    if (!hubSerialNumber || !areas.length) return;
+
+    try {
+      // 1. Interactions (all controls/values)
+      const interactionsByArea = await fetchAllInteractions();
+
+      // 2. Metadata per area (user-defined name, model, etc.)
+      const metaPerArea = await Promise.all(
+        interactionsByArea.map((area) =>
+          getDeviceByArea(area.areaId, hubSerialNumber).then((list) => ({
+            areaId: area.areaId,
+            list,
+          }))
+        )
+      );
+
+      // 3. Build lookup by device.id  → metadata
+      const metaMap = {};
+      metaPerArea.forEach(({ list }) => {
+        list.forEach((meta) => {
+          metaMap[meta.id] = meta;       
+        });
+      });
+
+      // 4. Group interactions into devices & enrich with meta
+      const enrichedDevices = interactionsByArea.flatMap((area) => {
+        const grouped = {};
+
+        area.interactions.forEach((inter) => {
+          const id = inter.deviceId;
+          if (!grouped[id]) {
+            const meta = metaMap[id] || {};
+            grouped[id] = {
+              id,
+              uid: meta.uid,
+              areaId: area.areaId,
+              areaName: area.areaName,
+              name: meta.name ?? inter.name.split(".")[0],
+              model: meta.model,
+              description: meta.description,
+              category: inter.category,
+              interactions: [],
+            };
+          }
+          grouped[id].interactions.push(inter);
+        });
+
+        return Object.values(grouped);
+      });
+
+      // 5. Put into Redux
+      dispatch(setDevices(enrichedDevices));
+    } catch (err) {
+      console.warn("Error loading devices:", err);
+    }
+  }, [hubSerialNumber, areas, dispatch]);
+
 
   useEffect(() => {
     setRooms(areas);
     dispatch(setAreas(areas));
+  }, [areas, dispatch]);
 
-    console.log(areas);
-  }, [areas]);
+
+  useEffect(() => {
+    loadDevices();
+  }, [loadDevices]);
+
 
   const handleRefresh = async () => {
+    setRefreshing(true);
     try {
-      setRefreshing(true);
-
+  
       const { data } = await fetchAreas(hubSerialNumber);
       setRooms(data);
+      dispatch(setAreas(data));
+
 
       const userData = await fetchUserDetails();
       dispatch(setUserHubs(userData.hubsConnected));
-      dispatch(
-        setCurrentHub(
-          userData.hubsConnected.find(
-            (h) => h.serialNumber === hubSerialNumber
-          ) || null
-        )
+      const updatedHub = userData.hubsConnected.find(
+        (h) => h.serialNumber === hubSerialNumber
       );
+      dispatch(setCurrentHub(updatedHub || currentHub));
+
+
+      await loadDevices();
     } catch (err) {
       console.warn("Refresh error:", err);
     } finally {
@@ -92,18 +147,24 @@ export default function HomeScreen() {
     }
   };
 
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       <TopRightBlob />
       <Header setModalVisible={setModalVisible} />
       <Text>{currentUrl}</Text>
+
       <HubInfoModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <Home data={rooms} onRefresh={handleRefresh} refreshing={refreshing} />
+
+      <Home
+        data={rooms}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+      />
     </SafeAreaView>
   );
 }

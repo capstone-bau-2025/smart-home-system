@@ -7,6 +7,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { addRoom } from '../../api/services/areaService';
 import DissmissKeyboard from '../../components/utils/DismissKeyboard'
 import { iconOptions } from '../../util/helperFunctions';
+import { useSelector } from 'react-redux';
 import Toast from 'react-native-toast-message';
 // A modal that allows the user to add a room to the hub, it takes in a name and an icon
 export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) {
@@ -14,6 +15,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [showRoomNameError, setShowRoomNameError] = useState(false);
   const [showIconError, setShowIconError] = useState(false);
+  const currentHub = useSelector((state) => state.hub.currentHub);
 
   const renderIcon = ({ item }) => {
     const [iconNumber, iconName] = item;
@@ -55,7 +57,7 @@ export default function AddRoomModal({ visible, onClose, title,refetchAreas  }) 
     if (hasError) return;
   
     try {
-      const result = await addRoom(roomName, selectedIcon, '123456789');
+      const result = await addRoom(roomName, selectedIcon, currentHub.serialNumber);
       console.log('Room added:', result);
       await refetchAreas(); 
       setRoomName('');

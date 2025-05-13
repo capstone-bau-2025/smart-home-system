@@ -25,34 +25,17 @@ export default function ManageDevice({
 }) {
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
-  const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
   const devices = useSelector((state) => state.devices.devices);
+  const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
+
   const { areas, isLoading, refetchAreas } = useAreas(
     selectedTab?.serialNumber
   );
 
   const [allDevices, setAllDevices] = useState(devices);
 
-  // useEffect(() => {
-  //   const fetchAllDevices = async () => {
-  //     try {
-  //       const all = await Promise.all(
-  //         areas.map((area) =>
-  //           getDeviceByArea(area.id, selectedTab.serialNumber)
-  //         )
-  //       );
-  //       const flat = all.flat();
-  //       console.log(flat, "devices from all rooms");
-  //       setAllDevices(flat);
-  //     } catch (err) {
-  //       console.error("Error fetching devices for all rooms:", err);
-  //     }
-  //   };
 
-  //   if (areas.length > 0 && selectedTab) {
-  //     fetchAllDevices();
-  //   }
-  // }, [areas, selectedTab]);
+
 
   const roomCount = areas.length;
   const deviceCount = allDevices.length;

@@ -7,13 +7,15 @@ import {
   getIconName,
   getIconColor,
 } from "../../util/helperFunctions";
-
+import { useSelector } from "react-redux";
 
 //the device card thats in the homescreen
 export default function DeviceCard({ data }) {
+
   const [state, setState] = useState("Off");
   const [value, setValue] = useState(0);
-
+  const devices = useSelector((state) => state.devices.devices);
+  console.log(devices)
   const isSlider = data.type === "enum" || data.type === "range";
   const isHub = data.type === "hub";
   const isThermostat = data.category === "thermometer";

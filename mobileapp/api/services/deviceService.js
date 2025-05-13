@@ -18,22 +18,21 @@ export const getDeviceByArea = async (areaId, hubSerialNumber) => {
 }
 
 
-export const updateDeviceName = async (deviceId, newName, token,hubSerialNumber) => {
+export const updateDeviceName = async (deviceId, newName) => {
+  const token = store.getState().user.localToken;
   const response = await axios.put(
     `${LOCAL_URL}api/devices/${deviceId}/name`,
-    {}, // No body
+    {}, 
     {
-      params: { name: newName }, // query param
+      params: { name: newName }, 
       headers: {
         Authorization: `Bearer ${token}`,
-        parameter: hubSerialNumber,
       },
     }
   );
 
   return response.data;
 };
-
 export const updateDeviceArea = async (deviceId, areaId, token,hubSerialNumber) => {
   const response = await axios.put(
     `${LOCAL_URL}api/devices/${deviceId}/area`,

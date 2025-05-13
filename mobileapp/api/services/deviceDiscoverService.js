@@ -5,54 +5,39 @@ import { LOCAL_URL } from "../../util/auth";
 import { store } from "../../store/store";
 
 export const discoverDevices = async () => {
-
-  
-  
-  try{
+  try {
     const localToken = store.getState().user.localToken;
-    const res = await axios.get(`${LOCAL_URL}api/device-discovery`,{
-  
+    const res = await axios.get(`${LOCAL_URL}api/device-discovery`, {
       // params: { hubSerialNumber, },
       headers: {
         Authorization: `Bearer ${localToken}`,
-        Accept: 'application/json',
-        
+        Accept: "application/json",
       },
-  
-    }
-  );
+    });
 
     return res.data;
-    
-  }
-
-  catch (error) {
+  } catch (error) {
     console.error("Error discovering devices: ", error);
     throw error;
   }
-
-}
-
+};
 
 export const configureDevice = async (uid, hubSerialNumber) => {
   const localToken = store.getState().user.localToken;
 
   try {
     const response = await axios.post(
-      `${LOCAL_URL}/api/device-discovery/${uid}`,
+      `${LOCAL_URL}api/device-discovery/${uid}`,
+      { hubSerialNumber }, 
       {
-        params: { hubSerialNumber },
         headers: {
           "Content-Type": "application/json",
-          Accept: "*/*",
           Authorization: `Bearer ${localToken}`,
         },
       }
     );
 
-    console.log("Device configured:", response.data);
     return response.data;
-
   } catch (error) {
     console.error("Device configuration error:", error);
     throw error;

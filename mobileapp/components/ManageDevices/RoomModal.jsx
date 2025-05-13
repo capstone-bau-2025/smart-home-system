@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
-import SelectRoom from "./SelectRoom";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import Toast from "react-native-toast-message";
+
 import ScrollableList from "../UI/ScrollableList";
+import SelectRoom from "./SelectRoom";
 import HeaderIcons from "../UI/HeaderIcons";
 import InfoModal from "../UI/InfoModal";
-import Colors from "../../constants/Colors";
 import RenameModal from "../UI/RenameModal";
-import { useNavigation } from "@react-navigation/native";
 import ConfirmationModal from "../UI/ConfirmationModal";
-import { Ionicons } from "@expo/vector-icons";
-import Toast from "react-native-toast-message";
+import Colors from "../../constants/Colors";
 
 import {
   updateDeviceName,
   deleteDevice,
   updateDeviceArea,
 } from "../../api/services/deviceService";
-import { store } from "../../store/store";
 import { deleteRoom } from "../../api/services/areaService";
-import { useSelector } from "react-redux";
+import { store } from "../../store/store";
+
 
 export default function RoomModal({
   visible,
@@ -31,36 +33,30 @@ export default function RoomModal({
   rooms,
 }) {
   const navigation = useNavigation();
-
   const localToken = store.getState().user.localToken;
-  const [moveDevice, setMoveDevice] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState(null);
-  const [renameModal, setRenameModal] = useState(false);
-  const [renameText, setRenameText] = useState("");
-  const [infoModal, setInfoModal] = useState(false);
-  const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
-  const [deleteRoomModal, setDeleteRoomModal] = useState(false);
   const currentHub = useSelector((state) => state.hub.currentHub);
   const hubSerialNumber = currentHub?.serialNumber;
 
-  function handleDevicePress(device) {
+  const [moveDevice, setMoveDevice] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const [renameModal, setRenameModal] = useState(false);
+  const [renameText, setRenameText] = useState(selectedDevice?.name || "");
+  const [infoModal, setInfoModal] = useState(false);
+  const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
+  const [deleteRoomModal, setDeleteRoomModal] = useState(false);
+
+
+
+  const handleDevicePress = (device) => {
     setSelectedDevice(device);
     setMoveDevice(true);
-  }
+  };
 
   const handleMoveDevice = async (targetRoomId) => {
-    if (!selectedDevice?.uid) {
-      console.warn("Device UID is undefined");
-      return;
-    }
+    if (!selectedDevice?.uid) return;
 
     try {
-      await updateDeviceArea(
-        selectedDevice.uid,
-        targetRoomId,
-        localToken,
-        hubSerialNumber
-      );
+      await updateDeviceArea(selectedDevice.uid, targetRoomId, localToken, hubSerialNumber);
       Toast.show({ type: "success", text1: "Device moved" });
       await refetchAreas();
     } catch (err) {
@@ -71,32 +67,29 @@ export default function RoomModal({
     }
   };
 
-  function handleAddPress() {
+  const handleAddPress = () => {
     navigation.push("DiscoverDevice");
     setRoomModalVisible(false);
-  }
+  };
 
-  function handleRemovePress(device) {
+  const handleRemovePress = (device) => {
     setDeleteDeviceModal(true);
     setSelectedDevice(device);
-  }
+  };
 
-  async function handleDeleteDevice() {
+  const handleDeleteDevice = async () => {
     try {
-      await deleteDevice(selectedDevice.uid, localToken, hubSerialNumber);
-      Toast.show({
-        type: "success",
-        text1: "Device removed",
-      });
+      await deleteDevice(selectedDevice.id, localToken, hubSerialNumber);
+      Toast.show({ type: "success", text1: "Device removed" });
       await refetchAreas();
       setDeleteDeviceModal(false);
       setSelectedDevice(null);
     } catch (err) {
       console.error("Failed to delete device", err);
     }
-  }
+  };
 
-  async function handleDeleteRoom(areaId, hubSerialNumber) {
+  const handleDeleteRoom = async (areaId, hubSerialNumber) => {
     try {
       await deleteRoom(areaId, hubSerialNumber);
       await refetchAreas();
@@ -109,35 +102,38 @@ export default function RoomModal({
       });
       onClose();
     } catch (error) {
-      console.log("Error deleting room:", error.message || error);
+      console.error("Error deleting room:", error.message || error);
     }
+  };
+
+const handleRenameDevice = async (newName) => {
+  if (!selectedDevice || !newName.trim()) return;
+
+  try {
+    await updateDeviceName(selectedDevice.id, newName, localToken);
+    await refetchAreas();
+    setRenameModal(false);
+    setRenameText("");
+    setSelectedDevice(null);
+    setRoomModalVisible(false);
+    Toast.show({
+      topOffset: 60,
+      swipeable: true,
+      type: "success",
+      text1: "Renamed",
+      text2: `Device renamed to ${newName}`,
+    });
+  } catch (error) {
+    console.error("Rename failed:", error);
+    Toast.show({
+      topOffset: 60,
+      swipeable: true,
+      type: "error",
+      text1: "Rename failed",
+      text2: error.response?.data?.message || "Something went wrong",
+    });
   }
-
-  useEffect(() => {
-    const renameDevice = async () => {
-      if (selectedDevice && renameText.trim()) {
-        try {
-          await updateDeviceName(
-            selectedDevice.uid,
-            renameText,
-            localToken,
-            hubSerialNumber
-          );
-          Toast.show({
-            type: "success",
-            text1: "Renamed",
-            text2: `Device renamed to ${renameText}`,
-          });
-          setRenameText("");
-          await refetchAreas();
-        } catch (err) {
-          console.error("Rename failed", err);
-        }
-      }
-    };
-
-    if (!renameModal) renameDevice();
-  }, [renameModal]);
+};
 
   if (!visible || !room?.name) return null;
 
@@ -149,25 +145,19 @@ export default function RoomModal({
         <View style={styles.header}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Text style={styles.roomName}>{room?.name || ""}</Text>
-            <TouchableOpacity
-              onPress={() => setDeleteRoomModal(true)}
-              style={styles.deleteRoomBtn}
-            >
-              <Ionicons name="trash-outline" size={20} color="#000000" />
-            </TouchableOpacity>
+            {room?.name !== "GENERAL" && (
+              <TouchableOpacity onPress={() => setDeleteRoomModal(true)} style={styles.deleteRoomBtn}>
+                <Ionicons name="trash-outline" size={20} color="#000000" />
+              </TouchableOpacity>
+            )}
           </View>
-
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Text style={styles.closeText}>X</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.headerIcons}>
-          <HeaderIcons
-            onInfoPress={() => setInfoModal(true)}
-            cogHidden={true}
-            onAddPress={handleAddPress}
-          />
+          <HeaderIcons onInfoPress={() => setInfoModal(true)} cogHidden={true} onAddPress={handleAddPress} />
         </View>
 
         <ScrollableList
@@ -182,7 +172,6 @@ export default function RoomModal({
               icon: "pencil-outline",
               onPress: (device) => {
                 setSelectedDevice(device);
-                setRenameText(device.name);
                 setRenameModal(true);
               },
             },
@@ -239,10 +228,10 @@ export default function RoomModal({
         visible={renameModal}
         title="Rename Device"
         value={renameText}
-        onChange={setRenameText}
+        setValue={setRenameText}
         setVisible={setRenameModal}
         placeholder="Enter new name"
-        onConfirm={() => {}}
+        onConfirm={handleRenameDevice}
       />
     </Modal>
   );
