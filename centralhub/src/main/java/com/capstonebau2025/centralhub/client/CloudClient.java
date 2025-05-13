@@ -1,7 +1,6 @@
 package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.cloudComm.*;
-import com.capstonebau2025.centralhub.entity.Hub;
 import com.capstonebau2025.centralhub.exception.CommunicationException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,87 +10,16 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import static com.capstonebau2025.centralhub.client.CloudAuthClient.hubToken;
+
 @Component
 @RequiredArgsConstructor
 public class CloudClient {
     private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
     private final RestTemplate restTemplate;
-    private String hubToken;
 
     @Value("${cloud.server.url}")
     private String cloudUrl;
-
-    public String getHubToken(Hub hub) {
-        String url = cloudUrl + "/api/hub/hub-token";
-        logger.info("Requesting token from: {}", url);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        GetTokenRequest requestBody = GetTokenRequest.builder()
-                .serialNumber(hub.getSerialNumber())
-                .key(hub.getKey())
-                .build();
-
-        HttpEntity<GetTokenRequest> request = new HttpEntity<>(requestBody, headers);
-
-        while (true) {
-            try {
-                ResponseEntity<GetTokenResponse> response = restTemplate.postForEntity(
-                        url, request, GetTokenResponse.class);
-
-                String token = response.getBody().getToken();
-                logger.info("Received token: {}", token != null ?
-                        (token.substring(0, Math.min(10, token.length())) + "...") : "null");
-
-                if (token == null || token.isEmpty()) {
-                    throw new RuntimeException("Empty token received from server");
-                }
-
-                hubToken = token;
-                return token;
-            } catch (Exception e) {
-                logger.error("failed to get hub token from cloud (retrying in 5 seconds): {}", e.getMessage());
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException interruptedException) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Thread interrupted while retrying to get token", interruptedException);
-                }
-            }
-        }
-    }
-
-    public HubRegistrationResponse registerHub(Hub hub) {
-        String url = cloudUrl + "/api/hub/registerHub";
-        logger.info("Registering hub at: {}", url);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HubRegistrationRequest requestBody = HubRegistrationRequest.builder()
-                .serialNumber(hub.getSerialNumber())
-                .location(hub.getLocation())
-                .name(hub.getName())
-                .build();
-        HttpEntity<HubRegistrationRequest> request = new HttpEntity<>(requestBody, headers);
-
-        while (true) {
-            try {
-                ResponseEntity<HubRegistrationResponse> response = restTemplate.postForEntity(
-                        url, request, HubRegistrationResponse.class);
-                return response.getBody();
-            } catch (Exception e) {
-                logger.error("Cloud not responding, failed to register hub to cloud (retrying in 5 seconds): {}", e.getMessage());
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException interruptedException) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Thread interrupted while retrying hub registration", interruptedException);
-                }
-            }
-        }
-    }
 
     public UserValidationResponse validateUser(String cloudToken, String email) {
         try {
