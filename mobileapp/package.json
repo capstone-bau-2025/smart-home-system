@@ -52,7 +52,8 @@
     "react-native-video": "^6.13.0",
     "react-native-webview": "13.13.5",
     "react-redux": "^9.2.0",
-    "yup": "^1.6.1"
+    "yup": "^1.6.1",
+    "react-native-reanimated": "~3.17.4"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

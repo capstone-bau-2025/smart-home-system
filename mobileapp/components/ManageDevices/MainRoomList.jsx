@@ -57,7 +57,7 @@ export default function MainRoomList({
         editShown={true}
         devices={devices}
       />
-
+ 
       <RoomModal
         visible={modalVisible}
         onClose={() => {

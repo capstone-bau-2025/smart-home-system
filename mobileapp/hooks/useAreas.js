@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAreas } from '../api/services/areaService'; 
-import { setAreas } from '../store/slices/areaSlice';
- 
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAreas } from "../api/services/areaService";
+import { setAreas } from "../store/slices/areaSlice";
+
 export default function useAreas(hubSerialNumber) {
   const dispatch = useDispatch();
-  const areas = useSelector((state) => state.area.areas);
+  const areas = useSelector((state) => state.areas.areas);
   const [isLoading, setIsLoading] = useState(false);
 
   const refetchAreas = async () => {

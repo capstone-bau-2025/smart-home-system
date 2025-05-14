@@ -25,7 +25,7 @@ export default function PermsModal({
 
   const selectedUser = users.find((user) => user.id === userId);
 
-  const rooms = useSelector((state) => state.area.areas);
+  const rooms = useSelector((state) => state.areas.areas);
   const currentHub = useSelector((state) => state.hub.currentHub);
   const currentUserRole = currentHub?.role;
   const [userPerms, setUserPerms] = useState({});

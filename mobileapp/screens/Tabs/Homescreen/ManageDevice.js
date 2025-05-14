@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,13 +7,15 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
+import { useSelector } from "react-redux";
+
 import HubsTabs from "../../../components/UI/HubsTabs";
 import MainRoomList from "../../../components/ManageDevices/MainRoomList";
 import InfoModal from "../../../components/UI/InfoModal";
 import AddRoomModal from "../../../components/ManageDevices/AddRoomModal";
+
 import useAreas from "../../../hooks/useAreas";
-import { useSelector } from "react-redux";
-import { getDeviceByArea } from "../../../api/services/deviceService";
+import useDevices from "../../../hooks/useDevices";
 
 export default function ManageDevice({
   setAddModal,
@@ -25,17 +27,19 @@ export default function ManageDevice({
 }) {
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
-  const devices = useSelector((state) => state.devices.devices);
   const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
 
-  const { areas, isLoading, refetchAreas } = useAreas(
+  const { areas, isLoading: isLoadingAreas, refetchAreas } = useAreas(
     selectedTab?.serialNumber
   );
 
-  const [allDevices, setAllDevices] = useState(devices);
+   
 
-
-
+  const {
+    devices: allDevices,
+    isLoadingDevices,
+    refetchDevices,
+  } = useDevices(selectedTab?.serialNumber, areas);
 
   const roomCount = areas.length;
   const deviceCount = allDevices.length;
@@ -50,16 +54,18 @@ export default function ManageDevice({
         setSelectedTab={setSelectedTab}
       />
 
-      <MainRoomList
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-        areas={areas}
-        isLoading={isLoading}
-        refetchAreas={refetchAreas}
-        roomCount={roomCount}
-        deviceCount={deviceCount}
-        devices={allDevices}
-      />
+    
+  <MainRoomList
+    selectedTab={selectedTab}
+    setSelectedTab={setSelectedTab}
+    areas={areas}
+    isLoading={false}
+    refetchAreas={refetchAreas}
+    roomCount={roomCount}
+    deviceCount={deviceCount}
+    devices={allDevices}
+    onRefresh={refetchDevices}
+  />
 
       <InfoModal
         visible={infoModal}

@@ -21,7 +21,6 @@ import {
 import { deleteRoom } from "../../api/services/areaService";
 import { store } from "../../store/store";
 
-
 export default function RoomModal({
   visible,
   onClose,
@@ -40,12 +39,14 @@ export default function RoomModal({
   const [moveDevice, setMoveDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [renameModal, setRenameModal] = useState(false);
-  const [renameText, setRenameText] = useState(selectedDevice?.name || "");
+  const [renameText, setRenameText] = useState("");
   const [infoModal, setInfoModal] = useState(false);
   const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
   const [deleteRoomModal, setDeleteRoomModal] = useState(false);
 
-
+  useEffect(() => {
+    setRenameText(selectedDevice?.name || "");
+  }, [selectedDevice]);
 
   const handleDevicePress = (device) => {
     setSelectedDevice(device);
@@ -56,14 +57,27 @@ export default function RoomModal({
     if (!selectedDevice?.uid) return;
 
     try {
-      await updateDeviceArea(selectedDevice.uid, targetRoomId, localToken, hubSerialNumber);
-      Toast.show({ type: "success", text1: "Device moved" });
-      await refetchAreas();
+      await updateDeviceArea(
+        selectedDevice.uid,
+        targetRoomId,
+        localToken,
+        hubSerialNumber
+      );
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "success",
+        text1: "Device moved",
+        text2: `Device has been moved to ${
+          rooms.find((r) => r.id === targetRoomId)?.name
+        }`,
+      });
     } catch (err) {
       console.error("Failed to move device", err);
     } finally {
       setMoveDevice(false);
-      setSelectedDevice(null);
+      setSelectedDevice(null); 
+      refetchAreas();
     }
   };
 
@@ -100,40 +114,40 @@ export default function RoomModal({
         text1: "Room deletion successful",
         text2: `${room.name} was deleted`,
       });
+      setDeleteRoomModal(false);
       onClose();
     } catch (error) {
       console.error("Error deleting room:", error.message || error);
     }
   };
 
-const handleRenameDevice = async (newName) => {
-  if (!selectedDevice || !newName.trim()) return;
+  const handleRenameDevice = async (newName) => {
+    if (!selectedDevice || !newName.trim()) return;
 
-  try {
-    await updateDeviceName(selectedDevice.id, newName, localToken);
-    await refetchAreas();
-    setRenameModal(false);
-    setRenameText("");
-    setSelectedDevice(null);
-    setRoomModalVisible(false);
-    Toast.show({
-      topOffset: 60,
-      swipeable: true,
-      type: "success",
-      text1: "Renamed",
-      text2: `Device renamed to ${newName}`,
-    });
-  } catch (error) {
-    console.error("Rename failed:", error);
-    Toast.show({
-      topOffset: 60,
-      swipeable: true,
-      type: "error",
-      text1: "Rename failed",
-      text2: error.response?.data?.message || "Something went wrong",
-    });
-  }
-};
+    try {
+      await updateDeviceName(selectedDevice.id, newName, localToken);
+      await refetchAreas();
+      setRenameModal(false);
+      setRenameText("");
+      setSelectedDevice(null);
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "success",
+        text1: "Renamed",
+        text2: `Device renamed to ${newName}`,
+      });
+    } catch (error) {
+      console.error("Rename failed:", error);
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "error",
+        text1: "Rename failed",
+        text2: error.response?.data?.message || "Something went wrong",
+      });
+    }
+  };
 
   if (!visible || !room?.name) return null;
 
@@ -146,7 +160,10 @@ const handleRenameDevice = async (newName) => {
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Text style={styles.roomName}>{room?.name || ""}</Text>
             {room?.name !== "GENERAL" && (
-              <TouchableOpacity onPress={() => setDeleteRoomModal(true)} style={styles.deleteRoomBtn}>
+              <TouchableOpacity
+                onPress={() => setDeleteRoomModal(true)}
+                style={styles.deleteRoomBtn}
+              >
                 <Ionicons name="trash-outline" size={20} color="#000000" />
               </TouchableOpacity>
             )}
@@ -157,7 +174,11 @@ const handleRenameDevice = async (newName) => {
         </View>
 
         <View style={styles.headerIcons}>
-          <HeaderIcons onInfoPress={() => setInfoModal(true)} cogHidden={true} onAddPress={handleAddPress} />
+          <HeaderIcons
+            onInfoPress={() => setInfoModal(true)}
+            cogHidden={true}
+            onAddPress={handleAddPress}
+          />
         </View>
 
         <ScrollableList
@@ -180,9 +201,10 @@ const handleRenameDevice = async (newName) => {
               onPress: handleRemovePress,
             },
           ]}
+          noData="No devices in this room"
         />
 
-        {moveDevice && (
+        
           <SelectRoom
             visible={moveDevice}
             onClose={() => {
@@ -195,7 +217,7 @@ const handleRenameDevice = async (newName) => {
             selectedDevice={selectedDevice}
             onMove={handleMoveDevice}
           />
-        )}
+      
       </View>
 
       <InfoModal
@@ -211,7 +233,7 @@ const handleRenameDevice = async (newName) => {
       <ConfirmationModal
         visible={deleteDeviceModal}
         onClose={() => setDeleteDeviceModal(false)}
-        message={`Are you sure you want to delete the device "${selectedDevice?.name}"?`}
+        message={`Are you sure you want to delete this device?`}
         iconColor="red"
         onConfirm={handleDeleteDevice}
       />
@@ -219,7 +241,7 @@ const handleRenameDevice = async (newName) => {
       <ConfirmationModal
         visible={deleteRoomModal}
         onClose={() => setDeleteRoomModal(false)}
-        message={`Are you sure you want to delete the room "${room.name}"?`}
+        message={`Are you sure you want to delete this room?`}
         iconColor="red"
         onConfirm={() => handleDeleteRoom(room.id, selectedTab.serialNumber)}
       />
@@ -287,3 +309,4 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 });
+ 

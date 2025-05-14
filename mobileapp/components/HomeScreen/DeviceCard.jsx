@@ -1,92 +1,80 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable, Modal } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import CustomSlider from "./CustomSlider";
 import {
   getIconBgColor,
   getIconName,
   getIconColor,
 } from "../../util/helperFunctions";
-import { useSelector } from "react-redux";
+import DeviceModal from "./DeviceModal"; 
 
-//the device card thats in the homescreen
 export default function DeviceCard({ data }) {
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const [state, setState] = useState("Off");
-  const [value, setValue] = useState(0);
-  const devices = useSelector((state) => state.devices.devices);
-  console.log(devices)
-  const isSlider = data.type === "enum" || data.type === "range";
-  const isHub = data.type === "hub";
-  const isThermostat = data.category === "thermometer";
+  // Use the first interaction (if any) as a preview on the card
+  const preview = data.interactions?.[0];
+  const previewValue = preview?.value ?? "";
+  const previewType = preview?.type ?? "";
+  const isSlider = previewType === "RANGE";
+  const displayValue = typeof previewValue === "string" ? previewValue : String(previewValue);
+
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        isSlider ? styles.tallCard : styles.shortCard,
-        pressed && !isHub && !isThermostat ? styles.pressed : null,
-      ]}
-      onPress={() => {
-        if (!isHub && !isThermostat) {
-          setState((prev) => (prev === "On" ? "Off" : "On"));
-        }
-      }}
-    >
-      <View style={styles.rowTop}>
-        <View
-          style={[
-            styles.iconWrapper,
-            { backgroundColor: getIconBgColor(data.category) },
-          ]}
-        >
-          <Ionicons
-            name={getIconName(data.category)}
-            size={20}
-            color={getIconColor(data.category)}
-          />
-        </View>
-
-        <View style={styles.labelBlock}>
-          <Text
-            style={styles.deviceName}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {data.name}
-          </Text>
-          <Text
+    <>
+      <Pressable
+        style={({ pressed }) => [
+          styles.card,
+          isSlider ? styles.tallCard : styles.shortCard,
+          pressed ? styles.pressed : null,
+        ]}
+        onLongPress={() => setModalVisible(true)}
+      >
+        <View style={styles.rowTop}>
+          <View
             style={[
-              styles.status,
-              {
-                color:
-                  isHub || isThermostat
-                    ? "#8b8b8b"
-                    : state === "On"
-                    ? "green"
-                    : "red",
-              },
-
+              styles.iconWrapper,
+              { backgroundColor: getIconBgColor(data.category) },
             ]}
           >
-            {isHub || isThermostat ? null : state}
-            {isSlider ? ` - ${value}` : ""}
-            {isHub ? `${data.status}` : ""}
-            {isThermostat ? `${data.reading}` : ""}
-          </Text>
-        </View>
-      </View>
+            <Ionicons
+              name={getIconName(data.category)}
+              size={20}
+              color={getIconColor(data.category)}
+            />
+          </View>
 
-      {isSlider && (
-        <CustomSlider
-          levels={data.choices || ["Low", "Medium", "High"]}
-          ranged={data.type === "range"}
-          minRange={data.range?.[0]}
-          maxRange={data.range?.[1]}
-          value={value}
-          setValue={setValue}
-        />
-      )}
-    </Pressable>
+          <View style={styles.labelBlock}>
+            <Text
+              style={styles.deviceName}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {data.name}
+            </Text>
+            <Text
+              style={[
+                styles.status,
+                {
+                  color:
+                    previewValue === "ON" || previewValue === "OPEN"
+                      ? "green"
+                      : previewValue === "OFF" || previewValue === "CLOSED"
+                      ? "red"
+                      : "#666",
+                },
+              ]}
+            >
+              {displayValue}
+            </Text>
+          </View>
+        </View>
+      </Pressable>
+
+      <DeviceModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        device={data}
+      />
+    </>
   );
 }
 
