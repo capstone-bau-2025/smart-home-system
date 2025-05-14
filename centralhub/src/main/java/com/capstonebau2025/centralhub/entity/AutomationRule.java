@@ -37,9 +37,6 @@ public class AutomationRule {
     @Enumerated(EnumType.STRING)
     private TriggerType triggerType;
 
-    //Attribute specific to automation rule with type SCHEDULE, NULL otherwise
-    private LocalTime scheduledTime;
-
     private String description;
 
     @NotNull

@@ -33,6 +33,7 @@ public class AutomationExecService {
     private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>();    /**     * Subscribe for trigger monitoring (event/state/time) for a given rule
      */
 
+    // TODO: all active rules should be loaded at startup of application (new method with PostConstruct annotation)
     public void subscribeTrigger(Long ruleId) {
         ruleRepository.findById(ruleId).ifPresent(rule -> {
             if (Boolean.TRUE.equals(rule.getIsEnabled())) {
@@ -46,8 +47,6 @@ public class AutomationExecService {
         activeRules.remove(ruleId);
         log.info("Unsubscribed rule {} from trigger monitoring", ruleId);
     }
-
-
 
     @Scheduled(fixedRate = 60_000) // every minute
     @Transactional
@@ -77,10 +76,10 @@ public class AutomationExecService {
     }
 
     public boolean checkScheduledTrigger(AutomationTrigger trigger) {
-        if (trigger.getAutomationRule().getScheduledTime() == null) return false;
+        if (trigger.getScheduledTime() == null) return false;
 
         LocalTime now = LocalTime.now();
-        LocalTime scheduledTime = trigger.getAutomationRule().getScheduledTime();
+        LocalTime scheduledTime = trigger.getScheduledTime();
 
         // Convert both times to seconds since midnight for comparison
         long nowSeconds = now.toSecondOfDay();

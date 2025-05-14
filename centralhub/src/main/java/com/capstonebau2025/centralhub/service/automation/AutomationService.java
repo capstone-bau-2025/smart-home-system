@@ -37,31 +37,23 @@ public class AutomationService {
             throw new RuntimeException("Invalid trigger type: " + dto.getTriggerType());
         }
 
-        LocalTime scheduledTime = null;
-        if (triggerType == AutomationRule.TriggerType.SCHEDULE) {
-            if (dto.getScheduledTime() == null) {
-                throw new RuntimeException("Scheduled time is required for SCHEDULE trigger type.");
-            }
-            scheduledTime = LocalTime.parse(dto.getScheduledTime());
-        }
-
         AutomationRule rule = AutomationRule.builder()
                 .createdBy(user)
                 .name(dto.getRuleName())
                 .description(dto.getRuleDescription())
-                .isEnabled(dto.getIsEnabled() != null ? dto.getIsEnabled() : true)
+                .isEnabled(true)
                 .triggerType(triggerType)
                 .cooldownDuration(dto.getCooldownDuration())
-                .scheduledTime(scheduledTime)
                 .build();
-
 
         AutomationRule savedRule = ruleRepository.save(rule);
 
+        // TODO: device id should be gotten from the dto and saved for either event or status triggers
         switch (triggerType) {
             case SCHEDULE -> {
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
+                        .scheduledTime(LocalTime.parse(dto.getScheduledTime()))
                         .build();
                 triggerRepository.save(trigger);
             }
@@ -86,26 +78,20 @@ public class AutomationService {
             }
             default -> throw new IllegalArgumentException("Unsupported trigger type: " + triggerType);
         }
-        if (dto.getIsEnabled()) {
-            automationExecService.subscribeTrigger(savedRule.getId());
-        }
 
+        // TODO: get actions details from dto and save them too
+
+        automationExecService.subscribeTrigger(savedRule.getId());
         return savedRule;
-
     }
-
-
-
 
     @Transactional
     public AutomationRule toggleAutomation(ToggleAutomationRuleDto toggleAutomationRule) {
         AutomationRule rule = ruleRepository.findById(toggleAutomationRule.getRuleId())
                 .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
-        // Toggle the enabled state
        // Set the enabled state using the provided parameter
-       rule.setIsEnabled(toggleAutomationRule.getIsEnabled() != null
-               ? toggleAutomationRule.getIsEnabled() : !rule.getIsEnabled());
+       rule.setIsEnabled(toggleAutomationRule.getIsEnabled());
 
         // Save the updated rule
         AutomationRule savedRule = ruleRepository.save(rule);
@@ -119,7 +105,6 @@ public class AutomationService {
         return savedRule;
     }
 
-
     @Transactional
     public String deleteAutomationRule (Long ruleId) {
         AutomationRule rule = ruleRepository.findById(ruleId)
@@ -127,7 +112,6 @@ public class AutomationService {
 
         // Unsubscribe from triggers
         automationExecService.unsubscribeTrigger(rule.getId());
-
         ruleRepository.delete(rule);
 
         return "Automation rule deleted successfully";
