@@ -1,6 +1,7 @@
 package com.capstonebau2025.cloudserver.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,11 +25,13 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(nullable = false)
     private String username;    //notnullable
 
     @NotNull
+    @Email
     @Column(unique = true, nullable = false)
     private String email;       //notnullable and unique
 
