@@ -12,8 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
-    @NotBlank private String username;
-    @Email @NotBlank private String email;
-    @NotBlank private String password;
+    @NotBlank
+    private String username;
+
+    @Email
+    @NotBlank
+    private String email;
+
+    @NotBlank
+    private String password;
     private String fcmToken;
 }

@@ -25,13 +25,15 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotNull
     @Column(nullable = false)
     private String username;    //notnullable
 
     @NotNull
+    @Email
     @Column(unique = true, nullable = false)
-    @Email private String email;       //notnullable and unique
+    private String email;       //notnullable and unique
 
     @NotNull
     @Column(nullable = false)
