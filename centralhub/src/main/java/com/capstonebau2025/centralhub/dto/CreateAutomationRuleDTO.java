@@ -4,21 +4,26 @@ package com.capstonebau2025.centralhub.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalTime;
-
 @Data
 @Builder
-public class CreateAutomationRuleDto {
+public class CreateAutomationRuleDTO {
+
     private String ruleName;
     private String ruleDescription;
-    private Boolean isEnabled; // TODO: no need for this, enable by default
     private String triggerType;
-    private String scheduledTime;
-    private Long eventId;
-    private Long statusValueId;
     private Integer cooldownDuration;
 
-    // TODO: get device id too
+    //attribute speciffic for trigger type event
+    private Long eventId;
+    private Long deviceId;
+
+    //attribute speciffic for trigger type status
+    private Long statusValueId;
+
+    //attribute speciffic for trigger type scheduled
+    private String scheduledTime;
+
+
 
     // TODO: include actions details
 }

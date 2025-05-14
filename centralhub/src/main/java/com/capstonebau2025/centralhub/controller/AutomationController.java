@@ -1,6 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.dto.CreateAutomationRuleDto;
+import com.capstonebau2025.centralhub.dto.AutomationDTO;
+import com.capstonebau2025.centralhub.dto.CreateAutomationRuleDTO;
 import com.capstonebau2025.centralhub.dto.ToggleAutomationRuleDto;
 import com.capstonebau2025.centralhub.entity.AutomationRule;
 import com.capstonebau2025.centralhub.entity.User;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/automations")
@@ -26,7 +29,7 @@ public class AutomationController {
 
 
     @PostMapping("/create")
-    public ResponseEntity <AutomationRule> createAutomation (@RequestBody CreateAutomationRuleDto ruleDto,
+    public ResponseEntity <AutomationRule> createAutomation (@RequestBody CreateAutomationRuleDTO ruleDto,
                                                              @AuthenticationPrincipal User user) {
         AutomationRule rule =  automationService.createAutomation(ruleDto , user);
         return ResponseEntity.ok(rule);
@@ -38,6 +41,14 @@ public class AutomationController {
         AutomationRule rule =  automationService.toggleAutomation(toggleAutomationDto);
        return ResponseEntity.ok(rule);
     }
+
+
+
+//    @GetMapping
+//    public ResponseEntity <List<AutomationDTO>> getAllAutomationRule () {
+//        List<AutomationDTO> automationRules = automationService.(user);
+//        return ResponseEntity.ok(automationRules);
+//    }
 
 }
 

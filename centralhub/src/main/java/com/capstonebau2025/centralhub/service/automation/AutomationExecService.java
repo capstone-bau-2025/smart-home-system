@@ -3,7 +3,9 @@ package com.capstonebau2025.centralhub.service.automation;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.device.CommandService;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,10 +32,15 @@ public class AutomationExecService {
     private final CommandService commandService;
 
     private final Map<Long, AutomationRule> activeRules = new ConcurrentHashMap<>();
-    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>();    /**     * Subscribe for trigger monitoring (event/state/time) for a given rule
-     */
+    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>();
 
-    // TODO: all active rules should be loaded at startup of application (new method with PostConstruct annotation)
+
+    @PostConstruct
+    public void getAllActiveRules() {
+         ruleRepository.findAllByIsEnabledTrue().forEach(rule -> activeRules.put(rule.getId(), rule));
+    }
+
+
     public void subscribeTrigger(Long ruleId) {
         ruleRepository.findById(ruleId).ifPresent(rule -> {
             if (Boolean.TRUE.equals(rule.getIsEnabled())) {
@@ -53,7 +60,7 @@ public class AutomationExecService {
     public void automationLoop() {
         for (AutomationRule rule : activeRules.values()) {
             try {
-                //shouldn't the rule have trigger id as trigger could be the same but can be from different devices
+
                 AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
                 if (trigger == null) continue;
 
@@ -164,11 +171,10 @@ public class AutomationExecService {
         }
     }
 
-    //Layer 3
+//    //Layer 3
 //    private void executeActions(AutomationRule rule) {
 //        try {
 //            /*
-//             * TODO: (note from hamza) there is some problems in Action entity i will fix it and inform you to continue
 //             *  executeActions method, leave to the end.
 //             * */
 //            // Get all actions for this rule
@@ -209,8 +215,8 @@ public class AutomationExecService {
 //            log.error("Error executing actions for rule {}: {}", rule.getId(), e.getMessage(), e);
 //
 //        }
-
-    //}
+//
+//    }
 }
 
 
