@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.google.firebase:firebase-admin:9.2.0")
+	implementation ("org.postgresql:postgresql:42.6.0")  // Latest stable version
 
 	implementation("org.projectlombok:lombok")
 	compileOnly("org.projectlombok:lombok")

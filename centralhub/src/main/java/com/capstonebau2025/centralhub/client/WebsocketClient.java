@@ -1,10 +1,14 @@
 package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.RemoteCommandMessage;
+import com.capstonebau2025.centralhub.entity.Hub;
+import com.capstonebau2025.centralhub.service.HubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
@@ -20,23 +24,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Component
 public class WebsocketClient {
     private static final Logger logger = LoggerFactory.getLogger(WebsocketClient.class);
     private static final int RECONNECT_DELAY_SECONDS = 5;
 
-    private final String hubId;
-    private final String token;
     private StompSession session;
     private final WebSocketCommandHandler commandHandler;
-    private String serverUrl;
+
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
     private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
     private WebSocketStompClient stompClient;
 
-    public WebsocketClient(String hubId, String token, WebSocketCommandHandler commandHandler) {
-        this.hubId = hubId;
-        this.token = token;
+    @Value("${cloud.server.url}")
+    private String serverUrl;
+
+    @Value("${serial-number}")
+    private String serialNumber;
+
+    public WebsocketClient(WebSocketCommandHandler commandHandler) {
         this.commandHandler = commandHandler;
 
         // Initialize WebSocket client
@@ -46,8 +53,7 @@ public class WebsocketClient {
         this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
     }
 
-    public void connectToCloud(String serverUrl) {
-        this.serverUrl = serverUrl;
+    public void connectToCloud() {
         connect();
     }
 
@@ -58,8 +64,8 @@ public class WebsocketClient {
 
         reconnecting.set(true);
 
-        // Add token to URL for authentication
-        String connectionUrl = serverUrl + "?token=" + token;
+        // Add token to URL for authentication ws://localhost:8082/hub-socket
+        String connectionUrl = serverUrl.replaceFirst("^http", "ws") + "/hub-socket?token=" + CloudAuthClient.hubToken;
         logger.info("Connecting with URL: {}", connectionUrl);
 
         try {
@@ -99,7 +105,7 @@ public class WebsocketClient {
             commandHandler.setStompSession(session);
 
             // Subscribe to hub-specific topic
-            session.subscribe("/topic/messages/" + hubId, new StompFrameHandler() {
+            session.subscribe("/topic/messages/" + serialNumber, new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
                     return Message.class;
@@ -113,7 +119,7 @@ public class WebsocketClient {
             });
 
             // Subscribe to hub-specific command topic
-            session.subscribe("/topic/commands/" + hubId, new StompFrameHandler() {
+            session.subscribe("/topic/commands/" + serialNumber, new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
                     return RemoteCommandMessage.class;
@@ -125,14 +131,14 @@ public class WebsocketClient {
                     logger.info("Received command from Cloud: {}", message);
 
                     // Forward the message to our command handler
-                    commandHandler.processCommand(hubId, message);
+                    commandHandler.processCommand(serialNumber, message);
                 }
             });
 
-            logger.info("Subscribed to /topic/commands/{}", hubId);
+            logger.info("Subscribed to /topic/commands/{}", serialNumber);
 
             // Send a test message
-            session.send("/app/message", new Message("Hello from " + hubId, hubId));
+            session.send("/app/message", new Message("Hello from " + serialNumber, serialNumber));
         }
 
         @Override

@@ -1,0 +1,20 @@
+services:
+  centralhub:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: smart_home_central_hub
+    ports:
+      - "8080:8080"  # Spring Boot port
+      - "1883:1883"  # MQTT port
+      - "9001:9001"  # WebSockets port
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/dev-h2-db
+      - CLOUD_SERVER_URL=http://172.17.0.1:8082 # Replace with your actual cloud server URL
+    volumes:
+      - central_hub_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  central_hub_data:
+    name: smart_home_central_hub_data

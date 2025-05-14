@@ -18,6 +18,7 @@ export default function DiscoverHub() {
   const [loading, setLoading] = useState(true);
   const [serialNumber, setSerialNumber] = useState(null);
 
+  
   const loadHubs = async () => {
     setLoading(true);
     const { data, error } = await fetchHubs();
@@ -38,6 +39,7 @@ export default function DiscoverHub() {
   useEffect(() => {
     loadHubs();
   }, []);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,7 +74,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 50 : 0,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   title: {
     fontSize: 27,

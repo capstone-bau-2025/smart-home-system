@@ -1,45 +1,87 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { StyleSheet } from "react-native";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import PermsModal from "./PermsModal";
 import ScrollableList from "../UI/ScrollableList";
+import { useSelector } from "react-redux";
+import { deleteUser, fetchUsers } from "../../api/services/userService";
+import Toast from "react-native-toast-message";
 
-// A component that displays a list of users with their permissions and allows the user to edit or remove them
 export default function UsersList({ users, setRenameModal }) {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [modalType, setModalType] = useState(null);
-  const [usersPerms, setUsersPerms] = useState(users);
+  const [usersList, setUsersList] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [userName, setUsername] = useState(null);
+  const hubSerialNumber = useSelector(state => state.hub.currentHub?.serialNumber);
 
+
+  useEffect(() => {
+    setUsersList(users);
+  }, [users]);
   const handleOpenModal = (type, userId) => {
     setSelectedUserId(userId);
+    setUsername(usersList.find(user => user.id === userId)?.username);
     setModalType(type);
   };
 
   const handleCloseModal = () => {
     setModalType(null);
-    setTimeout(() => {
-      setSelectedUserId(null);
-    }, 300);
+    setTimeout(() => setSelectedUserId(null), 300);
   };
 
-  const handleRemoveUser = () => {
-    console.log(`User ${selectedUserId} removed`);
-    handleCloseModal();
+
+  const handleRemoveUser = async () => {
+    try {
+      await deleteUser(selectedUserId, hubSerialNumber);
+      setUsersList(prev => prev.filter(user => user.id !== selectedUserId));
+      Toast.show({
+        type: "success",
+        text1: "User removed",
+        text2: `User ID ${selectedUserId} was removed successfully.`,
+        position: "top",
+        visibilityTime: 4000,
+        autoHide: true,
+        topOffset: 60,
+      });
+      handleCloseModal();
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to remove user",
+        text2: err.message || "Something went wrong.",
+        position: "top",
+      });
+    }
   };
 
-  const updatePermissions = (userId, updatedPerms) => {
-    setUsersPerms((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === userId ? { ...user, perms: updatedPerms } : user
-      )
-    );
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      const res = await fetchUsers(hubSerialNumber);
+
+      setUsersList(res);
+    } catch (err) {
+      console.error("Refresh failed:", err);
+      Toast.show({
+        type: "error",
+        text1: "Refresh failed",
+        text2: err.message || "Could not update users.",
+        position: "top",
+      });
+    } finally {
+      setRefreshing(false);
+    }
   };
+
 
   return (
     <>
       <ScrollableList
-        data={users}
-        textFields={["name", "role"]}
+        data={usersList}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        textFields={["username", "role"]}
         buttonConfig={[
           {
             icon: "key-outline",
@@ -69,53 +111,10 @@ export default function UsersList({ users, setRenameModal }) {
         visible={modalType === "edit"}
         onClose={handleCloseModal}
         userId={selectedUserId}
-        users={users}
-        updatePermissions={updatePermissions}
+        users={usersList}
+        hubSerialNumber={hubSerialNumber}
+        userName={userName}
       />
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  listContainer: { flexGrow: 1, paddingBottom: 80 },
-  itemWrapper: { alignItems: "center" },
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "97%",
-    height: 70,
-    borderRadius: 10,
-    marginVertical: 8,
-    paddingHorizontal: 15,
-    overflow: "hidden",
-    backgroundColor: "#ffffff",
-    borderWidth: 2,
-    borderColor: "orange",
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 20,
-    borderTopLeftRadius: 30,
-    borderBottomLeftRadius: 0,
-  },
-  textContainer: { flexDirection: "row", alignItems: "center" },
-  userText: { fontSize: 27, fontWeight: "bold", color: "#000000" },
-  roleText: { fontSize: 27, fontWeight: "normal", color: "#000000" },
-  iconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-  },
-  editIcon: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    padding: 6,
-    borderRadius: 50,
-    marginRight: 10,
-    backgroundColor: "orange",
-  },
-  removeIcon: {
-    padding: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderRadius: 50,
-    backgroundColor: "orange",
-  },
-});

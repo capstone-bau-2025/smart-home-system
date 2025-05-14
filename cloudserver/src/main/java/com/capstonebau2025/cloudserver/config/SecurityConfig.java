@@ -35,7 +35,7 @@ public class SecurityConfig {
                                 "/api/auth/hub-token",
                                 "/api/notify"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session // Lambda for session management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

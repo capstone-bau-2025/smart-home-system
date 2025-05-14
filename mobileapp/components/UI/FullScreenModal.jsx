@@ -1,5 +1,5 @@
 import React, { use, useState } from "react";
-import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Modal, TouchableOpacity, Platform } from "react-native";
 
 import Colors from "../../constants/Colors";
 
@@ -29,9 +29,9 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: Colors.primaryBackground,
-    paddingTop: 50,
+    paddingTop: Platform.OS === "android" ? 15 : 60,
     alignItems: "center",
-    
+
     
   },
   header: {

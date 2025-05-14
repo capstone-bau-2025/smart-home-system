@@ -16,7 +16,7 @@ public class FirebaseConfig {
     @PostConstruct
     public void initializeFirebase() {
         try {
-            FileInputStream serviceAccount = new FileInputStream("cloudserver/src/main/resources/firebase/smart-home-system-notification-firebase-adminsdk.json");
+            FileInputStream serviceAccount = new FileInputStream("cloudserver/src/main/resources/firebase-notification-adminsdk.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))

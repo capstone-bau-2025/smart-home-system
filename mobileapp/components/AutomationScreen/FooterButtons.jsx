@@ -16,10 +16,10 @@ export default function ({ handleCloseModal, handleEdit, handleSave, edit }) {
           <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
             <Text style={styles.closeText}>Close</Text>
           </TouchableOpacity>
-
+{/* 
           <TouchableOpacity onPress={handleEdit} style={styles.editButton}>
             <Text style={styles.editText}>Edit</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </>
       )}
     </View>

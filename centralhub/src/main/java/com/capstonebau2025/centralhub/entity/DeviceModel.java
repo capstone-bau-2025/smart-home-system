@@ -43,6 +43,6 @@ public class DeviceModel {
     private List<Event> events;
 
     public enum DeviceModelType {
-        LIGHT, SWITCH, CAMERA, SENSOR, OTHER
+        LIGHT, SWITCH, CAMERA, SENSOR, DOOR, CURTAIN, FAN, OTHER
     }
 }

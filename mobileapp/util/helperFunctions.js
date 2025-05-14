@@ -66,3 +66,33 @@ export const getIconBgColor = (category) => {
       return '#F0F0F0'; // neutral fallback
   }
 };
+
+
+
+export const iconOptions = {
+  1: 'home-outline',
+  2: 'bed-outline',
+  3: 'tv-outline',
+  4: 'water-outline',
+  5: 'restaurant-outline',
+  6: 'desktop-outline',
+  7: 'cafe-outline',
+  8: 'car-outline',
+  9: 'leaf-outline',
+  10: 'game-controller-outline',
+  11: 'shirt-outline',
+  12: 'basket-outline',
+  13: 'sparkles-outline',
+  14: 'happy-outline',
+  15: 'people-outline',
+  16: 'print-outline',
+  17: 'laptop-outline',
+  18: 'sunny-outline',
+  19: 'cart-outline',
+  20: 'musical-notes-outline',
+  21: 'body-outline',
+  22: 'paw-outline',
+  23: 'heart-outline',
+  24: 'book-outline',
+  25: 'football-outline',
+};

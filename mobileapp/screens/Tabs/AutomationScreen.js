@@ -10,25 +10,27 @@ import HubsTabs from "../../components/UI/HubsTabs";
 import Colors from "../../constants/Colors";
 import { hubs } from "../../Data/Hubs";
 import { StatusBar } from "expo-status-bar";
+import { useSelector } from "react-redux";
 
-
-export default function AutomationScreen({ currentHub, navigation }) {
-
-
+export default function AutomationScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentAutomation, setCurrentAutomation] = useState(null);
   const [infoModal, setInfoModal] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(hubs[0]);
+  const userHubs = useSelector((state) => state.hub.userHubs);
+  const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
 
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <StatusBar/>
+        <StatusBar barStyle="dark-content" backgroundColor="white" />
         <View style={styles.header}>
-          <HeaderIcons onInfoPress={() => setInfoModal(true)} onAddPress={() => navigation.push('NewAutomation')}/>
+          <HeaderIcons
+            onInfoPress={() => setInfoModal(true)}
+            onAddPress={() => navigation.push("NewAutomation")}
+          />
         </View>
         <HubsTabs
-          hubs={hubs}
+          hubs={userHubs}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
         />
@@ -36,7 +38,8 @@ export default function AutomationScreen({ currentHub, navigation }) {
         <AutomationsList
           automations={automations}
           currentHub={
-            selectedTab.name.charAt(0).toUpperCase() + selectedTab.name.slice(1)
+            (selectedTab?.name?.charAt(0).toUpperCase() || "") +
+            (selectedTab?.name?.slice(1) || "")
           }
           setModalVisible={setModalVisible}
           setCurrentAutomation={setCurrentAutomation}
@@ -72,14 +75,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     backgroundColor: Colors.primaryBackground,
-    
   },
 
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
-    paddingTop: Platform.OS === "android" ? 30 : 0,
-
+    paddingTop: Platform.OS === "android" ? 50 : 0,
   },
 });

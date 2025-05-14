@@ -45,7 +45,7 @@ public class MqttMessageProducer {
                     .put("password", password)
                     .put("uid", deviceUid);
 
-            ObjectNode response = sendMessage(deviceUid, message, configTopic);
+            ObjectNode response = sendMessage(deviceUid, message, configTopic, 15000);
             if(response != null) {
                 logger.info("successfully paired with device uid: {}", deviceUid);
                 return true;
@@ -151,7 +151,7 @@ public class MqttMessageProducer {
      * @param topic the topic to which the message will be published
      * @return the response from the device, or null if an error occurred
      */
-    public ObjectNode sendMessage(long deviceUid, ObjectNode message, String topic) {
+    public ObjectNode sendMessage(long deviceUid, ObjectNode message, String topic, long timeoutMillis) {
         try {
             //prepare message
             int messageId = MessageIdGenerator.generateMessageId();
@@ -166,7 +166,7 @@ public class MqttMessageProducer {
             // wait for response
             synchronized (response) {
                 try {
-                    response.wait(5000);
+                    response.wait(timeoutMillis);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     logger.error("Thread interrupted while waiting for message", e);
@@ -199,6 +199,6 @@ public class MqttMessageProducer {
         }
     }
     public ObjectNode sendMessage(long deviceUid, ObjectNode message) {
-        return sendMessage(deviceUid, message, "device/" + deviceUid + "/in");
+        return sendMessage(deviceUid, message, "device/" + deviceUid + "/in", 5000);
     }
 }

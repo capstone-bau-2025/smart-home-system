@@ -8,7 +8,7 @@ const areaSlice = createSlice({
   reducers: {
     setAreas(state, action) {
       state.areas = action.payload;
-    },
+    }, 
     clearAreas(state) {
       state.areas = [];
     },

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchHubs } from '../api/services/hubService';
-import { findAndStoreUserDetails } from '../api/services/userService';
-import { addUserHub, setCurrentHub } from '../store/slices/hubSlice';
+import { fetchUserDetails, fetchUsers } from '../api/services/userService';
+import { setUserHubs, setCurrentHub } from '../store/slices/hubSlice';
+import { setUserId, setUsername, setEmail } from '../store/slices/userSlice';
 
 export default function useInitAppData() {
   const user = useSelector((state) => state.user);
@@ -14,26 +14,27 @@ export default function useInitAppData() {
       if (!user.email || initialized) return;
 
       try {
-        await findAndStoreUserDetails();
+        const data = await fetchUserDetails(); // { email, username, hubsConnected }
 
-        const response = await fetchHubs();
-        const hub = response?.data;
+        dispatch(setEmail(data.email));
+        dispatch(setUsername(data.username));
+        dispatch(setUserHubs(data.hubsConnected));
 
-        if (hub?.serialNumber) {
-          dispatch(addUserHub(hub));
-          dispatch(setCurrentHub({
-            serialNumber: hub.serialNumber,
-            hubName: hub.name,
-            hubDetails: {
-              location: hub.location,
-              status: hub.status,
-              name: hub.name,
-            },
-          }));
-          console.log("App initialized hub:", hub);
+        if (data.hubsConnected.length > 0) {
+          const defaultHub = data.hubsConnected[0];
+          dispatch(setCurrentHub(defaultHub));
+
+          //GET THE USER ID
+          const users = await fetchUsers(defaultHub.serialNumber);
+          const matchedUser = users.find((u) => u.email === data.email);
+          if (matchedUser) {
+            dispatch(setUserId(matchedUser.id));
+          }
         }
+
+        console.log("✅ User details, hubs, and userId initialized:", data);
       } catch (err) {
-        console.error("Init error:", err);
+        console.error("❌ Init error:", err);
       } finally {
         setInitialized(true);
       }

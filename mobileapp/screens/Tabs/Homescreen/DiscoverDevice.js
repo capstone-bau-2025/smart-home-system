@@ -10,26 +10,31 @@ import {
   Pressable,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import DiscoverCard from "../../../components/DiscoverHub/DiscoverCard";
-import { fetchHubs } from "../../../api/services/hubService";
+import { useSelector } from "react-redux";
+import { discoverDevices } from "../../../api/services/deviceDiscoverService";
+import { discoveredDevices } from "../../../Data/discoveredDevices";
+import DeviceDiscoveredCard from "../../../components/DiscoverDevices/DeviceDiscoveredCard";
 
 export default function DiscoverDevice() {
-  const [hubs, setHubs] = useState([]);
-  const [loading, setLoading] = useState(false); //true
+  const currentHub = useSelector((state) => state.hub.currentHub);
+  // const [devices, setDevices] = useState(discoveredDevices);
+  const [loading, setLoading] = useState(false);
 
-  // const loadHubs = async () => {
-  //   setLoading(true);
-  //   const { data, error } = await fetchHubs();
-  //   if (error) {
-  //     console.log("Error fetching hubs");
-  //   } else {
-  //     setHubs(data);
+  // const fetchDevices = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const res = await discoverDevices();
+  //     setDevices(res);
+  //     console.log("DEVICES DISCOVERED:", res);
+  //   } catch (err) {
+  //     console.error("Failed to discover devices:", err);
+  //   } finally {
+  //     setLoading(false);
   //   }
-  //   setLoading(false);
   // };
 
   // useEffect(() => {
-  //   loadHubs();
+  //   setDevices(discoveredDevices);
   // }, []);
 
   return (
@@ -42,13 +47,13 @@ export default function DiscoverDevice() {
       ) : (
         <>
           <Text style={styles.title}>Scanned Devices</Text>
-          <DiscoverCard hubs={hubs} isDevice={true}/>
-          {/* onScanPress={loadHubs}  */}
+          <DeviceDiscoveredCard data={discoveredDevices} />
         </>
       )}
+
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        onPress={""}
+        onPress={console.log('"Discovering devices...")}')}
       >
         <Text style={styles.buttonText}>Look for devices</Text>
       </Pressable>

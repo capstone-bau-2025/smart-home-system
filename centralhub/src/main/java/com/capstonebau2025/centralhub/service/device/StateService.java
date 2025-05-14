@@ -11,6 +11,7 @@ import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class StateService {
     private final StateValueRepository stateValueRepository;
     private final MqttMessageProducer mqttMessageProducer;
 
+    @Transactional
     public void initializeDeviceStates(Device device) {
         if (device == null || device.getModel() == null || device.getModel().getStates() == null) {
             return;
@@ -55,6 +57,7 @@ public class StateService {
     * @param newValue the new value to set
     * @throws IllegalArgumentException if the StateValue is not found, or if the state is not mutable
     * */
+    @Transactional
     public void updateStateValue(Long id, String newValue) {
         // Find StateValue by id
         StateValue stateValue = stateValueRepository.findById(id)
@@ -105,6 +108,7 @@ public class StateService {
         stateValueRepository.save(stateValue);
     }
 
+    @Transactional
     public String fetchState(Long id) {
         StateValue stateValue = stateValueRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StateValue not found with ID: " + id));

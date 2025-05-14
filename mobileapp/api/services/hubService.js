@@ -1,27 +1,21 @@
 import axios from "axios";
 import { LOCAL_URL } from "../../util/auth"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { store } from "../../store/store";
 
-
-
-
+// 🔍 Local-only path for discovery/configure
 const path = `${LOCAL_URL}api/hub/`;
 
 export const discoverHubs = async () => {
   try {
-    const token = await AsyncStorage.getItem("userToken");
-    const response = await axios.get(`${path}discover`, {
-
-    });
-
-    console.log(response.data)
+    const response = await axios.get(`${path}discover`);
+    console.log(response.data);
     return response.data; 
   } catch (error) {
     console.error("Error discovering hubs:", error);
     throw error;
   }
 };
- 
 
 export const fetchHubs = async () => {
   try {
@@ -33,16 +27,9 @@ export const fetchHubs = async () => {
   }
 };
 
-
-
-
 export const configureHub = async (hubName) => {
   try {
-    // const token = await AsyncStorage.getItem("userToken");
-    const response = await axios.post(
-      `${path}configure`,
-      { hubName },
-    );
+    const response = await axios.post(`${path}configure`, { hubName });
     return response.data; 
   } catch (error) {
     console.error("Error configuring hub:", error);
@@ -50,12 +37,14 @@ export const configureHub = async (hubName) => {
   }
 };
 
-
 export const updateHubName = async (name) => {
   try {
     const token = await AsyncStorage.getItem("userToken");
+    const currentUrl = store.getState().url.currentUrl || LOCAL_URL;
+    const activePath = `${currentUrl}api/hub/`;
+
     const response = await axios.put(
-      `${path}update-name?name=${name}`,  
+      `${activePath}update-name?name=${name}`,  
       {},
       {
         headers: {
