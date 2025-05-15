@@ -20,7 +20,6 @@ public class AutomationController {
     private final AutomationService automationService;
 
 
-
     @DeleteMapping("/delete/{ruleId}")
     public ResponseEntity<String> deleteAutomation(@PathVariable Long ruleId) {
         String result = automationService.deleteAutomationRule(ruleId);
@@ -44,11 +43,11 @@ public class AutomationController {
 
 
 
-//    @GetMapping
-//    public ResponseEntity <List<AutomationDTO>> getAllAutomationRule () {
-//        List<AutomationDTO> automationRules = automationService.(user);
-//        return ResponseEntity.ok(automationRules);
-//    }
+    @GetMapping
+    public ResponseEntity <List<AutomationDTO>> getAllAutomationRule () {
+        List<AutomationDTO> automationRules = automationService.getAllAutomationRules();
+        return ResponseEntity.ok(automationRules);
+    }
 
 }
 

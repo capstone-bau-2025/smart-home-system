@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service.automation;
 
+import com.capstonebau2025.centralhub.dto.ActionDTO;
 import com.capstonebau2025.centralhub.dto.AutomationDTO;
 import com.capstonebau2025.centralhub.dto.CreateAutomationRuleDTO;
 import com.capstonebau2025.centralhub.dto.ToggleAutomationRuleDto;
@@ -83,6 +84,30 @@ public class AutomationService {
         }
 
         // TODO: get actions details from dto and save them too
+        // add actionDto and map to action entity
+        for (ActionDTO actionDto : dto.getActions()) {
+            Device device = deviceRepository.findById(actionDto.getDeviceId())
+                    .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+
+            AutomationAction action = AutomationAction.builder()
+                    .automationRule(savedRule)
+                    .device(device)
+                    .type(AutomationAction.ActionType.valueOf(actionDto.getType().toUpperCase()))
+                    .build();
+
+            // Set command or stateValue based on action type
+            if (actionDto.getCommandId() != null) {
+                action.setCommand(commandRepository.findById(actionDto.getCommandId()).orElse(null));
+            }
+
+            if (actionDto.getStatusValueId() != null) {
+                action.setStateValue(stateValueRepository.findById(actionDto.getStatusValueId()).orElse(null));
+            }
+
+            action.setValue(actionDto.getActionValue());
+            actionRepository.save(action);
+        }
+
 
         automationExecService.subscribeTrigger(savedRule.getId());
         return savedRule;
@@ -108,6 +133,7 @@ public class AutomationService {
         return savedRule;
     }
 
+
     @Transactional
     public String deleteAutomationRule (Long ruleId) {
         AutomationRule rule = ruleRepository.findById(ruleId)
@@ -120,6 +146,7 @@ public class AutomationService {
         return "Automation rule deleted successfully";
     }
     
+
     public List<AutomationDTO> getAllAutomationRules() {
         List<AutomationRule> rules = ruleRepository.findAll();
         

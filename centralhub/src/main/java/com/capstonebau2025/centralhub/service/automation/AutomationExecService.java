@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service.automation;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.device.CommandService;
+import com.capstonebau2025.centralhub.service.device.StateService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Positive;
@@ -30,6 +31,8 @@ public class AutomationExecService {
     private final StateValueRepository stateValueRepository;
     private final EventRepository eventRepository;
     private final CommandService commandService;
+    private final StateService stateService;
+
 
     private final Map<Long, AutomationRule> activeRules = new ConcurrentHashMap<>();
     private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>();
@@ -60,11 +63,15 @@ public class AutomationExecService {
     public void automationLoop() {
         for (AutomationRule rule : activeRules.values()) {
             try {
-
                 AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
                 if (trigger == null) continue;
 
-                if (rule.getCooldownDuration() != 0 ) continue;
+                // Check if the rule is in cooldown period
+                if (rule.getLastExecutedTime() != null && rule.getCooldownDuration() > 0) {
+                    if (isRuleInCooldown(rule)) {
+                        continue;
+                    }
+                }
 
                 boolean shouldExecute = switch (rule.getTriggerType()) {
                     case SCHEDULE -> checkScheduledTrigger(trigger);
@@ -74,13 +81,14 @@ public class AutomationExecService {
 
                 if (shouldExecute) {
                     log.info("Trigger met for rule: {}", rule.getName());
-                    //executeActions(rule);
+                    executeActions(rule);
                 }
             } catch (Exception ex) {
-                log.error("Error processing rule {}: {}", rule.getId(), ex.getMessage());
+                log.error("Error processing rule {}: {}", rule.getId(), ex.getMessage(), ex);
             }
         }
     }
+
 
     public boolean checkScheduledTrigger(AutomationTrigger trigger) {
         if (trigger.getScheduledTime() == null) return false;
@@ -171,67 +179,100 @@ public class AutomationExecService {
         }
     }
 
-//    //Layer 3
-//    private void executeActions(AutomationRule rule) {
-//        try {
-//            /*
-//             *  executeActions method, leave to the end.
-//             * */
-//            // Get all actions for this rule
-//            List<AutomationAction> actions = actionRepository.findByAutomationRuleId((rule.getId()));
-//
-//            if (actions.isEmpty()) {
-//                log.warn("No actions found for rule: {}", rule.getName());
-//                return;
-//            }
-//
-//            log.info("Executing {} actions for rule: {}", actions.size(), rule.getName());
-//
-//            // Execute each action
-//            for (AutomationAction action : actions) {
-//                try {
-//                    boolean success = commandService.executeCommand(  // Using the correct field name
-//                            action.getDevice().getId(),
-//                            action.getCommand().getId()
-//                    );
-//
-//                    if (success) {
-//                        log.info("Successfully executed action {} for rule {}",
-//                                action.getId(), rule.getName());
-//                    } else {
-//                        log.warn("Failed to execute action {} for rule {}",
-//                                action.getId(), rule.getName());
-//                    }
-//                } catch (Exception e) {
-//                    log.error("Error executing action {}: {}", action.getId(), e.getMessage(), e);
-//                }
-//            }
-//
-//            // Update the last executed timestamp for the rule
-//            rule.setLastExecutedTime(LocalDateTime.now().toLocalTime());
-//            ruleRepository.save(rule);
-//
-//        } catch (Exception e) {
-//            log.error("Error executing actions for rule {}: {}", rule.getId(), e.getMessage(), e);
-//
-//        }
-//
-//    }
+    private boolean isRuleInCooldown(AutomationRule rule) {
+            LocalTime now = LocalTime.now();
+            LocalTime lastExecuted = rule.getLastExecutedTime();
+
+            long secondsSinceLastExecution;
+
+            // Handle day boundary case (if now is earlier than lastExecuted, it crossed midnight)
+            if (now.isBefore(lastExecuted)) {
+                secondsSinceLastExecution = 86400 - lastExecuted.toSecondOfDay() + now.toSecondOfDay();
+            } else {
+                secondsSinceLastExecution = now.toSecondOfDay() - lastExecuted.toSecondOfDay();
+            }
+
+            // If the cooldown period has passed, clear the lastExecutedTime
+            if (secondsSinceLastExecution >= rule.getCooldownDuration()) {
+                rule.setLastExecutedTime(null);
+                ruleRepository.save(rule);
+                log.debug("Cooldown period expired for rule {}", rule.getName());
+                return false; // Not in cooldown anymore
+            } else {
+                // Still in cooldown period, skip this rule
+                log.debug("Rule {} is in cooldown for {} more seconds",
+                        rule.getName(), rule.getCooldownDuration() - secondsSinceLastExecution);
+                return true; // Still in cooldown
+            }
+        }
+
+    private void executeActions(AutomationRule rule) {
+        try {
+            // Get all actions for this rule
+            List<AutomationAction> actions = actionRepository.findByAutomationRuleId(rule.getId());
+
+            if (actions.isEmpty()) {
+                log.warn("No actions found for rule: {}", rule.getName());
+                return;
+            }
+
+            log.info("Executing {} actions for rule: {}", actions.size(), rule.getName());
+
+            // Execute each action
+            for (AutomationAction action : actions) {
+                try {
+                    switch (action.getType()) {
+                        case COMMAND -> {
+                            if (action.getCommand() != null) {
+                                commandService.executeCommand(
+                                        action.getDevice().getId(),
+                                        action.getCommand().getId()
+                                );
+                                log.info("Successfully executed command action for rule {}", rule.getName());
+                            } else {
+                                log.warn("Command not specified for command action in rule {}", rule.getName());
+                            }
+                        }
+                        case STATE_UPDATE -> {
+                            if (action.getStateValue() != null) {
+                                stateService.updateStateValue(
+                                        action.getStateValue().getId(),
+                                        action.getValue()
+                                );
+                                log.info("Successfully executed state update action for rule {}", rule.getName());
+                            } else {
+                                log.warn("State value not specified for state update action in rule {}", rule.getName());
+                            }
+                        }
+                        default -> log.warn("Unknown action type for action {} in rule {}",
+                                        action.getId(), rule.getName());
+                    }
+                } catch (Exception e) {
+                    log.error("Error executing action {}: {}", action.getId(), e.getMessage(), e);
+                }
+            }
+
+            // Update the last executed timestamp for the rule
+            rule.setLastExecutedTime(LocalTime.now());
+
+            // Set the cooldown duration from the user-specified value
+            // This will be checked in the automationLoop method
+            if (rule.getCooldownDuration() > 0) {
+                log.info("Setting cooldown for rule {} to {} seconds", rule.getName(), rule.getCooldownDuration());
+            }
+
+            // Save the updated rule with the new lastExecutedTime
+            ruleRepository.save(rule);
+
+        } catch (Exception e) {
+            log.error("Error executing actions for rule {}: {}", rule.getId(), e.getMessage(), e);
+        }
+    }
+
 }
 
 
-/*
- * method for subscribing for events and state changes
- *
- * method for executing actions if if event, state change, or time is triggered,
- * it should be implemented every second or minute
- * */
-//1st layer: layer of methods that is used by user with controllers make sure to validate
-//2nd layer: will execute the automation actions
-// make a merthod to tell me an event happened add event , will create a list and add all events added in memory
-//will create cool down and last executed attributes in automation rule
-//update trigger (state) pull from databse and compare between stateValue and triggerStateValue
-//if state is enum it should be equal
+
 
 
 
