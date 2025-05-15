@@ -1,12 +1,11 @@
 package com.capstonebau2025.centralhub.service.automation;
 
 import com.capstonebau2025.centralhub.entity.*;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.device.CommandService;
 import com.capstonebau2025.centralhub.service.device.StateService;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -162,7 +161,7 @@ public class AutomationExecService {
     public void addEvent(long eventId , long deviceId) {
         // Find the event from the repository
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
         // Add the event to the recent events list
         recentEvents.put(event.getId(), event.getId());
     }

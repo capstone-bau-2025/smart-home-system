@@ -5,9 +5,9 @@ import com.capstonebau2025.centralhub.dto.AutomationDTO;
 import com.capstonebau2025.centralhub.dto.CreateAutomationRuleDTO;
 import com.capstonebau2025.centralhub.dto.ToggleAutomationRuleDto;
 import com.capstonebau2025.centralhub.entity.*;
+import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.*;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +27,7 @@ public class AutomationService {
     private final EventRepository eventRepository;
     private final StateValueRepository stateValueRepository;
 
+
     @Transactional
     public AutomationDTO createAutomation(CreateAutomationRuleDTO dto , User user) {
 
@@ -34,7 +35,7 @@ public class AutomationService {
         try {
             triggerType = AutomationRule.TriggerType.valueOf(dto.getTriggerType().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid trigger type: " + dto.getTriggerType());
+            throw new ResourceNotFoundException("Invalid trigger type: " + dto.getTriggerType());
         }
 
         AutomationRule rule = AutomationRule.builder()
@@ -58,9 +59,9 @@ public class AutomationService {
             }
             case EVENT -> {
                 Event event = eventRepository.findById(dto.getEventId())
-                        .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
                 Device device = deviceRepository.findById(dto.getDeviceId())
-                        .orElseThrow(() -> new EntityNotFoundException("trigger device not found "));
+                        .orElseThrow(() -> new ResourceNotFoundException("trigger device not found "));
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
                         .event(event)
@@ -70,7 +71,7 @@ public class AutomationService {
             }
             case STATUS_VALUE -> {
                 StateValue stateValue = stateValueRepository.findById(dto.getStatusValueId())
-                        .orElseThrow(() -> new EntityNotFoundException("State value not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("State value not found"));
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
                         .stateValue(stateValue)
@@ -84,7 +85,7 @@ public class AutomationService {
         // add actionDto and map to action entity
         for (ActionDTO actionDto : dto.getActions()) {
             Device device = deviceRepository.findById(actionDto.getDeviceId())
-                    .orElseThrow(() -> new EntityNotFoundException("Device not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Device not found"));
 
             AutomationAction action = AutomationAction.builder()
                     .automationRule(savedRule)
@@ -115,7 +116,7 @@ public class AutomationService {
     @Transactional
     public AutomationDTO toggleAutomation(ToggleAutomationRuleDto toggleAutomationRule) {
         AutomationRule rule = ruleRepository.findById(toggleAutomationRule.getRuleId())
-                .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
        // Set the enabled state using the provided parameter
        rule.setIsEnabled(toggleAutomationRule.getIsEnabled());
@@ -135,7 +136,7 @@ public class AutomationService {
     @Transactional
     public void deleteAutomationRule(Long ruleId) {
         AutomationRule rule = ruleRepository.findById(ruleId)
-                .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
         // Unsubscribe from triggers
         automationExecService.unsubscribeTrigger(rule.getId());

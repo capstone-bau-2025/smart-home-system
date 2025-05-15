@@ -9,7 +9,6 @@ import lombok.Data;
 public class ActionDTO {
 
     private Long deviceId;
-    private Long ruleId;
     private Long commandId;
     private Long statusValueId;
     private String type;
