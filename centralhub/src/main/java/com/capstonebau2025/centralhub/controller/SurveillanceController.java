@@ -7,8 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,22 +21,16 @@ public class SurveillanceController {
 
     @GetMapping("/{id}/stream")
     @Operation(summary = "REMOTE")
-    public void streamCamera(@PathVariable Long id, HttpServletResponse response) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-
-        surveillanceService.streamCameraFeed(userId, id, response);
+    public void streamCamera(@PathVariable Long id,
+                             @AuthenticationPrincipal User user,
+                             HttpServletResponse response) {
+        surveillanceService.streamCameraFeed(user.getId(), id, response);
     }
 
     @GetMapping("/get-all")
     @Operation(summary = "REMOTE")
-    public ResponseEntity<List<DeviceInfoDTO>> getStreamingDevices() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-
-        List<DeviceInfoDTO> streamingDevices = surveillanceService.getStreamingDevices(userId);
+    public ResponseEntity<List<DeviceInfoDTO>> getStreamingDevices(@AuthenticationPrincipal User user) {
+        List<DeviceInfoDTO> streamingDevices = surveillanceService.getStreamingDevices(user.getId());
         return ResponseEntity.ok(streamingDevices);
     }
     // TODO: update camera device python to update state to OFF after timer ends
