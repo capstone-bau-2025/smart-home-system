@@ -147,7 +147,7 @@ export default function ScrollableList({
 const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
-    flex: 1,
+    
   },
   itemContainer: {
     flexDirection: "row",

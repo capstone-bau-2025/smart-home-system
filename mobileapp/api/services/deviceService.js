@@ -76,3 +76,30 @@ export const deleteDevice = async (deviceId, token, hubSerialNumber) => {
 
   return response.data;
 };
+
+
+export const fetchAndDispatchDevices = async (hubSerialNumber, areas, dispatch) => {
+  if (!hubSerialNumber || !areas?.length) return;
+
+  try {
+    const deviceMetaPerArea = await Promise.all(
+      areas.map((area) =>
+        getDeviceByArea(area.areaId, hubSerialNumber).then((list) => ({
+          areaId: area.areaId,
+          list,
+        }))
+      )
+    );
+
+    const allDevices = deviceMetaPerArea.flatMap(({ areaId, list }) =>
+      list.map((device) => ({
+        ...device,
+        areaId,
+      }))
+    );
+
+    dispatch(setDevices(allDevices));
+  } catch (err) {
+    console.error("❌ Error fetching devices per area:", err);
+  }
+};

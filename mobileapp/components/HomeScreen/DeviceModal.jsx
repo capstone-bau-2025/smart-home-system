@@ -8,11 +8,12 @@ import {
   TouchableWithoutFeedback,
   Pressable,
 } from "react-native";
-import CustomSlider from "./CustomSlider";
-import { Ionicons } from "@expo/vector-icons";
+import { useSelector } from "react-redux";
+import EditInput from "../UI/EditInput";
 
 export default function DeviceModal({ visible, onClose, device }) {
-  if (!device) return null;
+  const storedDevices = useSelector((state) => state.devices?.devices);
+  const selectedDevice = storedDevices?.find((d) => d.id === device.deviceId);
 
   return (
     <Modal
@@ -25,89 +26,80 @@ export default function DeviceModal({ visible, onClose, device }) {
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
-              {/* Header */}
-              <View style={styles.header}>
-                <Text style={styles.title}>{device.name}</Text>
-                <Pressable onPress={onClose}>
-                  <Ionicons name="close" size={24} color="#333" />
-                </Pressable>
-              </View>
+              <ScrollView
+                style={styles.scrollContainer}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              >
+                {/* Device Title */}
+                <Text style={styles.deviceTitle}>
+                  {selectedDevice?.name ?? "Unnamed Device"}
+                </Text>
 
-              {/* Interaction Scroll */}
-              <ScrollView style={styles.scrollContainer}>
-                {device.interactions.map((interaction, index) => {
-                  const { type, name, value, min, max, choices } = interaction;
+                {/* Input Section */}
+                <View style={styles.inputBlock}>
+                  <Text style={styles.inputLabel}>
+                    Rename current interaction
+                  </Text>
+                  <EditInput placeholder="Enter new name" />
+                  <Pressable style={styles.confirmBtn}>
+                    <Text style={styles.confirmText}>Confirm</Text>
+                  </Pressable>
+                </View>
 
-                  if (type === "INFO") {
-                    return (
-                      <View key={index} style={styles.item}>
-                        <Text style={styles.label}>{name}</Text>
-                        <Text style={styles.value}>{value}</Text>
-                      </View>
-                    );
-                  }
+                {/* Metadata Row 1 */}
+                <View style={styles.metadataRow}>
+                  <View style={styles.metadataBlock}>
+                    <Text style={styles.metaLabel}>Interaction Name</Text>
+                    <Text style={styles.metaValue}>
+                      {device?.name ?? "N/A"}
+                    </Text>
+                  </View>
+                  <View style={styles.metadataBlock}>
+                    <Text style={styles.metaLabel}>Status</Text>
+                    <Text
+                      style={[
+                        styles.metaValue,
+                        selectedDevice?.status === "CONNECTED"
+                          ? styles.connected
+                          : styles.disconnected,
+                      ]}
+                    >
+                      {selectedDevice?.status ?? "N/A"}
+                    </Text>
+                  </View>
+                </View>
 
-                  if (type === "CHOICE" && choices?.length === 2) {
-                    return (
-                      <Pressable
-                        key={index}
-                        style={styles.item}
-                        onPress={() =>
-                          console.log(`Toggle ${name} from ${value}`)
-                        }
-                      >
-                        <Text style={styles.label}>{name}</Text>
-                        <Text style={styles.value}>{value}</Text>
-                      </Pressable>
-                    );
-                  }
+                {/* Metadata Row 2 */}
+                <View style={styles.metadataRow}>
+                  <View style={styles.metadataBlock}>
+                    <Text style={styles.metaLabel}>Type</Text>
+                    <Text style={styles.metaValue}>
+                      {device?.type ?? "N/A"}
+                    </Text>
+                  </View>
+                  <View style={styles.metadataBlock}>
+                    <Text style={styles.metaLabel}>Area</Text>
+                    <Text style={styles.metaValue}>
+                      {selectedDevice?.areaName ?? "N/A"}
+                    </Text>
+                  </View>
+                </View>
 
-                  if (type === "CHOICE" && choices?.length > 2) {
-                    return (
-                      <View key={index} style={styles.item}>
-                        <Text style={styles.label}>{name}</Text>
-                        <CustomSlider
-                          levels={choices}
-                          value={choices.indexOf(value)}
-                          setValue={(v) => console.log("Set enum", v)}
-                        />
-                      </View>
-                    );
-                  }
-
-                  if (type === "RANGE") {
-                    return (
-                      <View key={index} style={styles.item}>
-                        <Text style={styles.label}>{name}</Text>
-                        <CustomSlider
-                          ranged
-                          value={parseFloat(value)}
-                          setValue={(v) => console.log("Set range", v)}
-                          minRange={parseFloat(min)}
-                          maxRange={parseFloat(max)}
-                        />
-                      </View>
-                    );
-                  }
-
-                  if (type === "COMMAND") {
-                    return (
-                      <Pressable
-                        key={index}
-                        style={styles.commandBtn}
-                        onPress={() =>
-                          console.log("Trigger command:", interaction.name)
-                        }
-                      >
-                        <Text style={styles.commandText}>
-                          {interaction.name}
-                        </Text>
-                      </Pressable>
-                    );
-                  }
-
-                  return null;
-                })}
+                {/* Metadata Row 3 */}
+                <View style={styles.metadataRow}>
+                  <View style={styles.metadataBlock}>
+                    <Text style={styles.metaLabel}>Last Seen</Text>
+                    <Text style={styles.metaValue}>
+                      {selectedDevice?.lastSeen?.split("T")[0] ?? "N/A"}
+                    </Text>
+                  </View>
+                  <View style={styles.metadataBlock}>
+                    <Text style={styles.metaLabel}>Model</Text>
+                    <Text style={styles.metaValue}>
+                      {selectedDevice?.model ?? "N/A"}
+                    </Text>
+                  </View>
+                </View>
               </ScrollView>
             </View>
           </TouchableWithoutFeedback>
@@ -137,44 +129,65 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
-  header: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontFamily: "Lexend-Bold",
-  },
   scrollContainer: {
     width: "100%",
-    maxHeight: "80%",
+    maxHeight: "100%",
   },
-  item: {
+  deviceTitle: {
+    fontSize: 22,
+    fontFamily: "Lexend-Bold",
+    textAlign: "center",
     marginBottom: 16,
   },
-  label: {
-    fontSize: 14,
-    fontFamily: "Lexend-Regular",
-    color: "#444",
-    marginBottom: 4,
+  inputBlock: {
+    width: "100%",
+    marginBottom: 20,
   },
-  value: {
+  inputLabel: {
     fontSize: 16,
-    fontFamily: "Lexend-Medium",
+    fontFamily: "Lexend-Regular",
+    color: "#000000",
+    
   },
-  commandBtn: {
-    backgroundColor: "#007bff",
+  confirmBtn: {
+    backgroundColor: "#fe9123",
     paddingVertical: 10,
     borderRadius: 8,
-    marginBottom: 12,
+    marginTop: 8,
+    width:200,
+    alignSelf: "center",
   },
-  commandText: {
+  confirmText: {
     color: "#fff",
     textAlign: "center",
     fontFamily: "Lexend-Regular",
-    fontSize: 14,
+    fontSize: 20,
+  },
+  metadataRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: 420,
+    marginBottom: 12,
+  },
+  metadataBlock: {
+    flex: 1,
+    paddingHorizontal: 6,
+  },
+  metaLabel: {
+    fontSize: 20,
+    fontFamily: "Lexend-Regular",
+    color: "#777",
+    marginBottom: 2,
+  },
+  metaValue: {
+    fontSize: 15,
+    fontFamily: "Lexend-Medium",
+    color: "#000",
+  },
+  connected: {
+    color: "#27ae60",
+  },
+  disconnected: {
+    color: "#e74c3c",
   },
 });

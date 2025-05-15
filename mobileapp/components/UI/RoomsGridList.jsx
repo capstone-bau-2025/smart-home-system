@@ -10,10 +10,14 @@ export default function RoomsGridList({
   color,
   devices,
   excludedRoomId, 
+  onRefresh,
+  refreshing
 }) {
+  
   const filteredRooms = excludedRoomId
     ? rooms.filter((room) => room.id !== excludedRoomId)
     : rooms;
+
 
   if (!filteredRooms || filteredRooms.length === 0) {
     return <Text style={styles.noRooms}>No rooms available</Text>;
@@ -25,9 +29,11 @@ export default function RoomsGridList({
       keyExtractor={(room) => room.id.toString()}
       numColumns={3}
       contentContainerStyle={styles.listContainer}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
       renderItem={({ item: room }) => {
         const roomDevices = devices?.filter((d) => d.areaId === room.id) || [];
-
+    
         return (
           <RoomCard
             room={room}

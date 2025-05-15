@@ -122,24 +122,26 @@ export default function ManageHub({
     <SafeAreaView style={styles.safeContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
+
       <HubsTabs
         hubs={userHubs}
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
       />
 
-      <View style={styles.countContainer}>
-        <Text style={styles.countText}>Total Users: {userCount}</Text>
-        {Object.entries(roleCounts).map(([role, count]) => (
-          <Text key={role} style={styles.countText}>
-            {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
-          </Text>
-        ))}
-      </View>
-      <UsersList
-        users={users}
-        setRenameModal={setUserRenameModal}
-      />
+
+        <View style={styles.countContainer}>
+          <Text style={styles.countText}>Total Users: {userCount}</Text>
+          {Object.entries(roleCounts).map(([role, count]) => (
+            <Text key={role} style={styles.countText}>
+              {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
+            </Text>
+          ))}
+        </View>
+  
+  
+          <UsersList users={users} setRenameModal={setUserRenameModal}/>
+
 
       
       <InfoModal

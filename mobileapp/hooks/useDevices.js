@@ -1,40 +1,71 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getDeviceByArea } from '../api/services/deviceService';
-import { setDevices } from '../store/slices/devicesSlice';
+import { useEffect, useState, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getDeviceByArea } from "../api/services/deviceService";
+import { fetchAllInteractions } from "../api/services/interactionService";
+import { setDevices } from "../store/slices/devicesSlice";
+
 export default function useDevices(hubSerialNumber, areas) {
   const dispatch = useDispatch();
   const devices = useSelector((state) => state.devices.devices);
   const [isLoading, setIsLoading] = useState(false);
 
+
   const fetchDevices = useCallback(
     async (force = false) => {
       if (!hubSerialNumber || !areas?.length) return;
-
-      if (!force && devices?.length > 0) {
-        
-        return;
-      }
-
-      const validAreas = areas.filter((a) => a?.id);
-      if (!validAreas.length) {
-        console.warn("❌ No valid areaIds to fetch devices for.");
-        return;
-      }
+      if (!force && devices?.length > 0) return;
 
       setIsLoading(true);
+
       try {
-        const deviceGroups = await Promise.all(
-          validAreas.map((area) => getDeviceByArea(area.id, hubSerialNumber))
+        const interactionsByArea = await fetchAllInteractions();
+
+        const deviceMetaPerArea = await Promise.all(
+          interactionsByArea.map((area) =>
+            getDeviceByArea(area.areaId, hubSerialNumber).then((list) => ({
+              areaId: area.areaId,
+              list,
+            }))
+          )
         );
-        const allDevices = deviceGroups.flat();
-        dispatch(setDevices(allDevices));
-      } catch (error) {
-        console.error("❌ Error fetching devices:", {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
+
+        const metaMap = {};
+        deviceMetaPerArea.forEach(({ list }) => {
+          list.forEach((device) => {
+            metaMap[device.id] = device;
+          });
         });
+
+        const enrichedDevices = interactionsByArea.flatMap((area) => {
+          const grouped = {};
+
+          area.interactions.forEach((interaction) => {
+            const deviceId = interaction.deviceId;
+            if (!grouped[deviceId]) {
+              const meta = metaMap[deviceId] || {};
+              grouped[deviceId] = {
+                ...meta,
+                id: deviceId,
+                uid: meta.uid ?? null,
+                areaId: area.areaId,
+                areaName: area.areaName,
+                name: meta.name ?? interaction.name.split(".")[0],
+                model: meta.model,
+                description: meta.description,
+                category: interaction.category,
+                interactions: [],
+              };
+            }
+            grouped[deviceId].interactions.push(interaction);
+          });
+
+          return Object.values(grouped);
+        });
+
+        console.log("✅ Dispatching devices:", enrichedDevices);
+        dispatch(setDevices(enrichedDevices));
+      } catch (err) {
+        console.error("❌ Error in useDevices:", err);
       } finally {
         setIsLoading(false);
       }
@@ -43,12 +74,12 @@ export default function useDevices(hubSerialNumber, areas) {
   );
 
   useEffect(() => {
-    fetchDevices(); 
+    fetchDevices();
   }, [fetchDevices]);
 
   return {
     devices,
     isLoading,
-    refetchDevices: () => fetchDevices(true), 
+    refetchDevices: () => fetchDevices(true),
   };
 }

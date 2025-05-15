@@ -8,18 +8,21 @@ export default function useAreas(hubSerialNumber) {
   const areas = useSelector((state) => state.areas.areas);
   const [isLoading, setIsLoading] = useState(false);
 
+  // This always triggers an area fetch
   const refetchAreas = async () => {
+    if (!hubSerialNumber) return;
     setIsLoading(true);
     try {
       const response = await fetchAreas(hubSerialNumber);
-      dispatch(setAreas(response.data));
+      dispatch(setAreas(response.data || []));
     } catch (error) {
-      console.error("Error fetching areas:", error);
+      console.error("❌ Error fetching areas:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Initial fetch
   useEffect(() => {
     refetchAreas();
   }, [hubSerialNumber]);

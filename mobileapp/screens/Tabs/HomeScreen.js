@@ -11,8 +11,11 @@ import useAreas from "../../hooks/useAreas";
 import { getDeviceByArea } from "../../api/services/deviceService";
 import { fetchAllInteractions } from "../../api/services/interactionService";
 import { setAreas } from "../../store/slices/areaSlice";
-import { setDevices } from "../../store/slices/devicesSlice";
+import { setDevices, setInteractions } from "../../store/slices/devicesSlice";
 import Colors from "../../constants/Colors";
+import useDevices from "../../hooks/useDevices";
+import { fetchAndDispatchDevices } from "../../api/services/deviceService";
+
 
 export default function HomeScreen() {
   const dispatch = useDispatch();
@@ -20,66 +23,41 @@ export default function HomeScreen() {
   const currentHub = useSelector((state) => state.hub.currentHub);
   const hubSerialNumber = currentHub?.serialNumber;
   const currentUrl = useSelector((state) => state.url.currentUrl);
-
+  const devices = useSelector((state) => state.devices.devices);
+  const interactions = useSelector((state) => state.devices.interactions);
   useInitAppData();
   const { areas } = useAreas(hubSerialNumber);
-  
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [rooms, setRooms] = useState([]);
+  
+  const {
+    devices: allDevices,
+    isLoadingDevices,
+    refetchDevices,
+  } = useDevices(hubSerialNumber, areas);
+
 
   const loadDevices = useCallback(async () => {
     if (!hubSerialNumber || !areas.length) return;
-
+    
     try {
       const interactionsByArea = await fetchAllInteractions();
 
-      const metaPerArea = await Promise.all(
-        interactionsByArea.map((area) =>
-          getDeviceByArea(area.areaId, hubSerialNumber).then((list) => ({
-            areaId: area.areaId,
-            list,
-          }))
-        )
-      );
+    const flatInteractions = interactionsByArea.flatMap((area) =>
+      area.interactions.map((interaction) => ({
+        ...interaction,
+        areaId: area.areaId,
+        areaName: area.areaName,
+      }))
+    );
 
-      const metaMap = {};
-      metaPerArea.forEach(({ list }) => {
-        list.forEach((meta) => {
-          metaMap[meta.id] = meta;
-        });
-      });
-
-      const enrichedDevices = interactionsByArea.flatMap((area) => {
-        const grouped = {};
-
-        area.interactions.forEach((interaction) => {
-          const id = interaction.deviceId;
-          if (!grouped[id]) {
-            const meta = metaMap[id] || {};
-            grouped[id] = {
-              uid: `${id}`,
-              id,
-              areaId: area.areaId,
-              areaName: area.areaName,
-              name: meta.name ?? interaction.name.split(".")[0],
-              model: meta.model,
-              description: meta.description,
-              category: interaction.category,
-              interactions: [],
-            };
-          }
-          grouped[id].interactions.push(interaction);
-        });
-
-        return Object.values(grouped);
-      });
-
-      dispatch(setDevices(enrichedDevices));
-    } catch (err) {
-      console.warn("Error loading devices:", err);
-    }
-  }, [hubSerialNumber, areas, dispatch]);
+    dispatch(setInteractions(flatInteractions));
+  
+  } catch (err) {
+    console.warn("Error loading interactions:", err);
+  }
+}, [hubSerialNumber, areas]);
 
   useEffect(() => {
     if (areas?.length > 0) {
@@ -87,7 +65,7 @@ export default function HomeScreen() {
       dispatch(setAreas(areas));
     }
   }, [areas, dispatch]);
-
+  
   useEffect(() => {
     if (areas.length) loadDevices();
   }, [areas, hubSerialNumber, loadDevices]);
@@ -102,6 +80,7 @@ export default function HomeScreen() {
       setRefreshing(false);
     }
   };
+
 
   return (
     <SafeAreaView style={styles.container}>

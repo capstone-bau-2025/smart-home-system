@@ -30,6 +30,7 @@ export default function RoomModal({
   refetchAreas,
   devices,
   rooms,
+  refetchDevices
 }) {
   const navigation = useNavigation();
   const localToken = store.getState().user.localToken;
@@ -44,6 +45,7 @@ export default function RoomModal({
   const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
   const [deleteRoomModal, setDeleteRoomModal] = useState(false);
 
+  
   useEffect(() => {
     setRenameText(selectedDevice?.name || "");
   }, [selectedDevice]);
@@ -54,15 +56,16 @@ export default function RoomModal({
   };
 
   const handleMoveDevice = async (targetRoomId) => {
-    if (!selectedDevice?.uid) return;
+    if (!selectedDevice?.id) return;
 
     try {
       await updateDeviceArea(
-        selectedDevice.uid,
+        selectedDevice.id,
         targetRoomId,
         localToken,
         hubSerialNumber
       );
+
       Toast.show({
         topOffset: 60,
         swipeable: true,
@@ -76,8 +79,8 @@ export default function RoomModal({
       console.error("Failed to move device", err);
     } finally {
       setMoveDevice(false);
-      setSelectedDevice(null); 
-      refetchAreas();
+      setSelectedDevice(null);
+      await Promise.all([refetchAreas(), refetchDevices()]);
     }
   };
 
@@ -94,8 +97,14 @@ export default function RoomModal({
   const handleDeleteDevice = async () => {
     try {
       await deleteDevice(selectedDevice.id, localToken, hubSerialNumber);
-      Toast.show({ type: "success", text1: "Device removed" });
-      await refetchAreas();
+      Toast.show({
+        topOffset: 60,
+        swipeable: true,
+        type: "success",
+        text1: "Device deletion successful",
+        text2: `${selectedDevice.name} was deleted`,
+      });
+      await Promise.all([refetchAreas(), refetchDevices()]);
       setDeleteDeviceModal(false);
       setSelectedDevice(null);
     } catch (err) {
@@ -106,7 +115,7 @@ export default function RoomModal({
   const handleDeleteRoom = async (areaId, hubSerialNumber) => {
     try {
       await deleteRoom(areaId, hubSerialNumber);
-      await refetchAreas();
+      await Promise.all([refetchAreas(), refetchDevices()]);
       Toast.show({
         topOffset: 60,
         swipeable: true,
@@ -126,7 +135,7 @@ export default function RoomModal({
 
     try {
       await updateDeviceName(selectedDevice.id, newName, localToken);
-      await refetchAreas();
+      await Promise.all([refetchAreas(), refetchDevices()]);
       setRenameModal(false);
       setRenameText("");
       setSelectedDevice(null);
@@ -181,44 +190,44 @@ export default function RoomModal({
           />
         </View>
 
-        <ScrollableList
-          data={roomDevices}
-          textFields={["name"]}
-          buttonConfig={[
-            {
-              icon: "repeat-outline",
-              onPress: handleDevicePress,
-            },
-            {
-              icon: "pencil-outline",
-              onPress: (device) => {
-                setSelectedDevice(device);
-                setRenameModal(true);
+
+          <ScrollableList
+            data={roomDevices}
+            textFields={["name"]}
+            buttonConfig={[
+              {
+                icon: "repeat-outline",
+                onPress: handleDevicePress,
               },
-            },
-            {
-              icon: "remove-circle-outline",
-              onPress: handleRemovePress,
-            },
-          ]}
-          noData="No devices in this room"
+              {
+                icon: "pencil-outline",
+                onPress: (device) => {
+                  setSelectedDevice(device);
+                  setRenameModal(true);
+                },
+              },
+              {
+                icon: "remove-circle-outline",
+                onPress: handleRemovePress,
+              },
+            ]}
+            noData="No devices in this room"
+          />
+        </View>
+
+        <SelectRoom
+          visible={moveDevice}
+          onClose={() => {
+            setMoveDevice(false);
+            setSelectedDevice(null);
+          }}
+          room={room}
+          rooms={rooms}
+          selectedTab={selectedTab}
+          selectedDevice={selectedDevice}
+          onMove={handleMoveDevice}
         />
 
-        
-          <SelectRoom
-            visible={moveDevice}
-            onClose={() => {
-              setMoveDevice(false);
-              setSelectedDevice(null);
-            }}
-            room={room}
-            rooms={rooms}
-            selectedTab={selectedTab}
-            selectedDevice={selectedDevice}
-            onMove={handleMoveDevice}
-          />
-      
-      </View>
 
       <InfoModal
         visible={infoModal}
@@ -265,6 +274,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryBackground,
     paddingTop: 50,
     alignItems: "center",
+    paddingBottom: 30, 
   },
   header: {
     width: "100%",
@@ -309,4 +319,3 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 });
- 

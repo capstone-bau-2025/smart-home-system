@@ -36,7 +36,7 @@ export default function DeviceDiscoveredModal({ visible, onClose, title, selecte
   <Ionicons name="checkmark-circle-outline" size={100} color="#e19b19" style={styles.icon} />
 
   <Text style={styles.infoText}>
-    Add <Text style={styles.deviceName}>{selectedDevice?.name}</Text> to{" "}
+    Add <Text style={styles.deviceName}>{selectedDevice?.model}</Text> to{" "}
     <Text style={styles.hubName}>{currentHub?.name}</Text>?
   </Text>
 

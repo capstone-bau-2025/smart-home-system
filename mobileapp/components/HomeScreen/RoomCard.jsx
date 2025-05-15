@@ -7,14 +7,15 @@ import { useSelector } from "react-redux";
 
 // Holds the rooms and devices under them
 export default function RoomCard({ data }) {
+  //the data here is the room data
   const iconName = iconOptions[data.icon];
   const leftColumn = [];
   const rightColumn = [];
   let leftHeight = 0;
   let rightHeight = 0;
 
-  const devices = useSelector((state) => state.devices.devices);
-
+  const devices = useSelector((state) => state.devices.interactions); 
+  //fetch interactions from redux store
   const roomDevices = devices.filter((d) => d.areaId === data.id);
 
   const getDeviceHeight = (device) =>
@@ -48,12 +49,26 @@ export default function RoomCard({ data }) {
       <View style={styles.twoColumnGrid}>
         <View style={styles.column}>
           {leftColumn.map((device) => (
-            <DeviceCard key={device.id} data={device} />
+            <DeviceCard
+              key={
+                device.stateValueId ||
+                device.commandId ||
+                `${device.deviceId}-${device.name}`
+              }
+              data={device}
+            />
           ))}
         </View>
         <View style={styles.column}>
           {rightColumn.map((device) => (
-            <DeviceCard key={device.id} data={device} />
+            <DeviceCard
+              key={
+                device.stateValueId ||
+                device.commandId ||
+                `${device.deviceId}-${device.name}`
+              }
+              data={device}
+            />
           ))}
         </View>
       </View>

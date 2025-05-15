@@ -1,5 +1,5 @@
-import React, { useState,useEffect } from "react";
-import { StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View } from "react-native";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import PermsModal from "./PermsModal";
 import ScrollableList from "../UI/ScrollableList";
@@ -13,15 +13,16 @@ export default function UsersList({ users, setRenameModal }) {
   const [usersList, setUsersList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [userName, setUsername] = useState(null);
-  const hubSerialNumber = useSelector(state => state.hub.currentHub?.serialNumber);
-
+  const hubSerialNumber = useSelector(
+    (state) => state.hub.currentHub?.serialNumber
+  );
 
   useEffect(() => {
     setUsersList(users);
   }, [users]);
   const handleOpenModal = (type, userId) => {
     setSelectedUserId(userId);
-    setUsername(usersList.find(user => user.id === userId)?.username);
+    setUsername(usersList.find((user) => user.id === userId)?.username);
     setModalType(type);
   };
 
@@ -30,11 +31,10 @@ export default function UsersList({ users, setRenameModal }) {
     setTimeout(() => setSelectedUserId(null), 300);
   };
 
-
   const handleRemoveUser = async () => {
     try {
       await deleteUser(selectedUserId, hubSerialNumber);
-      setUsersList(prev => prev.filter(user => user.id !== selectedUserId));
+      setUsersList((prev) => prev.filter((user) => user.id !== selectedUserId));
       Toast.show({
         type: "success",
         text1: "User removed",
@@ -74,26 +74,27 @@ export default function UsersList({ users, setRenameModal }) {
     }
   };
 
-
   return (
     <>
-      <ScrollableList
-        data={usersList}
-        onRefresh={handleRefresh}
-        refreshing={refreshing}
-        textFields={["username", "role"]}
-        buttonConfig={[
-          {
-            icon: "key-outline",
-            onPress: (user) => handleOpenModal("edit", user.id),
-          },
-          { icon: "pencil-outline", onPress: () => setRenameModal(true) },
-          {
-            icon: "remove-circle-outline",
-            onPress: (user) => handleOpenModal("remove", user.id),
-          },
-        ]}
-      />
+
+        <ScrollableList
+          data={usersList}
+          onRefresh={handleRefresh}
+          contentContainerStyle={{ alignItems: "flex-start" }}
+          refreshing={refreshing}
+          textFields={["username", "role"]}
+          buttonConfig={[
+            {
+              icon: "key-outline",
+              onPress: (user) => handleOpenModal("edit", user.id),
+            },
+            { icon: "pencil-outline", onPress: () => setRenameModal(true) },
+            {
+              icon: "remove-circle-outline",
+              onPress: (user) => handleOpenModal("remove", user.id),
+            },
+          ]}
+        />
 
       <ConfirmationModal
         visible={modalType === "remove"}
