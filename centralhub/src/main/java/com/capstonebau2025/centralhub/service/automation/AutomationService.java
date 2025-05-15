@@ -5,6 +5,7 @@ import com.capstonebau2025.centralhub.dto.AutomationDTO;
 import com.capstonebau2025.centralhub.dto.CreateAutomationRuleDTO;
 import com.capstonebau2025.centralhub.dto.ToggleAutomationRuleDto;
 import com.capstonebau2025.centralhub.entity.*;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -17,7 +18,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AutomationService {
-
     private final AutomationRuleRepository ruleRepository;
     private final AutomationTriggerRepository triggerRepository;
     private final AutomationActionRepository actionRepository;
@@ -26,11 +26,9 @@ public class AutomationService {
     private final AutomationExecService automationExecService;
     private final EventRepository eventRepository;
     private final StateValueRepository stateValueRepository;
-    private final UserRepository userRepository;
-
 
     @Transactional
-    public AutomationRule createAutomation(CreateAutomationRuleDTO dto , User user) {
+    public AutomationDTO createAutomation(CreateAutomationRuleDTO dto , User user) {
 
         AutomationRule.TriggerType triggerType;
         try {
@@ -83,7 +81,6 @@ public class AutomationService {
             default -> throw new IllegalArgumentException("Unsupported trigger type: " + triggerType);
         }
 
-        // TODO: get actions details from dto and save them too
         // add actionDto and map to action entity
         for (ActionDTO actionDto : dto.getActions()) {
             Device device = deviceRepository.findById(actionDto.getDeviceId())
@@ -95,26 +92,28 @@ public class AutomationService {
                     .type(AutomationAction.ActionType.valueOf(actionDto.getType().toUpperCase()))
                     .build();
 
-            // Set command or stateValue based on action type
-            if (actionDto.getCommandId() != null) {
-                action.setCommand(commandRepository.findById(actionDto.getCommandId()).orElse(null));
+            switch (action.getType()) {
+                case COMMAND -> {
+                    action.setCommand(commandRepository.findById(actionDto.getCommandId())
+                            .orElseThrow(() -> new ValidationException("Command not found")));
+                }
+                case STATE_UPDATE -> {
+                    action.setStateValue(stateValueRepository.findById(actionDto.getStatusValueId())
+                            .orElseThrow(() -> new ValidationException("State value not found")));
+                    action.setValue(actionDto.getActionValue());
+                }
+                default -> throw new ValidationException("Unsupported action type: " + action.getType());
             }
 
-            if (actionDto.getStatusValueId() != null) {
-                action.setStateValue(stateValueRepository.findById(actionDto.getStatusValueId()).orElse(null));
-            }
-
-            action.setValue(actionDto.getActionValue());
             actionRepository.save(action);
         }
 
-
         automationExecService.subscribeTrigger(savedRule.getId());
-        return savedRule;
+        return mapToDto(savedRule);
     }
 
     @Transactional
-    public AutomationRule toggleAutomation(ToggleAutomationRuleDto toggleAutomationRule) {
+    public AutomationDTO toggleAutomation(ToggleAutomationRuleDto toggleAutomationRule) {
         AutomationRule rule = ruleRepository.findById(toggleAutomationRule.getRuleId())
                 .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
@@ -130,65 +129,75 @@ public class AutomationService {
         } else {
             automationExecService.unsubscribeTrigger(savedRule.getId());
         }
-        return savedRule;
+        return mapToDto(savedRule);
     }
 
-
     @Transactional
-    public String deleteAutomationRule (Long ruleId) {
+    public void deleteAutomationRule(Long ruleId) {
         AutomationRule rule = ruleRepository.findById(ruleId)
                 .orElseThrow(() -> new EntityNotFoundException("Rule not found"));
 
         // Unsubscribe from triggers
         automationExecService.unsubscribeTrigger(rule.getId());
         ruleRepository.delete(rule);
-
-        return "Automation rule deleted successfully";
     }
-    
 
     public List<AutomationDTO> getAllAutomationRules() {
-        List<AutomationRule> rules = ruleRepository.findAll();
-        
-        return rules.stream()
-                .map(rule -> {
-                    AutomationDTO.AutomationDTOBuilder builder = AutomationDTO.builder()
-                        .id(rule.getId())
-                        .ruleName(rule.getName())
-                        .ruleDescription(rule.getDescription())
-                        .isEnabled(rule.getIsEnabled())
-                        .triggerType(rule.getTriggerType().toString())
-                        .cooldownDuration(rule.getCooldownDuration());
-                    
-                    // Find the trigger for this rule
-                    AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId())
-                        .orElse(null);
-                    
-                    if (trigger != null) {
-                        switch (rule.getTriggerType()) {
-                            case EVENT:
-                                if (trigger.getEvent() != null) {
-                                    builder.eventId(trigger.getEvent().getId());
-                                }
-                                if (trigger.getDevice() != null) {
-                                    builder.deviceId(trigger.getDevice().getId());
-                                }
-                                break;
-                            case STATUS_VALUE:
-                                if (trigger.getStateValue() != null) {
-                                    builder.statusValueId(trigger.getStateValue().getId());
-                                }
-                                break;
-                            case SCHEDULE:
-                                if (trigger.getScheduledTime() != null) {
-                                    builder.scheduledTime(trigger.getScheduledTime().toString());
-                                }
-                                break;
-                        }
-                    }
-                    
-                    return builder.build();
-                })
+        return ruleRepository.findAll().stream()
+                .map(this::mapToDto)
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    private AutomationDTO mapToDto(AutomationRule rule) {
+        AutomationDTO.AutomationDTOBuilder builder = AutomationDTO.builder()
+                .id(rule.getId())
+                .ruleName(rule.getName())
+                .ruleDescription(rule.getDescription())
+                .isEnabled(rule.getIsEnabled())
+                .triggerType(rule.getTriggerType().toString())
+                .cooldownDuration(rule.getCooldownDuration());
+
+        AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId())
+                .orElse(null);
+
+        if (trigger != null) {
+            switch (rule.getTriggerType()) {
+                case EVENT:
+                    if (trigger.getEvent() != null) {
+                        builder.eventId(trigger.getEvent().getId());
+                    }
+                    if (trigger.getDevice() != null) {
+                        builder.deviceId(trigger.getDevice().getId());
+                    }
+                    break;
+                case STATUS_VALUE:
+                    if (trigger.getStateValue() != null) {
+                        builder.statusValueId(trigger.getStateValue().getId());
+                    }
+                    break;
+                case SCHEDULE:
+                    if (trigger.getScheduledTime() != null) {
+                        builder.scheduledTime(trigger.getScheduledTime().toString());
+                    }
+                    break;
+            }
+        }
+
+        List<AutomationAction> actions = actionRepository.findByAutomationRuleId(rule.getId());
+
+        if (actions != null && !actions.isEmpty()) {
+            List<ActionDTO> actionDTOs = actions.stream()
+                    .map(action -> ActionDTO.builder()
+                            .deviceId(action.getDevice().getId())
+                            .type(action.getType().toString())
+                            .commandId(action.getCommand() != null ? action.getCommand().getId() : null)
+                            .statusValueId(action.getStateValue() != null ? action.getStateValue().getId() : null)
+                            .actionValue(action.getValue())
+                            .build())
+                    .collect(java.util.stream.Collectors.toList());
+            builder.actions(actionDTOs);
+        }
+
+        return builder.build();
     }
 }

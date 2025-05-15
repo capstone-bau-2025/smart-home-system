@@ -3,6 +3,8 @@ package com.capstonebau2025.centralhub.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Builder
 @Data
 public class AutomationDTO {
@@ -23,4 +25,6 @@ public class AutomationDTO {
 
     //attribute speciffic for trigger type scheduled
     private String scheduledTime;
+
+    private List<ActionDTO> actions;
 }

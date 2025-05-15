@@ -25,9 +25,8 @@ public class AutomationTrigger {
     @JoinColumn(name = "automation_rule_id", nullable = false)
     private AutomationRule automationRule;
 
-    @NotNull
     @ManyToOne
-    @JoinColumn(name = "device_id", nullable = false)
+    @JoinColumn(name = "device_id")
     private Device device;
 
     //Attributes specific to trigger type SCHEDULE, NULL otherwise
