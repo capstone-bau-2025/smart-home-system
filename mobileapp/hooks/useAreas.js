@@ -22,7 +22,7 @@ export default function useAreas(hubSerialNumber) {
     }
   };
 
-  // Initial fetch
+
   useEffect(() => {
     refetchAreas();
   }, [hubSerialNumber]);

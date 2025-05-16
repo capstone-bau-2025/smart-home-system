@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { streamCameraById } from "../../api/services/surveillanceService";
 import { Ionicons } from "@expo/vector-icons";
 
+
 export default function StreamModal({ visible, onClose, camera }) {
   const [streamUrl, setStreamUrl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -22,21 +23,22 @@ export default function StreamModal({ visible, onClose, camera }) {
   const hubSerialNumber = currentHub?.serialNumber;
   const activeStreamUrl = streamUrl || mockStreamUrl;
 
-  // useEffect(() => {
-  //   const fetchStreamUrl = async () => {
-  //     if (!camera?.id || !hubSerialNumber) return;
-  //     setLoading(true);
-  //     try {
-  //       const url = await streamCameraById(camera.id, hubSerialNumber);
-  //       setStreamUrl(url);
-  //     } catch (err) {
-  //       console.error("Failed to fetch stream URL:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchStreamUrl();
-  // }, [camera, hubSerialNumber]);
+  useEffect(() => {
+    const fetchStreamUrl = async () => {
+    
+      if (!camera?.id || !hubSerialNumber) return;
+      setLoading(true);
+      try {
+        const url = await streamCameraById(camera.id, hubSerialNumber);
+        setStreamUrl(url);
+      } catch (err) {
+        console.error("Failed to fetch stream URL:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStreamUrl();
+  }, [camera, hubSerialNumber]);
 
   if (!camera) return null;
 

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,13 +13,19 @@ import {
   getIconColor,
 } from "../../util/helperFunctions";
 import DeviceModal from "./DeviceModal";
+import {
+  updateInteractionState,
+  executeInteractionCommand,
+  fetchStateValue,
+} from "../../api/services/interactionService";
+import { getCustomName } from "../../util/interactionNames";
 
 export default function DeviceCard({ data }) {
   const isInfo = data.type === "INFO";
   const isCommand = data.type === "COMMAND";
   const isChoice = data.type === "CHOICE";
   const isRange = data.type === "RANGE";
-
+  if (data.category === "CAMERA") return null;
   const hasMultipleChoices = isChoice && data.choices?.length > 2;
   const isToggleChoice = isChoice && data.choices?.length <= 2;
   const isSlider = isRange || hasMultipleChoices;
@@ -29,19 +35,25 @@ export default function DeviceCard({ data }) {
   const [index, setIndex] = useState(
     hasMultipleChoices ? data.choices?.indexOf(data.value) ?? 0 : 0
   );
-  const [selectedDevice, setSelectedDevice] = useState(null);
-
+  const [customName, setCustomNameState] = useState(null);
   const highlight = useSharedValue("white");
-
+  const refreshName = async () => {
+    const name = await getCustomName(data);
+    if (name) setCustomNameState(name);
+  };
   const animatedStyle = useAnimatedStyle(() => ({
     backgroundColor: withTiming(highlight.value, { duration: 350 }),
   }));
-
+  useEffect(() => {
+    getCustomName(data).then((name) => {
+      if (name) setCustomNameState(name);
+    });
+  }, [data.stateValueId, data.commandId]);
   const handleLongPress = () => {
     setModalVisible(true);
   };
 
-  const handlePress = () => {
+  const handlePress = async () => {
     if (isToggleChoice) {
       const currentIndex = data.choices.findIndex((c) => c === value);
       const nextIndex = (currentIndex + 1) % data.choices.length;
@@ -51,18 +63,25 @@ export default function DeviceCard({ data }) {
       highlight.value =
         newValue === "ON" || newValue === "OPEN" ? "#d4f8d4" : "#f8d4d4";
 
+      updateInteractionState(data.stateValueId, newValue).catch((err) =>
+        console.warn("Toggle update failed:", err)
+      );
+
       setTimeout(() => {
         highlight.value = "white";
-      }, 300);
+      }, 600);
     }
 
     if (isCommand) {
-      console.log(`Command triggered: ${data.name}`);
       highlight.value = "#d4f8d4";
+
+      executeInteractionCommand(data.deviceId, data.commandId).catch((err) =>
+        console.warn("Command failed:", err)
+      );
 
       setTimeout(() => {
         highlight.value = "white";
-      }, 300);
+      }, 600);
     }
   };
 
@@ -91,6 +110,22 @@ export default function DeviceCard({ data }) {
     return null;
   };
 
+  //   useEffect(() => {
+  //   if (data?.stateValueId) {
+  //     console.log('FETCHING STATE VALUE:', data.stateValueId);
+  //     fetchStateValue(data.stateValueId)
+  //       .then((res) => {
+  //         if (isRange) {
+  //           setValue(res.value.toString());
+  //         } else if (isChoice) {
+  //           setValue(res.value);
+  //           const idx = data.choices.findIndex((c) => c === res.value);
+  //           if (idx !== -1) setIndex(idx);
+  //         }
+  //       })
+  //       .catch((err) => console.warn("Failed to fetch state value:", err));
+  //   }
+  // }, []);
   return (
     <>
       <Pressable
@@ -126,7 +161,7 @@ export default function DeviceCard({ data }) {
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {data.name}
+                <Text style={styles.deviceName}>{customName || data.name}</Text>
               </Text>
               {renderStatusText()}
             </View>
@@ -139,12 +174,31 @@ export default function DeviceCard({ data }) {
               minRange={isRange ? parseFloat(data.min) : undefined}
               maxRange={isRange ? parseFloat(data.max) : undefined}
               value={isRange ? parseFloat(value) : index}
-              setValue={(val) => {
+              setValue={async (val) => {
                 if (isRange) {
-                  setValue(val.toString());
+                  const newVal = val.toString();
+                  setValue(newVal);
+
+                  highlight.value = "#d4f8d4";
+                  await updateInteractionState(data.stateValueId, newVal).catch(
+                    (err) => console.warn("Range update failed:", err)
+                  );
+                  setTimeout(() => {
+                    highlight.value = "white";
+                  }, 600);
                 } else if (hasMultipleChoices) {
+                  const choiceVal = data.choices[val];
                   setIndex(val);
-                  setValue(data.choices[val]);
+                  setValue(choiceVal);
+
+                  highlight.value = "#d4f8d4";
+                  await updateInteractionState(
+                    data.stateValueId,
+                    choiceVal
+                  ).catch((err) => console.warn("Choice update failed:", err));
+                  setTimeout(() => {
+                    highlight.value = "white";
+                  }, 600);
                 }
               }}
             />
@@ -154,10 +208,9 @@ export default function DeviceCard({ data }) {
 
       <DeviceModal
         visible={modalVisible}
-        onClose={() => {
-          setModalVisible(false);
-        }}
-        device={data}
+        onClose={() => setModalVisible(false)}
+        interaction={data}
+        onRename={refreshName}
       />
     </>
   );
@@ -170,7 +223,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: "#fff",
-    elevation: 2,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -193,7 +245,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   labelBlock: {
-    marginLeft: 10,
+
     flex: 1,
     overflow: "hidden",
   },

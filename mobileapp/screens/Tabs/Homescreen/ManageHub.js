@@ -35,30 +35,27 @@ export default function ManageHub({
   useEffect(() => {
     const fetchUsersAsync = async () => {
       if (!selectedTab?.serialNumber) return;
-  
+
       try {
         const usersRes = await fetchUsers(selectedTab.serialNumber);
         const userDetails = await fetchUserDetails();
-  
+
         // const matchedUser = usersRes.find(
         //   (user) => user.email === userDetails.email
         // );
 
-
-
         // if (matchedUser) {
         //   dispatch(setUserId(matchedUser.id));
         // }
-  
+
         setUsers(usersRes);
       } catch (err) {
         console.error("Failed to fetch users or user details:", err);
       }
     };
-  
+
     fetchUsersAsync();
   }, [selectedTab]);
-
 
   const [hubname, setHubName] = useState(currentHub?.name || "");
   const [userRenameModal, setUserRenameModal] = useState(false);
@@ -122,28 +119,23 @@ export default function ManageHub({
     <SafeAreaView style={styles.safeContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
-
       <HubsTabs
         hubs={userHubs}
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
       />
 
+      <View style={styles.countContainer}>
+        <Text style={styles.countText}>Total Users: {userCount}</Text>
+        {Object.entries(roleCounts).map(([role, count]) => (
+          <Text key={role} style={styles.countText}>
+            {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
+          </Text>
+        ))}
+      </View>
 
-        <View style={styles.countContainer}>
-          <Text style={styles.countText}>Total Users: {userCount}</Text>
-          {Object.entries(roleCounts).map(([role, count]) => (
-            <Text key={role} style={styles.countText}>
-              {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
-            </Text>
-          ))}
-        </View>
-  
-  
-          <UsersList users={users} setRenameModal={setUserRenameModal}/>
+      <UsersList users={users} setRenameModal={setUserRenameModal} />
 
-
-      
       <InfoModal
         visible={infoModal}
         onClose={() => setInfoModal(false)}
@@ -182,9 +174,8 @@ export default function ManageHub({
 const styles = StyleSheet.create({
   safeContainer: {
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-
+    justifyContent: "flex-start",
     alignItems: "center",
-    flex: 1,
     backgroundColor: "#f1f1f1",
   },
   countContainer: {

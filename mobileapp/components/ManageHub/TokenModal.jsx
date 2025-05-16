@@ -13,13 +13,17 @@ import * as Clipboard from "expo-clipboard";
 import InfoModal from "../UI/InfoModal";
 import { generateInviteCode } from "../../api/services/invitationService";
 
-
 //opens a modal for the admin to generate invitation codes for users to join the hub
 export default function TokenModal({ visible, onClose }) {
   const [selectedRole, setSelectedRole] = useState(null);
-  const[roleId, setRoleId] = useState(null);
+  const [roleId, setRoleId] = useState(null);
   const [infoModal, setInfoModal] = useState(false);
-  const [inviteCode, setInviteCode] = useState('codebasedonrole');
+  const [inviteCode, setInviteCode] = useState("codebasedonrole");
+  const [inviteCodes, setInviteCodes] = useState({
+    Admin: null,
+    User: null,
+    Guest: null,
+  });
 
   const handleClose = () => {
     onClose();
@@ -27,41 +31,52 @@ export default function TokenModal({ visible, onClose }) {
     setRoleId(null);
     setInfoModal(false);
     const timeout = setTimeout(() => {
-      setInviteCode('codebasedonrole');
-    }, 300); 
+      setInviteCode("codebasedonrole");
+    }, 300);
   };
-  
 
   const handleGenerateInvite = async (id) => {
     try {
       const result = await generateInviteCode(id);
       setInviteCode(result.code);
     } catch (error) {
-      Alert.alert('Error', 'Could not generate invite code.');
+      Alert.alert("Error", "Could not generate invite code.");
     }
   };
 
   const handleRoleSelection = async (roleName) => {
     let roleId;
+    if (roleName === "Admin") roleId = 1;
+    else if (roleName === "User") roleId = 2;
+    else if (roleName === "Guest") roleId = 3;
+
+    setSelectedRole(roleName);
+    setRoleId(roleId);
+
   
-    if (roleName === 'Admin') roleId = 1;
-    else if (roleName === 'User') roleId = 2;
-    else if (roleName === 'Guest') roleId = 3;
-    else if(onClose) roleId = null
-    setSelectedRole(roleName);   
-    setRoleId(roleId);          
-  
-    await handleGenerateInvite(roleId); 
+    if (inviteCodes[roleName]) {
+      setInviteCode(inviteCodes[roleName]);
+      return;
+    }
+
+    // Else generate and cache
+    try {
+      const result = await generateInviteCode(roleId);
+      setInviteCode(result.code);
+      setInviteCodes((prev) => ({ ...prev, [roleName]: result.code }));
+    } catch (error) {
+      Alert.alert("Error", "Could not generate invite code.");
+    }
   };
 
-const copyToClipboard = () => {
-  if (inviteCode) {
-    Clipboard.setStringAsync(inviteCode);
-    Alert.alert("Copied!", "Invite code copied to clipboard.");
-  } else {
-    Alert.alert("No code", "Please generate a code first.");
-  }
-};
+  const copyToClipboard = () => {
+    if (inviteCode) {
+      Clipboard.setStringAsync(inviteCode);
+      Alert.alert("Copied!", "Invite code copied to clipboard.");
+    } else {
+      Alert.alert("No code", "Please generate a code first.");
+    }
+  };
   return (
     <>
       <Modal
@@ -98,7 +113,9 @@ const copyToClipboard = () => {
                 </View>
 
                 {/* Role Selection Buttons */}
-                <Text style={styles.subtitle}>Select role to generate a code:</Text>
+                <Text style={styles.subtitle}>
+                  Select role to generate a code:
+                </Text>
                 <View style={styles.roleButtonsContainer}>
                   {["Admin", "User", "Guest"].map((role) => (
                     <TouchableOpacity
@@ -123,7 +140,10 @@ const copyToClipboard = () => {
                 </View>
 
                 {/* Close Button */}
-                <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+                <TouchableOpacity
+                  onPress={handleClose}
+                  style={styles.closeButton}
+                >
                   <Text style={styles.closeButtonText}>Close</Text>
                 </TouchableOpacity>
               </View>
@@ -137,7 +157,9 @@ const copyToClipboard = () => {
           cancelLabel="Close"
           iconName="help-outline"
           iconColor="orange"
-          message={"To add a user to the hub, first generate an invite code and share it with them. After they discover the hub, they can enter the code to join."}
+          message={
+            "To add a user to the hub, first generate an invite code and share it with them. After they discover the hub, they can enter the code to join."
+          }
           title={"Add a user"}
         />
       </Modal>
@@ -185,7 +207,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginRight: 10,
     color: "#555",
-    width: 'auto',
+    width: "auto",
   },
   inviteRow: {
     flexDirection: "row",

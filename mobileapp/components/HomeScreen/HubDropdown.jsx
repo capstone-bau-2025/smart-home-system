@@ -11,15 +11,16 @@ import DropdownModal from "../UI/DropdownModal";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentHub } from "../../store/slices/hubSlice";
 
-export default function HubDropdown({ currentHub }) {
+export default function HubDropdown({ currentHub, noHub }) {
   const [modalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
 
   const userHubs = useSelector((state) => state.hub.userHubs);
 
+
   const dropdownData = userHubs.map((hub) => ({
     label: hub.name || "Unnamed Hub",
-    value: hub, // pass full hub object
+    value: hub,
     icon: "cube-outline",
   }));
 
@@ -36,6 +37,7 @@ export default function HubDropdown({ currentHub }) {
       <TouchableOpacity
         style={styles.dropdownButton}
         onPress={() => setModalVisible(true)}
+        disabled={noHub}
       >
         <View style={styles.row}>
           <Text
@@ -43,9 +45,7 @@ export default function HubDropdown({ currentHub }) {
             ellipsizeMode="tail"
             numberOfLines={1}
           >
-            {currentHub?.name && currentHub.name !== "Central Hub"
-              ? currentHub.name
-              : 'noHub'}
+            {currentHub?.name ? currentHub.name : "noHub"}
           </Text>
 
           <Ionicons
@@ -57,22 +57,24 @@ export default function HubDropdown({ currentHub }) {
         </View>
       </TouchableOpacity>
 
-      <DropdownModal
-        data={dropdownData}
-        setVisible={setModalVisible}
-        visible={modalVisible}
-        onSelect={handleSelectHub}
-        triposition={
-          Platform.OS === "ios"
-            ? { right: 177, top: 30 }
-            : { right: 160, top: -20 }
-        }
-        position={
-          Platform.OS === "ios"
-            ? { right: 200, top: 30 }
-            : { right: 180, top: -20 }
-        }
-      />
+      {!noHub && (
+        <DropdownModal
+          data={dropdownData}
+          setVisible={setModalVisible}
+          visible={modalVisible}
+          onSelect={handleSelectHub}
+          triposition={
+            Platform.OS === "ios"
+              ? { right: 177, top: 30 }
+              : { right: 160, top: -20 }
+          }
+          position={
+            Platform.OS === "ios"
+              ? { right: 200, top: 30 }
+              : { right: 180, top: -20 }
+          }
+        />
+      )}
     </View>
   );
 }

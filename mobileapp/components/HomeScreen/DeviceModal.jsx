@@ -10,11 +10,21 @@ import {
 } from "react-native";
 import { useSelector } from "react-redux";
 import EditInput from "../UI/EditInput";
+import { setCustomName } from "../../util/interactionNames";
+import { useState } from "react";
+import Toast from "react-native-toast-message";
 
-export default function DeviceModal({ visible, onClose, device }) {
+export default function DeviceModal({
+  visible,
+  onClose,
+  interaction,
+  onRename,
+}) {
   const storedDevices = useSelector((state) => state.devices?.devices);
-  const selectedDevice = storedDevices?.find((d) => d.id === device.deviceId);
-
+  const selectedDevice = storedDevices?.find(
+    (d) => d.id === interaction.deviceId
+  );
+  const [inputValue, setInputValue] = useState("");
   return (
     <Modal
       transparent
@@ -24,85 +34,106 @@ export default function DeviceModal({ visible, onClose, device }) {
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback>
-            <View style={styles.modalContainer}>
-              <ScrollView
-                style={styles.scrollContainer}
-                contentContainerStyle={{ paddingBottom: 20 }}
-              >
-                {/* Device Title */}
-                <Text style={styles.deviceTitle}>
-                  {selectedDevice?.name ?? "Unnamed Device"}
+          <View style={styles.modalContainer}>
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            >
+          
+              <Text style={styles.deviceTitle}>
+                {selectedDevice?.name ?? "Unnamed Device"}
+              </Text>
+
+        
+              <View style={styles.inputBlock}>
+                <Text style={styles.inputLabel}>
+                  Rename current interaction
                 </Text>
+                <EditInput
+                  placeholder="Enter new name"
+                  setChange={setInputValue}
+                  value={inputValue}
+                />
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.confirmBtn,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={async () => {
+                    if (!inputValue.trim()) return;
 
-                {/* Input Section */}
-                <View style={styles.inputBlock}>
-                  <Text style={styles.inputLabel}>
-                    Rename current interaction
+                    await setCustomName(interaction, inputValue.trim());
+                    setInputValue("");
+                    Toast.show({
+                      topOffset: 60,
+                      type: "success",
+                      text1: "Interaction Name Updated",
+                      text2: `Interaction name is now ${inputValue.trim()}.`,
+                      swipeable: true,
+                    })
+                    if (onRename) onRename();
+                    onClose();
+                  }}
+                >
+                  <Text style={styles.confirmText}>Confirm</Text>
+                </Pressable>
+              </View>
+
+          
+              <View style={styles.metadataRow}>
+                <View style={styles.metadataBlock}>
+                  <Text style={styles.metaLabel}>Interaction Name</Text>
+                  <Text style={styles.metaValue}>
+                    {interaction?.name ?? "N/A"}
                   </Text>
-                  <EditInput placeholder="Enter new name" />
-                  <Pressable style={styles.confirmBtn}>
-                    <Text style={styles.confirmText}>Confirm</Text>
-                  </Pressable>
                 </View>
+                <View style={styles.metadataBlock}>
+                  <Text style={styles.metaLabel}>Status</Text>
+                  <Text
+                    style={[
+                      styles.metaValue,
+                      selectedDevice?.status === "CONNECTED"
+                        ? styles.connected
+                        : styles.disconnected,
+                    ]}
+                  >
+                    {selectedDevice?.status ?? "N/A"}
+                  </Text>
+                </View>
+              </View>
 
-                {/* Metadata Row 1 */}
-                <View style={styles.metadataRow}>
-                  <View style={styles.metadataBlock}>
-                    <Text style={styles.metaLabel}>Interaction Name</Text>
-                    <Text style={styles.metaValue}>
-                      {device?.name ?? "N/A"}
-                    </Text>
-                  </View>
-                  <View style={styles.metadataBlock}>
-                    <Text style={styles.metaLabel}>Status</Text>
-                    <Text
-                      style={[
-                        styles.metaValue,
-                        selectedDevice?.status === "CONNECTED"
-                          ? styles.connected
-                          : styles.disconnected,
-                      ]}
-                    >
-                      {selectedDevice?.status ?? "N/A"}
-                    </Text>
-                  </View>
+              <View style={styles.metadataRow}>
+                <View style={styles.metadataBlock}>
+                  <Text style={styles.metaLabel}>Type</Text>
+                  <Text style={styles.metaValue}>
+                    {interaction?.type ?? "N/A"}
+                  </Text>
                 </View>
+                <View style={styles.metadataBlock}>
+                  <Text style={styles.metaLabel}>Area</Text>
+                  <Text style={styles.metaValue}>
+                    {selectedDevice?.areaName ?? "N/A"}
+                  </Text>
+                </View>
+              </View>
 
-                {/* Metadata Row 2 */}
-                <View style={styles.metadataRow}>
-                  <View style={styles.metadataBlock}>
-                    <Text style={styles.metaLabel}>Type</Text>
-                    <Text style={styles.metaValue}>
-                      {device?.type ?? "N/A"}
-                    </Text>
-                  </View>
-                  <View style={styles.metadataBlock}>
-                    <Text style={styles.metaLabel}>Area</Text>
-                    <Text style={styles.metaValue}>
-                      {selectedDevice?.areaName ?? "N/A"}
-                    </Text>
-                  </View>
-                </View>
 
-                {/* Metadata Row 3 */}
-                <View style={styles.metadataRow}>
-                  <View style={styles.metadataBlock}>
-                    <Text style={styles.metaLabel}>Last Seen</Text>
-                    <Text style={styles.metaValue}>
-                      {selectedDevice?.lastSeen?.split("T")[0] ?? "N/A"}
-                    </Text>
-                  </View>
-                  <View style={styles.metadataBlock}>
-                    <Text style={styles.metaLabel}>Model</Text>
-                    <Text style={styles.metaValue}>
-                      {selectedDevice?.model ?? "N/A"}
-                    </Text>
-                  </View>
+              <View style={styles.metadataRow}>
+                <View style={styles.metadataBlock}>
+                  <Text style={styles.metaLabel}>Last Seen</Text>
+                  <Text style={styles.metaValue}>
+                    {selectedDevice?.lastSeen?.split("T")[0] ?? "N/A"}
+                  </Text>
                 </View>
-              </ScrollView>
-            </View>
-          </TouchableWithoutFeedback>
+                <View style={styles.metadataBlock}>
+                  <Text style={styles.metaLabel}>Model</Text>
+                  <Text style={styles.metaValue}>
+                    {selectedDevice?.model ?? "N/A"}
+                  </Text>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
@@ -147,14 +178,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Lexend-Regular",
     color: "#000000",
-    
   },
   confirmBtn: {
     backgroundColor: "#fe9123",
     paddingVertical: 10,
     borderRadius: 8,
     marginTop: 8,
-    width:200,
+    width: 200,
     alignSelf: "center",
   },
   confirmText: {
@@ -168,6 +198,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: 420,
     marginBottom: 12,
+    
   },
   metadataBlock: {
     flex: 1,

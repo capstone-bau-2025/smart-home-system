@@ -27,20 +27,7 @@ export default function SurveillanceScreen() {
   const [streamModalVisible, setStreamModalVisible] = useState(false);
   const userHubs = useSelector((state) => state.hub.userHubs);
   const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
-  const [cameras, setCameras] = useState([
-    {
-      id: 1,
-      uid: 1,
-      name: "Front Door",
-      status: "CONNECTED",
-      lastSeen: "2025-05-08T21:00:00",
-      createdAt: "2025-05-01T12:00:00",
-      model: "CAM-01",
-      modelName: "Model X",
-      description: "Front door security camera",
-      type: "CAMERA",
-    },
-  ]);
+  const [cameras, setCameras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCamera, setSelectedCamera] = useState(null);
   const currentHub = useSelector((state) => state.hub.currentHub);
@@ -50,21 +37,25 @@ export default function SurveillanceScreen() {
     setSelectedCamera(camera);
     setStreamModalVisible(true);
   }
-  // useEffect(() => {
-  //   const fetchCameras = async () => {
-  //     try {
-  //       const data = await getAllCameras(hubSerialNumber);
-  //       setCameras(data);
-  //       console.log('Cameras:', data);
-  //     } catch (error) {
-  //       console.error("Error fetching cameras:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+useEffect(() => {
+  if (!hubSerialNumber) return;
 
-  //   fetchCameras();
-  // }, [hubSerialNumber]);
+  const fetchCameras = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllCameras(hubSerialNumber);
+      console.log("Cameras from API:", data);
+      setCameras(data);
+    } catch (error) {
+      console.error("❌ Error fetching cameras:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCameras();
+}, [hubSerialNumber]);
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,21 +119,37 @@ export default function SurveillanceScreen() {
           />
         </View>
 
-        <FlatList
-          data={cameras}
-          contentContainerStyle={styles.scrollArea}
-          numColumns={2}
-          renderItem={({ item: camera }) => (
-            <CameraCard
-              camera={camera}
-              onPress={handleCameraPress}
-              key={camera.uid}
-            />
-          )}
-          keyExtractor={(item) => item.uid.toString()}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-        />
+{loading ? (
+  <View style={{ marginTop: 50 }}>
+    <Ionicons name="reload-circle" size={40} color="#999" />
+  </View>
+) : (
+  <FlatList
+    data={cameras}
+    contentContainerStyle={styles.scrollArea}
+    numColumns={2}
+    renderItem={({ item: camera }) => (
+      <CameraCard
+        camera={camera}
+        onPress={handleCameraPress}
+        key={camera.uid}
+      />
+    )}
+    keyExtractor={(item) => item.uid.toString()}
+    showsVerticalScrollIndicator={false}
+    showsHorizontalScrollIndicator={false}
+    ListEmptyComponent={() => 
+    (
+      <View style={{ marginTop: 50 }}>
+        <Ionicons name="camera-off-outline" size={40} color="#999" />
+        <Text style={{ color: "#999", marginTop: 10 }}>
+          No cameras available
+        </Text>
+        </View>
+    )
+    }
+  />
+)}
       </View>
 
       <StreamModal
