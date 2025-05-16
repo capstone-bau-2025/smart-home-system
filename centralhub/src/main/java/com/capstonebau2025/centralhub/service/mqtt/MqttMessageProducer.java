@@ -152,7 +152,7 @@ public class MqttMessageProducer {
      * @return the response from the device, or null if an error occurred
      */
     public ObjectNode sendMessage(long deviceUid, ObjectNode message, String topic, long timeoutMillis) {
-        try {
+        try { // TODO: replace returning null with throwing exception
             //prepare message
             int messageId = MessageIdGenerator.generateMessageId();
             message.put("message_id", messageId);

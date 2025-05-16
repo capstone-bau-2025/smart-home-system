@@ -276,6 +276,7 @@ class DeviceImp(Device):
     def handle_get_streaming_link(self, message):
         """Handle GET_STREAMING_LINK message from hub"""
         message_id = message.get("message_id")
+        self.set_camera_state("ON")
 
         response = {
             "message_id": message_id,

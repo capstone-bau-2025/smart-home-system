@@ -33,5 +33,4 @@ public class SurveillanceController {
         List<DeviceInfoDTO> streamingDevices = surveillanceService.getStreamingDevices(user.getId());
         return ResponseEntity.ok(streamingDevices);
     }
-    // TODO: update camera device python to update state to OFF after timer ends
 }

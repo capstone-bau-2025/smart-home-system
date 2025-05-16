@@ -20,6 +20,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
+        // TODO: throw an exception if the user already exists and add global handler (for validation also)
         var user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
