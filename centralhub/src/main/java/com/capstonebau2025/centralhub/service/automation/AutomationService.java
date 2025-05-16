@@ -2,14 +2,16 @@ package com.capstonebau2025.centralhub.service.automation;
 
 import com.capstonebau2025.centralhub.dto.ActionDTO;
 import com.capstonebau2025.centralhub.dto.AutomationDTO;
-import com.capstonebau2025.centralhub.dto.CreateAutomationRuleDTO;
-import com.capstonebau2025.centralhub.dto.ToggleAutomationRuleDto;
+import com.capstonebau2025.centralhub.dto.RemoteRequests.CreateAutomationRequest;
+import com.capstonebau2025.centralhub.dto.RemoteRequests.ToggleAutomationRequest;
 import com.capstonebau2025.centralhub.entity.*;
+import com.capstonebau2025.centralhub.exception.ApplicationException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -29,22 +31,22 @@ public class AutomationService {
 
 
     @Transactional
-    public AutomationDTO createAutomation(CreateAutomationRuleDTO dto , User user) {
+    public AutomationDTO createAutomation(CreateAutomationRequest request , User user) {
 
         AutomationRule.TriggerType triggerType;
         try {
-            triggerType = AutomationRule.TriggerType.valueOf(dto.getTriggerType().toUpperCase());
+            triggerType = AutomationRule.TriggerType.valueOf(request.getTriggerType().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new ResourceNotFoundException("Invalid trigger type: " + dto.getTriggerType());
+            throw new ResourceNotFoundException("Invalid trigger type: " + request.getTriggerType());
         }
 
         AutomationRule rule = AutomationRule.builder()
                 .createdBy(user)
-                .name(dto.getRuleName())
-                .description(dto.getRuleDescription())
+                .name(request.getRuleName())
+                .description(request.getRuleDescription())
                 .isEnabled(true)
                 .triggerType(triggerType)
-                .cooldownDuration(dto.getCooldownDuration())
+                .cooldownDuration(request.getCooldownDuration())
                 .build();
 
         AutomationRule savedRule = ruleRepository.save(rule);
@@ -53,14 +55,14 @@ public class AutomationService {
             case SCHEDULE -> {
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
-                        .scheduledTime(LocalTime.parse(dto.getScheduledTime()))
+                        .scheduledTime(LocalTime.parse(request.getScheduledTime()))
                         .build();
                 triggerRepository.save(trigger);
             }
             case EVENT -> {
-                Event event = eventRepository.findById(dto.getEventId())
+                Event event = eventRepository.findById(request.getEventId())
                         .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-                Device device = deviceRepository.findById(dto.getDeviceId())
+                Device device = deviceRepository.findById(request.getDeviceId())
                         .orElseThrow(() -> new ResourceNotFoundException("trigger device not found "));
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
@@ -70,11 +72,12 @@ public class AutomationService {
                 triggerRepository.save(trigger);
             }
             case STATUS_VALUE -> {
-                StateValue stateValue = stateValueRepository.findById(dto.getStatusValueId())
+                StateValue stateValue = stateValueRepository.findById(request.getStateValueId())
                         .orElseThrow(() -> new ResourceNotFoundException("State value not found"));
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
                         .stateValue(stateValue)
+                        .stateTriggerValue(request.getStateTriggerValue())
                         .device(stateValue.getDevice())  // Optional: set device if your entity supports it
                         .build();
                 triggerRepository.save(trigger);
@@ -83,7 +86,7 @@ public class AutomationService {
         }
 
         // add actionDto and map to action entity
-        for (ActionDTO actionDto : dto.getActions()) {
+        for (ActionDTO actionDto : request.getActions()) {
             Device device = deviceRepository.findById(actionDto.getDeviceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Device not found"));
 
@@ -114,12 +117,12 @@ public class AutomationService {
     }
 
     @Transactional
-    public AutomationDTO toggleAutomation(ToggleAutomationRuleDto toggleAutomationRule) {
-        AutomationRule rule = ruleRepository.findById(toggleAutomationRule.getRuleId())
+    public AutomationDTO toggleAutomation(ToggleAutomationRequest request) {
+        AutomationRule rule = ruleRepository.findById(request.getRuleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
        // Set the enabled state using the provided parameter
-       rule.setIsEnabled(toggleAutomationRule.getIsEnabled());
+       rule.setIsEnabled(request.getIsEnabled());
 
         // Save the updated rule
         AutomationRule savedRule = ruleRepository.save(rule);
@@ -134,7 +137,7 @@ public class AutomationService {
     }
 
     @Transactional
-    public void deleteAutomationRule(Long ruleId) {
+    public void deleteAutomation(Long ruleId) {
         AutomationRule rule = ruleRepository.findById(ruleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
@@ -143,7 +146,7 @@ public class AutomationService {
         ruleRepository.delete(rule);
     }
 
-    public List<AutomationDTO> getAllAutomationRules() {
+    public List<AutomationDTO> getAllAutomations() {
         return ruleRepository.findAll().stream()
                 .map(this::mapToDto)
                 .collect(java.util.stream.Collectors.toList());
@@ -159,29 +162,20 @@ public class AutomationService {
                 .cooldownDuration(rule.getCooldownDuration());
 
         AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId())
-                .orElse(null);
+                .orElseThrow(() -> new ApplicationException("No trigger found for automation rule", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        if (trigger != null) {
-            switch (rule.getTriggerType()) {
-                case EVENT:
-                    if (trigger.getEvent() != null) {
-                        builder.eventId(trigger.getEvent().getId());
-                    }
-                    if (trigger.getDevice() != null) {
-                        builder.deviceId(trigger.getDevice().getId());
-                    }
-                    break;
-                case STATUS_VALUE:
-                    if (trigger.getStateValue() != null) {
-                        builder.statusValueId(trigger.getStateValue().getId());
-                    }
-                    break;
-                case SCHEDULE:
-                    if (trigger.getScheduledTime() != null) {
-                        builder.scheduledTime(trigger.getScheduledTime().toString());
-                    }
-                    break;
-            }
+        switch (rule.getTriggerType()) {
+            case EVENT:
+                builder.eventId(trigger.getEvent().getId());
+                builder.deviceId(trigger.getDevice().getId());
+                break;
+            case STATUS_VALUE:
+                builder.stateValueId(trigger.getStateValue().getId());
+                builder.stateTriggerValue(trigger.getStateTriggerValue());
+                break;
+            case SCHEDULE:
+                builder.scheduledTime(trigger.getScheduledTime().toString());
+                break;
         }
 
         List<AutomationAction> actions = actionRepository.findByAutomationRuleId(rule.getId());

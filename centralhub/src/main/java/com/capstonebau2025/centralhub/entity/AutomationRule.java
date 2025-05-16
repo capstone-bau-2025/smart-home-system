@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -44,6 +46,12 @@ public class AutomationRule {
     private Integer cooldownDuration; // Cooldown duration in seconds
 
     private LocalTime lastExecutedTime; // Last time the automation was executed
+
+    @OneToOne(mappedBy = "automationRule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private AutomationTrigger trigger;
+
+    @OneToMany(mappedBy = "automationRule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AutomationAction> actions = new ArrayList<>();
 
     public enum TriggerType {
         SCHEDULE, EVENT, STATUS_VALUE

@@ -1,20 +1,20 @@
-package com.capstonebau2025.centralhub.dto;
+package com.capstonebau2025.centralhub.dto.RemoteRequests;
 
+
+import com.capstonebau2025.centralhub.dto.ActionDTO;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
-@Builder
 @Data
-public class AutomationDTO {
+@Builder
+public class CreateAutomationRequest {
 
-    private Long id;
     private String ruleName;
     private String ruleDescription;
     private String triggerType;
     private Integer cooldownDuration;
-    private Boolean isEnabled;
 
     //attribute specific for trigger type event
     private Long eventId;

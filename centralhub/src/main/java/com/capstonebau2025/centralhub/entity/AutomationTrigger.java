@@ -25,10 +25,6 @@ public class AutomationTrigger {
     @JoinColumn(name = "automation_rule_id", nullable = false)
     private AutomationRule automationRule;
 
-    @ManyToOne
-    @JoinColumn(name = "device_id")
-    private Device device;
-
     //Attributes specific to trigger type SCHEDULE, NULL otherwise
     private LocalTime scheduledTime;
 
@@ -37,15 +33,19 @@ public class AutomationTrigger {
     @JoinColumn(name = "event_id")
     private Event event; // TODO: add bidirectional relation to Event entity
 
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Device device;
+
     //Attributes specific to trigger type STATUS_VALUE, NULL otherwise
     @ManyToOne
     @JoinColumn(name = "state_value_id")
     private StateValue stateValue; // TODO: add bidirectional relation to StateValue entity
 
+    private String stateTriggerValue;
+
     @Enumerated(EnumType.STRING)
     private TriggerOperator operator;
-
-    private String stateTriggerValue;
 
     //TODO: make sure operator is only EQUAL if state type is ENUM not RANGE
     public enum TriggerOperator {
