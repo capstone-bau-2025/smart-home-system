@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,25 +25,27 @@ public class AutomationTrigger {
     @JoinColumn(name = "automation_rule_id", nullable = false)
     private AutomationRule automationRule;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "device_id", nullable = false)
-    private Device device;
+    //Attributes specific to trigger type SCHEDULE, NULL otherwise
+    private LocalTime scheduledTime;
 
-    //Attribute specific to trigger owned by automation rule with type EVENT, NULL otherwise
+    //Attributes specific to trigger type EVENT, NULL otherwise
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event; // TODO: add bidirectional relation to Event entity
 
-    //Attributes specific to trigger owned by automation rule with type STATUS_VALUE, NULL otherwise
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Device device;
+
+    //Attributes specific to trigger type STATUS_VALUE, NULL otherwise
     @ManyToOne
     @JoinColumn(name = "state_value_id")
     private StateValue stateValue; // TODO: add bidirectional relation to StateValue entity
 
+    private String stateTriggerValue;
+
     @Enumerated(EnumType.STRING)
     private TriggerOperator operator;
-
-    private String stateTriggerValue;
 
     //TODO: make sure operator is only EQUAL if state type is ENUM not RANGE
     public enum TriggerOperator {
