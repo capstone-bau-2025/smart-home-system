@@ -14,7 +14,7 @@ import static com.capstonebau2025.centralhub.client.CloudAuthClient.hubToken;
 
 @Component
 @RequiredArgsConstructor
-public class CloudClient {
+public class CloudClient { // TODO: add better logging of cloud error (invalid user)
     private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
     private final RestTemplate restTemplate;
 
@@ -27,7 +27,7 @@ public class CloudClient {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
+            System.out.println(hubToken);
             UserValidationRequest requestBody = UserValidationRequest.builder()
                     .cloudToken(cloudToken)
                     .token(hubToken)
@@ -48,7 +48,7 @@ public class CloudClient {
     public LinkUserResponse linkUser(String cloudToken, String hubSerialNumber, String email, String role) {
         try {
             String url = cloudUrl + "/api/hub/linkUser";
-
+            System.out.println(hubToken);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -98,7 +98,7 @@ public class CloudClient {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
+            System.out.println(hubToken);
             HubUpdateNameRequest requestBody = HubUpdateNameRequest.builder()
                     .token(hubToken)
                     .name(newName)

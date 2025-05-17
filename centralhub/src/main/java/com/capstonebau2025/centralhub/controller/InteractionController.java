@@ -8,8 +8,7 @@ import com.capstonebau2025.centralhub.service.UserDeviceInteractionService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,44 +20,31 @@ public class InteractionController {
 
     @GetMapping
     @Operation(summary = "REMOTE")
-    public ResponseEntity<AreaInteractionsDTO[]> getAllInteractions() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-
-        return ResponseEntity.ok(interactionService.getAllInteractions(userId));
+    public ResponseEntity<AreaInteractionsDTO[]> getAllInteractions(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(interactionService.getAllInteractions(user.getId()));
     }
 
     @PostMapping("/update-state")
     @Operation(summary = "REMOTE")
-    public ResponseEntity<Void> updateStateInteraction(@RequestBody UpdateStateRequest dto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-
-        interactionService.updateStateInteraction(userId, dto.getStateValueId(), dto.getValue());
+    public ResponseEntity<Void> updateStateInteraction(@RequestBody UpdateStateRequest dto,
+                                                       @AuthenticationPrincipal User user) {
+        interactionService.updateStateInteraction(user.getId(), dto.getStateValueId(), dto.getValue());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/execute-command")
     @Operation(summary = "REMOTE")
-    public ResponseEntity<Void> executeCommand(@RequestBody ExecuteCommandRequest dto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-
-        interactionService.commandInteraction(userId, dto.getDeviceId(), dto.getCommandId());
+    public ResponseEntity<Void> executeCommand(@RequestBody ExecuteCommandRequest dto,
+                                               @AuthenticationPrincipal User user) {
+        interactionService.commandInteraction(user.getId(), dto.getDeviceId(), dto.getCommandId());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/fetch-state/{stateValueId}")
     @Operation(summary = "REMOTE")
-    public ResponseEntity<String> fetchStateInteraction(@PathVariable Long stateValueId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-
-        String stateValue = interactionService.fetchStateInteraction(userId, stateValueId);
+    public ResponseEntity<String> fetchStateInteraction(@PathVariable Long stateValueId,
+                                                        @AuthenticationPrincipal User user) {
+        String stateValue = interactionService.fetchStateInteraction(user.getId(), stateValueId);
         return ResponseEntity.ok(stateValue);
     }
 }
