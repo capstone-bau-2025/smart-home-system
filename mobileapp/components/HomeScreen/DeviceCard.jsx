@@ -25,7 +25,6 @@ export default function DeviceCard({ data }) {
   const isCommand = data.type === "COMMAND";
   const isChoice = data.type === "CHOICE";
   const isRange = data.type === "RANGE";
-  if (data.category === "CAMERA") return null;
   const hasMultipleChoices = isChoice && data.choices?.length > 2;
   const isToggleChoice = isChoice && data.choices?.length <= 2;
   const isSlider = isRange || hasMultipleChoices;

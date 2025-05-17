@@ -21,7 +21,8 @@ export default function StreamModal({ visible, onClose, camera }) {
   const mockStreamUrl = "http://webcam01.ecn.purdue.edu/mjpg/video.mjpg";
   const currentHub = useSelector((state) => state.hub.currentHub);
   const hubSerialNumber = currentHub?.serialNumber;
-  const activeStreamUrl = streamUrl || mockStreamUrl;
+  const activeStreamUrl = 'localhost:8000/video' 
+  //streamUrl || mockStreamUrl;
 
   useEffect(() => {
     const fetchStreamUrl = async () => {
