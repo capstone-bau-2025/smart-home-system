@@ -1,15 +1,14 @@
 package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.*;
-import com.capstonebau2025.centralhub.dto.RemoteRequests.ExecuteCommandRequest;
-import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateStateRequest;
-import com.capstonebau2025.centralhub.dto.RemoteRequests.UpdateUserPermissionsRequest;
+import com.capstonebau2025.centralhub.dto.RemoteRequests.*;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Role;
 import com.capstonebau2025.centralhub.entity.User;
 import com.capstonebau2025.centralhub.exception.*;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.*;
+import com.capstonebau2025.centralhub.service.automation.AutomationService;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +37,7 @@ public class WebSocketCommandHandler {
     private final InvitationService invitationService;
     private final StreamingService streamingService;
     private final SurveillanceService surveillanceService;
-
+    private final AutomationService automationService;
     @Setter
     private StompSession stompSession;
 
@@ -120,6 +119,18 @@ public class WebSocketCommandHandler {
                     break;
                 case "GET_STREAMING_DEVICES":
                     response = handleGetStreamingDevices(message);
+                    break;
+                case "GET_ALL_AUTOMATIONS":
+                    response = handleGetAllAutomations(message);
+                    break;
+                case "CREATE_AUTOMATION":
+                    response = handleCreateAutomation(message);
+                    break;
+                case "TOGGLE_AUTOMATION":
+                    response = handleToggleAutomation(message);
+                    break;
+                case "DELETE_AUTOMATION":
+                    response = handleDeleteAutomation(message);
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
@@ -555,6 +566,85 @@ public class WebSocketCommandHandler {
 
         } catch (Exception e) {
             log.error("Error processing INITIATE_CAMERA_STREAM command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleGetAllAutomations(RemoteCommandMessage message) {
+        try {
+            List<AutomationDTO> automations = automationService.getAllAutomations();
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Automations retrieved successfully")
+                    .payload(automations)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_ALL_AUTOMATIONS command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleCreateAutomation(RemoteCommandMessage message) {
+        try {
+            String email = message.getEmail();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            CreateAutomationRequest request = objectMapper.convertValue(
+                    message.getPayload(), CreateAutomationRequest.class);
+
+            AutomationDTO automation = automationService.createAutomation(request, user);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Automation created successfully")
+                    .payload(automation)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing CREATE_AUTOMATION command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleToggleAutomation(RemoteCommandMessage message) {
+        try {
+            ToggleAutomationRequest request = objectMapper.convertValue(
+                    message.getPayload(), ToggleAutomationRequest.class);
+
+            AutomationDTO automation = automationService.toggleAutomation(request);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Automation toggled successfully")
+                    .payload(automation)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing TOGGLE_AUTOMATION command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleDeleteAutomation(RemoteCommandMessage message) {
+        try {
+            Long ruleId = objectMapper.convertValue(message.getPayload(), Long.class);
+
+            automationService.deleteAutomation(ruleId);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Automation deleted successfully")
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing DELETE_AUTOMATION command: {}", e.getMessage(), e);
             throw e;
         }
     }
