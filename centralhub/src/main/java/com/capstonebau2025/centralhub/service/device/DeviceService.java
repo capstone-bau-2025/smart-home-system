@@ -79,6 +79,38 @@ public class DeviceService {
                 .toList();
     }
 
+    public List<DeviceInfoDTO> getDevicesByFilter(String filter) {
+        List<Device> devices;
+
+        switch (filter.toUpperCase()) {
+            case "EVENT":
+                // Devices that can trigger events
+                devices = deviceRepository.findByModelEventsIsNotEmpty();
+                break;
+            case "COMMAND":
+                // Devices that can receive commands
+                devices = deviceRepository.findByModelCommandsIsNotEmpty();
+                break;
+            case "IMMUTABLE_STATE":
+                // Devices that have immutable states
+                devices = deviceRepository.findByModelImmutableStatesIsNotEmpty();
+                break;
+            case "MUTABLE_STATE":
+                devices = deviceRepository.findByModelMutableStatesIsNotEmpty();
+                break;
+            default:
+                devices = deviceRepository.findAll();
+        }
+
+        return devices.stream()
+                .map(device -> DeviceInfoDTO.builder()
+                        .id(device.getId())
+                        .name(device.getName())
+                        .modelName(device.getModel().getName())
+                        .build())
+                .toList();
+    }
+
     public void deleteDevice(Long id) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));

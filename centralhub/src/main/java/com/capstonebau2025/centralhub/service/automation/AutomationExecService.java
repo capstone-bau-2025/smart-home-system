@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class AutomationExecService {
                 boolean shouldExecute = switch (rule.getTriggerType()) {
                     case SCHEDULE -> checkScheduledTrigger(trigger);
                     case EVENT -> checkEventTrigger(trigger);
-                    case STATUS_VALUE -> checkStateTrigger(trigger);
+                    case STATE_UPDATE -> checkStateTrigger(trigger);
                 };
 
                 if (shouldExecute) {

@@ -71,7 +71,7 @@ public class AutomationService {
                         .build();
                 triggerRepository.save(trigger);
             }
-            case STATUS_VALUE -> {
+            case STATE_UPDATE -> {
                 StateValue stateValue = stateValueRepository.findById(request.getStateValueId())
                         .orElseThrow(() -> new ResourceNotFoundException("State value not found"));
                 AutomationTrigger trigger = AutomationTrigger.builder()
@@ -102,7 +102,7 @@ public class AutomationService {
                             .orElseThrow(() -> new ValidationException("Command not found")));
                 }
                 case STATE_UPDATE -> {
-                    action.setStateValue(stateValueRepository.findById(actionDto.getStatusValueId())
+                    action.setStateValue(stateValueRepository.findById(actionDto.getStateValueId())
                             .orElseThrow(() -> new ValidationException("State value not found")));
                     action.setValue(actionDto.getActionValue());
                 }
@@ -169,7 +169,7 @@ public class AutomationService {
                 builder.eventId(trigger.getEvent().getId());
                 builder.deviceId(trigger.getDevice().getId());
                 break;
-            case STATUS_VALUE:
+            case STATE_UPDATE:
                 builder.stateValueId(trigger.getStateValue().getId());
                 builder.stateTriggerValue(trigger.getStateTriggerValue());
                 break;
@@ -186,7 +186,7 @@ public class AutomationService {
                             .deviceId(action.getDevice().getId())
                             .type(action.getType().toString())
                             .commandId(action.getCommand() != null ? action.getCommand().getId() : null)
-                            .statusValueId(action.getStateValue() != null ? action.getStateValue().getId() : null)
+                            .stateValueId(action.getStateValue() != null ? action.getStateValue().getId() : null)
                             .actionValue(action.getValue())
                             .build())
                     .collect(java.util.stream.Collectors.toList());

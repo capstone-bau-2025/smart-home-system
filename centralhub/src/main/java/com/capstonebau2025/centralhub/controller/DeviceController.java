@@ -47,6 +47,13 @@ public class DeviceController {
         return ResponseEntity.ok(devices);
     }
 
+    @GetMapping("/filter")
+    @Operation(summary = "REMOTE")
+    public ResponseEntity<List<DeviceInfoDTO>> getDevicesByFilter(@RequestParam String filter) {
+        List<DeviceInfoDTO> devices = deviceService.getDevicesByFilter(filter);
+        return ResponseEntity.ok(devices);
+    }
+
     @DeleteMapping("/{id}")
     @RolesAllowed("ADMIN")
     @Operation(summary = "ADMIN, REMOTE")

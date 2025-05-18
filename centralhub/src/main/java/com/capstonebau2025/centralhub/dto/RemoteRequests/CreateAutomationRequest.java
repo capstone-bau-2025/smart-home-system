@@ -13,19 +13,19 @@ public class CreateAutomationRequest {
 
     private String ruleName;
     private String ruleDescription;
-    private String triggerType;
+    private String triggerType; // EVENT, SCHEDULE, STATE_UPDATE
     private Integer cooldownDuration;
 
-    //attribute specific for trigger type event
+    //attribute specific for trigger type event -> LIST OF DEVICES -> LIST OF EVENTS
     private Long eventId;
     private Long deviceId;
 
-    //attribute specific for trigger type status
+    //attribute specific for trigger type status -> LIST OF DEVICES -> LIST OF STATES (IMMUTALBE), STATE TRIGGER VALUE
     private Long stateValueId;
     private String stateTriggerValue;
 
     //attribute specific for trigger type scheduled
-    private String scheduledTime;
+    private String scheduledTime; // "HH:MM"
 
     private List<ActionDTO> actions;
 }

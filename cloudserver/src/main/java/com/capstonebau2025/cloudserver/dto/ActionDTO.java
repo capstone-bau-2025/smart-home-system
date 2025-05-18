@@ -11,7 +11,7 @@ public class ActionDTO {
 
     private Long deviceId;
     private Long commandId;
-    private Long statusValueId;
+    private Long stateValueId;
     private String type;
     private String actionValue;
 
