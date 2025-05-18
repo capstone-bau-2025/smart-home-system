@@ -11,7 +11,7 @@ export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`; // cloud
 let ACTIVE_URL = null;
 let pingInterval = null;
 
-// 🔍 Determine base URL based on connection type (wifi or not)
+//Determine base URL based on connection type (wifi or not)
 export async function getActiveBaseUrl() {
   try {
     const networkState = await Network.getNetworkStateAsync();

@@ -7,12 +7,13 @@ import { useSelector } from "react-redux";
 export default function DeviceDiscoveredCard({ data }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const devices = useSelector((state) => state.devices.devices);
 
-  console.log("DEVICES FROM REDUX", devices);
+
+  
   const handlePress = (device) => {
     setSelectedDevice(device);
     setModalVisible(true);
+    console.log("Selected device:", device?.uid);
   };
 
 
@@ -29,9 +30,9 @@ export default function DeviceDiscoveredCard({ data }) {
               onPress={() => handlePress(device)}
             >
               <View>
-                <Text style={styles.nameText}>{device?.name}</Text>
+                <Text style={styles.nameText}>{device?.model}</Text>
                 <Text style={styles.descriptionText}>
-                  {device?.model} - {device?.type}
+               {device?.type}
                 </Text>
               </View>
               <Ionicons
@@ -62,14 +63,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff7e6", // soft orange
+    backgroundColor: "#ecdbb5", 
     borderRadius: 10,
     padding: 12,
     marginBottom: 10,
-    width: "90%",
+    width: "95%",
     height: 70,
     borderWidth: 1,
-    borderColor: "#f0a500", // orange border
+    borderColor: "#f0a500", 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

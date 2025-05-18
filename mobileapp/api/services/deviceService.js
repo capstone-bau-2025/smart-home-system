@@ -18,22 +18,21 @@ export const getDeviceByArea = async (areaId, hubSerialNumber) => {
 }
 
 
-export const updateDeviceName = async (deviceId, newName, token,hubSerialNumber) => {
+export const updateDeviceName = async (deviceId, newName) => {
+  const token = store.getState().user.localToken;
   const response = await axios.put(
     `${LOCAL_URL}api/devices/${deviceId}/name`,
-    {}, // No body
+    {}, 
     {
-      params: { name: newName }, // query param
+      params: { name: newName }, 
       headers: {
         Authorization: `Bearer ${token}`,
-        parameter: hubSerialNumber,
       },
     }
   );
 
   return response.data;
 };
-
 export const updateDeviceArea = async (deviceId, areaId, token,hubSerialNumber) => {
   const response = await axios.put(
     `${LOCAL_URL}api/devices/${deviceId}/area`,
@@ -76,4 +75,31 @@ export const deleteDevice = async (deviceId, token, hubSerialNumber) => {
   );
 
   return response.data;
+};
+
+
+export const fetchAndDispatchDevices = async (hubSerialNumber, areas, dispatch) => {
+  if (!hubSerialNumber || !areas?.length) return;
+
+  try {
+    const deviceMetaPerArea = await Promise.all(
+      areas.map((area) =>
+        getDeviceByArea(area.areaId, hubSerialNumber).then((list) => ({
+          areaId: area.areaId,
+          list,
+        }))
+      )
+    );
+
+    const allDevices = deviceMetaPerArea.flatMap(({ areaId, list }) =>
+      list.map((device) => ({
+        ...device,
+        areaId,
+      }))
+    );
+
+    dispatch(setDevices(allDevices));
+  } catch (err) {
+    console.error("❌ Error fetching devices per area:", err);
+  }
 };

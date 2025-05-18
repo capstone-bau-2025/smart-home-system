@@ -12,30 +12,31 @@ import {
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { discoverDevices } from "../../../api/services/deviceDiscoverService";
-import { discoveredDevices } from "../../../Data/discoveredDevices";
+// import { discoveredDevices } from "../../../Data/discoveredDevices";
 import DeviceDiscoveredCard from "../../../components/DiscoverDevices/DeviceDiscoveredCard";
 
 export default function DiscoverDevice() {
   const currentHub = useSelector((state) => state.hub.currentHub);
-  // const [devices, setDevices] = useState(discoveredDevices);
+  const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const fetchDevices = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const res = await discoverDevices();
-  //     setDevices(res);
-  //     console.log("DEVICES DISCOVERED:", res);
-  //   } catch (err) {
-  //     console.error("Failed to discover devices:", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const fetchDevices = async () => {
+    try {
+      setLoading(true);
+      const res = await discoverDevices(); 
+      const parsed = Object.values(res); 
+      setDevices(parsed);
 
-  // useEffect(() => {
-  //   setDevices(discoveredDevices);
-  // }, []);
+  } catch (error) {
+    console.error("Error discovering devices:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    fetchDevices();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,13 +48,15 @@ export default function DiscoverDevice() {
       ) : (
         <>
           <Text style={styles.title}>Scanned Devices</Text>
-          <DeviceDiscoveredCard data={discoveredDevices} />
+          <DeviceDiscoveredCard data={devices} />
         </>
       )}
 
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-        onPress={console.log('"Discovering devices...")}')}
+        onPress={() => {
+          fetchDevices();
+        }}
       >
         <Text style={styles.buttonText}>Look for devices</Text>
       </Pressable>

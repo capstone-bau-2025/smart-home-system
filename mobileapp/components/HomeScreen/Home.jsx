@@ -1,18 +1,14 @@
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
 import { homeHub } from "../../Data/homehub";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchRooms } from "../../api/services/areaService";
 import RoomCard from "./RoomCard";
 import HeaderDevices from "./HeaderDevices";
 
-
-
 //this is the feed that shows the rooms and devices in the home hub
-export default function Home({data,onRefresh, refreshing}) {
-
-
-
+export default function Home({ data, onRefresh, refreshing }) {
+  //data here is the rooms that are fetched from the api
 
   return (
     <View style={styles.container}>
@@ -30,9 +26,22 @@ export default function Home({data,onRefresh, refreshing}) {
         refreshing={refreshing}
         renderItem={({ item }) => (
           <>
-            <RoomCard data={item} /> 
-
+            <RoomCard data={item} />
           </>
+        )}
+        ListEmptyComponent={() => (
+          <View
+            style={{
+              alignItems: "center",
+              marginTop: 20,
+              paddingHorizontal: 16,
+            }}
+          >
+            <Text style={{ fontSize: 16, color: "#555", textAlign: "center" }}>
+              No Hub found — try connecting to one from the "Discover Hub"
+              screen.
+            </Text>
+          </View>
         )}
       />
     </View>

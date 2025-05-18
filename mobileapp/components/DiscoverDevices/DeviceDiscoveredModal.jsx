@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { configureDevice } from '../../api/services/deviceDiscoverService';
 import { Ionicons } from '@expo/vector-icons';
 import { setDevices } from '../../store/slices/devicesSlice';
-
+import Toast from 'react-native-toast-message';
 export default function DeviceDiscoveredModal({ visible, onClose, title, selectedDevice }) {
   const currentHub = useSelector((state) => state.hub.currentHub);
   const devices = useSelector((state) => state.devices.devices);
@@ -13,9 +13,16 @@ export default function DeviceDiscoveredModal({ visible, onClose, title, selecte
 
   const handlePress = async () => {
     try {
-      // await configureDevice(selectedDevice.uid, currentHub.serialNumber);
+      await configureDevice(selectedDevice.uid,currentHub.serialNumber);
       dispatch(setDevices([...devices, selectedDevice]));
-      console.log("Device added successfully", selectedDevice);
+      Toast.show({
+        type: 'success',  
+        text1: 'Device Added',
+        text2: `${selectedDevice.model} has been added to ${currentHub.name}.`,
+        position: 'top',
+        topOffset: 60,
+        swipeable: true,
+      });
       onClose();
     } catch (err) {
       console.error("Failed to configure device", err);
@@ -29,7 +36,7 @@ export default function DeviceDiscoveredModal({ visible, onClose, title, selecte
   <Ionicons name="checkmark-circle-outline" size={100} color="#e19b19" style={styles.icon} />
 
   <Text style={styles.infoText}>
-    Add <Text style={styles.deviceName}>{selectedDevice?.name}</Text> to{" "}
+    Add <Text style={styles.deviceName}>{selectedDevice?.model}</Text> to{" "}
     <Text style={styles.hubName}>{currentHub?.name}</Text>?
   </Text>
 

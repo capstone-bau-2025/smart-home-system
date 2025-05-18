@@ -12,31 +12,17 @@ import { WebView } from "react-native-webview";
 import { useSelector } from "react-redux";
 import { streamCameraById } from "../../api/services/surveillanceService";
 import { Ionicons } from "@expo/vector-icons";
+import {LOCAL_URL} from "../../util/auth";
+import {store} from "../../store/store";
+
 
 export default function StreamModal({ visible, onClose, camera }) {
-  const [streamUrl, setStreamUrl] = useState(null);
-  const [loading, setLoading] = useState(false);
-
   const mockStreamUrl = "http://webcam01.ecn.purdue.edu/mjpg/video.mjpg";
-  const currentHub = useSelector((state) => state.hub.currentHub);
-  const hubSerialNumber = currentHub?.serialNumber;
-  const activeStreamUrl = streamUrl || mockStreamUrl;
 
-  // useEffect(() => {
-  //   const fetchStreamUrl = async () => {
-  //     if (!camera?.id || !hubSerialNumber) return;
-  //     setLoading(true);
-  //     try {
-  //       const url = await streamCameraById(camera.id, hubSerialNumber);
-  //       setStreamUrl(url);
-  //     } catch (err) {
-  //       console.error("Failed to fetch stream URL:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchStreamUrl();
-  // }, [camera, hubSerialNumber]);
+  const headers = {
+    Authorization: `Bearer ${store.getState().user.localToken}`,
+  };
+
 
   if (!camera) return null;
 
@@ -72,20 +58,19 @@ export default function StreamModal({ visible, onClose, camera }) {
 
           {/* Stream */}
           <View style={styles.streamContainer}>
-            {loading ? (
-              <ActivityIndicator size="large" color="#FF7B00" />
-            ) : (
               <WebView
                 style={styles.webview}
                 originWhitelist={["*"]}
-                source={{ uri: activeStreamUrl }}
+                source={{
+                  headers: headers,
+                  uri: `${LOCAL_URL}api/cameras/${camera.id}/stream`
+                }}
                 javaScriptEnabled
                 domStorageEnabled
                 onError={(err) =>
                   console.error("WebView MJPEG error:", err.nativeEvent)
                 }
               />
-            )}
           </View>
         </View>
       </View>

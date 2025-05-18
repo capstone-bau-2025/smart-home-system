@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Modal,
   TouchableOpacity,
+  Dimensions,
+  TouchableWithoutFeedback,
+  Animated,
 } from "react-native";
 import Colors from "../../constants/Colors";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import RoomsGridList from "../UI/RoomsGridList";
+ 
+const { width, height } = Dimensions.get("window");
 
 export default function SelectRoom({
   visible,
@@ -18,27 +22,55 @@ export default function SelectRoom({
   selectedTab,
   selectedDevice,
   onMove,
-  selectTargetRoom,
-  setSelectTargetRoom,
 }) {
   const [confirm, setConfirm] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [deviceName, setDeviceName] = useState("");
+  const opacity = useRef(new Animated.Value(0)).current;
+  const [shouldRender, setShouldRender] = useState(visible);
 
-  
-  function pressHandler(newRoom) {
-      console.log("Pressed Room:", newRoom);
-    setSelectedRoom(newRoom);
-    setConfirm(true);
-  }
+  useEffect(() => {
+    if (visible) {
+      setShouldRender(true);
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setShouldRender(false);
+        setConfirm(false);
+      });
+    }
+  }, [visible]);
 
-  if (!room || !selectedTab) return null;
+  useEffect(() => {
+    if (visible && selectedDevice?.name) {
+      setDeviceName(selectedDevice.name);
+    }
+  }, [visible, selectedDevice?.id]);
+
+  if (!shouldRender || !room || !selectedTab || !selectedDevice) return null;
 
   const availableRooms = rooms.filter((r) => r.id !== room.id);
 
+  const pressHandler = (newRoom) => {
+    setSelectedRoom(newRoom);
+    setConfirm(true);
+  };
+
   return (
-    <Modal animationType="slide" transparent={false} visible={visible}>
-      <View style={styles.modalContainer}>
-        {/* Header */}
+    <Animated.View style={[styles.fullscreen, { opacity }]}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.backdrop} />
+      </TouchableWithoutFeedback>
+
+      <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Select a Room in {selectedTab.name}</Text>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -46,9 +78,7 @@ export default function SelectRoom({
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.info}>
-          Choose a room to move {selectedDevice.name} to
-        </Text>
+        <Text style={styles.info}>You're moving: {deviceName}</Text>
 
         <RoomsGridList
           rooms={availableRooms}
@@ -65,32 +95,46 @@ export default function SelectRoom({
           }}
           iconName="repeat-outline"
           iconColor="#ff9831"
-          message={`Are you sure you want to move ${selectedDevice.name} to`}
-          highlightedText={selectedRoom?.name}
+          message={`Are you sure you want to move ${deviceName} to`}
+          highlightedText={selectedRoom?.name || ""}
           confirmLabel="Yes"
           cancelLabel="No"
         />
       </View>
-    </Modal>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  fullscreen: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    height,
+    width,
+    zIndex: 999,
+    justifyContent: "flex-start",
+    backgroundColor: "transparent",
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    height,
+    width,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  container: {
     flex: 1,
     backgroundColor: Colors.primaryBackground,
-    paddingTop: 50,
-    alignItems: "center",
+    paddingTop: 60,
+    paddingHorizontal: 15,
   },
   header: {
-    width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    marginBottom: 10,
   },
   title: {
     fontSize: 24,
@@ -113,8 +157,7 @@ const styles = StyleSheet.create({
   info: {
     fontFamily: "Lexend-Regular",
     color: "#000000",
-    fontSize: 20,
-    marginVertical: 10,
-    marginHorizontal: 5,
+    fontSize: 18,
+    marginBottom: 10,
   },
 });

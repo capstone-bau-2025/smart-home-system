@@ -22,12 +22,13 @@ export default function ScrollableList({
   toggleSwitch,
   pressableTab,
   refreshing,
-  onRefresh
+  onRefresh,
+  noData = "No data available",
 }) {
   if (!data || data.length === 0) {
     return( 
     <View  style={styles.listContainer}>
-      <Text style={styles.emptyText}>No data found</Text>
+      <Text style={styles.emptyText}>{noData}</Text>
     </View>
     )
   }
@@ -146,7 +147,7 @@ export default function ScrollableList({
 const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
-    flex: 1,
+    
   },
   itemContainer: {
     flexDirection: "row",

@@ -42,10 +42,6 @@ export default function AutomationsList({
 
   return (
     <>
-      <View style={styles.header}>
-        {/* <Text style={styles.headerText}>Your Automations</Text> */}
-      </View>
-
       <ScrollableList
         data={autoState}
         toggle={true}
@@ -59,13 +55,5 @@ export default function AutomationsList({
 }
 
 const styles = StyleSheet.create({
-  header: {
-    justifyContent: "center",
-    marginVertical: 10,
-    alignSelf: "center",
-  },
-  headerText: {
-    fontSize: 24,
-    fontFamily: "Lexend-Bold",
-  },
+
 });

@@ -9,7 +9,7 @@ export const store = configureStore({
   reducer: {
     hub: hubReducer,
     user: userReducer,
-    area: areaReducer,
+    areas: areaReducer,
     url: urlReducer,
     devices: devicesReducer,
   },

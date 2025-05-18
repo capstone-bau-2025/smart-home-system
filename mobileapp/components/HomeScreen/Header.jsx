@@ -7,7 +7,7 @@ import SettingsDropdown from "./SettingsDropdown";
 import { useDispatch, useSelector } from "react-redux";
 
 //renders header elements in the homescreen
-export default function Header({ setModalVisible,  }) {
+export default function Header({ setModalVisible }) {
   const [addValue, setAddValue] = useState(null);
   const [settingsValue, setSettingsValue] = useState(null);
   const [addVisible, setAddVisible] = useState(false);
@@ -15,15 +15,12 @@ export default function Header({ setModalVisible,  }) {
 
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
+  const noHub = userHubs.length === 0;
   const dispatch = useDispatch();
 
   return (
     <View style={styles.container}>
-      <HubDropdown
-        currentHub={currentHub}
-        userHubs={userHubs}
-      />
-
+    <HubDropdown currentHub={currentHub} userHubs={userHubs}  noHub={noHub}/>
 
       <HeaderIcons
         onInfoPress={() => setModalVisible(true)}
@@ -31,7 +28,6 @@ export default function Header({ setModalVisible,  }) {
         onCogPress={() => setSettingsVisible((prev) => !prev)}
       />
 
-    
       <AddDropdown
         addValue={addValue}
         setAddValue={setAddValue}
@@ -39,14 +35,12 @@ export default function Header({ setModalVisible,  }) {
         setAddVisible={setAddVisible}
       />
 
-
-        <SettingsDropdown
-          settingsValue={settingsValue}
-          setSettingsValue={setSettingsValue}
-          settingsVisible={settingsVisible}
-          setSettingsVisible={setSettingsVisible}
-        />
-
+      <SettingsDropdown
+        settingsValue={settingsValue}
+        setSettingsValue={setSettingsValue}
+        settingsVisible={settingsVisible}
+        setSettingsVisible={setSettingsVisible}
+      />
     </View>
   );
 }
@@ -58,6 +52,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 15,
     position: "relative",
-
   },
 });

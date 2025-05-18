@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,13 +7,15 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
+import { useSelector } from "react-redux";
+
 import HubsTabs from "../../../components/UI/HubsTabs";
 import MainRoomList from "../../../components/ManageDevices/MainRoomList";
 import InfoModal from "../../../components/UI/InfoModal";
 import AddRoomModal from "../../../components/ManageDevices/AddRoomModal";
+
 import useAreas from "../../../hooks/useAreas";
-import { useSelector } from "react-redux";
-import { getDeviceByArea } from "../../../api/services/deviceService";
+import useDevices from "../../../hooks/useDevices";
 
 export default function ManageDevice({
   setAddModal,
@@ -26,33 +28,31 @@ export default function ManageDevice({
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
   const [selectedTab, setSelectedTab] = useState(userHubs?.[0] ?? null);
-  const devices = useSelector((state) => state.devices.devices);
-  const { areas, isLoading, refetchAreas } = useAreas(
+  const [refreshing, setRefreshing] = useState(false);
+
+  
+  const { areas, isLoading: isLoadingAreas, refetchAreas } = useAreas(
     selectedTab?.serialNumber
   );
 
-  const [allDevices, setAllDevices] = useState(devices);
+  const {
+    devices: allDevices,
+    isLoadingDevices,
+    refetchDevices,
+  } = useDevices(selectedTab?.serialNumber, areas);
 
-  // useEffect(() => {
-  //   const fetchAllDevices = async () => {
-  //     try {
-  //       const all = await Promise.all(
-  //         areas.map((area) =>
-  //           getDeviceByArea(area.id, selectedTab.serialNumber)
-  //         )
-  //       );
-  //       const flat = all.flat();
-  //       console.log(flat, "devices from all rooms");
-  //       setAllDevices(flat);
-  //     } catch (err) {
-  //       console.error("Error fetching devices for all rooms:", err);
-  //     }
-  //   };
-
-  //   if (areas.length > 0 && selectedTab) {
-  //     fetchAllDevices();
-  //   }
-  // }, [areas, selectedTab]);
+  
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetchAreas();
+      await refetchDevices();
+    } catch (err) {
+      console.error("Refresh error:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const roomCount = areas.length;
   const deviceCount = allDevices.length;
@@ -71,11 +71,14 @@ export default function ManageDevice({
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
         areas={areas}
-        isLoading={isLoading}
+        isLoading={isLoadingAreas}
         refetchAreas={refetchAreas}
         roomCount={roomCount}
         deviceCount={deviceCount}
         devices={allDevices}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        refetchDevices={refetchDevices}
       />
 
       <InfoModal

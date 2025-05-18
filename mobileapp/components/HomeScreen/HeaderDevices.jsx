@@ -28,8 +28,8 @@ export default function HeaderDevices() {
   return (
     
     <View style={styles.container}>
-      <DeviceCard data={headerCards.thermostat} />
-      <DeviceCard data={headerCards.hubConnection}/>
+      {/* <DeviceCard data={headerCards.thermostat} />
+      <DeviceCard data={headerCards.hubConnection}/> */}
     </View>
   )
 }

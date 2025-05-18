@@ -1,5 +1,10 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import CustomSlider from "./CustomSlider";
 import {
@@ -7,84 +12,206 @@ import {
   getIconName,
   getIconColor,
 } from "../../util/helperFunctions";
+import DeviceModal from "./DeviceModal";
+import {
+  updateInteractionState,
+  executeInteractionCommand,
+  fetchStateValue,
+} from "../../api/services/interactionService";
+import { getCustomName } from "../../util/interactionNames";
 
-
-//the device card thats in the homescreen
 export default function DeviceCard({ data }) {
-  const [state, setState] = useState("Off");
-  const [value, setValue] = useState(0);
+  const isInfo = data.type === "INFO";
+  const isCommand = data.type === "COMMAND";
+  const isChoice = data.type === "CHOICE";
+  const isRange = data.type === "RANGE";
+  const hasMultipleChoices = isChoice && data.choices?.length > 2;
+  const isToggleChoice = isChoice && data.choices?.length <= 2;
+  const isSlider = isRange || hasMultipleChoices;
 
-  const isSlider = data.type === "enum" || data.type === "range";
-  const isHub = data.type === "hub";
-  const isThermostat = data.category === "thermometer";
+  const [modalVisible, setModalVisible] = useState(false);
+  const [value, setValue] = useState(data.value ?? "");
+  const [index, setIndex] = useState(
+    hasMultipleChoices ? data.choices?.indexOf(data.value) ?? 0 : 0
+  );
+  const [customName, setCustomNameState] = useState(null);
+  const highlight = useSharedValue("white");
+  const refreshName = async () => {
+    const name = await getCustomName(data);
+    if (name) setCustomNameState(name);
+  };
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: withTiming(highlight.value, { duration: 350 }),
+  }));
+  useEffect(() => {
+    getCustomName(data).then((name) => {
+      if (name) setCustomNameState(name);
+    });
+  }, [data.stateValueId, data.commandId]);
+  const handleLongPress = () => {
+    setModalVisible(true);
+  };
+
+  const handlePress = async () => {
+    if (isToggleChoice) {
+      const currentIndex = data.choices.findIndex((c) => c === value);
+      const nextIndex = (currentIndex + 1) % data.choices.length;
+      const newValue = data.choices[nextIndex];
+      setValue(newValue);
+
+      highlight.value =
+        newValue === "ON" || newValue === "OPEN" ? "#d4f8d4" : "#f8d4d4";
+
+      updateInteractionState(data.stateValueId, newValue).catch((err) =>
+        console.warn("Toggle update failed:", err)
+      );
+
+      setTimeout(() => {
+        highlight.value = "white";
+      }, 600);
+    }
+
+    if (isCommand) {
+      highlight.value = "#d4f8d4";
+
+      executeInteractionCommand(data.deviceId, data.commandId).catch((err) =>
+        console.warn("Command failed:", err)
+      );
+
+      setTimeout(() => {
+        highlight.value = "white";
+      }, 600);
+    }
+  };
+
+  const getDynamicStyle = () => {
+    if (isInfo) return styles.infoCard;
+    if (isRange) return styles.rangeCard;
+    if (hasMultipleChoices) return styles.multiChoiceCard;
+    if (isToggleChoice) return styles.toggleCard;
+    if (isCommand) return styles.commandCard;
+    return {};
+  };
+
+  const renderStatusText = () => {
+    if (isSlider) {
+      return (
+        <Text style={styles.status}>
+          {isRange ? `${value}` : data.choices?.[index]}
+        </Text>
+      );
+    }
+
+    if (isInfo || isToggleChoice || isCommand) {
+      return <Text style={styles.status}>{value}</Text>;
+    }
+
+    return null;
+  };
+
+  //   useEffect(() => {
+  //   if (data?.stateValueId) {
+  //     console.log('FETCHING STATE VALUE:', data.stateValueId);
+  //     fetchStateValue(data.stateValueId)
+  //       .then((res) => {
+  //         if (isRange) {
+  //           setValue(res.value.toString());
+  //         } else if (isChoice) {
+  //           setValue(res.value);
+  //           const idx = data.choices.findIndex((c) => c === res.value);
+  //           if (idx !== -1) setIndex(idx);
+  //         }
+  //       })
+  //       .catch((err) => console.warn("Failed to fetch state value:", err));
+  //   }
+  // }, []);
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        isSlider ? styles.tallCard : styles.shortCard,
-        pressed && !isHub && !isThermostat ? styles.pressed : null,
-      ]}
-      onPress={() => {
-        if (!isHub && !isThermostat) {
-          setState((prev) => (prev === "On" ? "Off" : "On"));
-        }
-      }}
-    >
-      <View style={styles.rowTop}>
-        <View
+    <>
+      <Pressable
+        onPress={!isInfo && (isToggleChoice || isCommand) ? handlePress : null}
+        onLongPress={handleLongPress}
+        style={({ pressed }) => (pressed ? styles.pressed : null)}
+      >
+        <Animated.View
           style={[
-            styles.iconWrapper,
-            { backgroundColor: getIconBgColor(data.category) },
+            styles.card,
+            getDynamicStyle(),
+            isSlider ? styles.tallCard : styles.shortCard,
+            animatedStyle,
           ]}
         >
-          <Ionicons
-            name={getIconName(data.category)}
-            size={20}
-            color={getIconColor(data.category)}
-          />
-        </View>
+          <View style={styles.rowTop}>
+            <View
+              style={[
+                styles.iconWrapper,
+                { backgroundColor: getIconBgColor(data.category) },
+              ]}
+            >
+              <Ionicons
+                name={getIconName(data.category)}
+                size={20}
+                color={getIconColor(data.category)}
+              />
+            </View>
 
-        <View style={styles.labelBlock}>
-          <Text
-            style={styles.deviceName}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {data.name}
-          </Text>
-          <Text
-            style={[
-              styles.status,
-              {
-                color:
-                  isHub || isThermostat
-                    ? "#8b8b8b"
-                    : state === "On"
-                    ? "green"
-                    : "red",
-              },
+            <View style={styles.labelBlock}>
+              <Text
+                style={styles.deviceName}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                <Text style={styles.deviceName}>{customName || data.name}</Text>
+              </Text>
+              {renderStatusText()}
+            </View>
+          </View>
 
-            ]}
-          >
-            {isHub || isThermostat ? null : state}
-            {isSlider ? ` - ${value}` : ""}
-            {isHub ? `${data.status}` : ""}
-            {isThermostat ? `${data.reading}` : ""}
-          </Text>
-        </View>
-      </View>
+          {isSlider && (
+            <CustomSlider
+              levels={hasMultipleChoices ? data.choices : undefined}
+              ranged={isRange}
+              minRange={isRange ? parseFloat(data.min) : undefined}
+              maxRange={isRange ? parseFloat(data.max) : undefined}
+              value={isRange ? parseFloat(value) : index}
+              setValue={async (val) => {
+                if (isRange) {
+                  const newVal = val.toString();
+                  setValue(newVal);
 
-      {isSlider && (
-        <CustomSlider
-          levels={data.choices || ["Low", "Medium", "High"]}
-          ranged={data.type === "range"}
-          minRange={data.range?.[0]}
-          maxRange={data.range?.[1]}
-          value={value}
-          setValue={setValue}
-        />
-      )}
-    </Pressable>
+                  highlight.value = "#d4f8d4";
+                  await updateInteractionState(data.stateValueId, newVal).catch(
+                    (err) => console.warn("Range update failed:", err)
+                  );
+                  setTimeout(() => {
+                    highlight.value = "white";
+                  }, 600);
+                } else if (hasMultipleChoices) {
+                  const choiceVal = data.choices[val];
+                  setIndex(val);
+                  setValue(choiceVal);
+
+                  highlight.value = "#d4f8d4";
+                  await updateInteractionState(
+                    data.stateValueId,
+                    choiceVal
+                  ).catch((err) => console.warn("Choice update failed:", err));
+                  setTimeout(() => {
+                    highlight.value = "white";
+                  }, 600);
+                }
+              }}
+            />
+          )}
+        </Animated.View>
+      </Pressable>
+
+      <DeviceModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        interaction={data}
+        onRename={refreshName}
+      />
+    </>
   );
 }
 
@@ -95,7 +222,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: "#fff",
-    elevation: 2,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -118,7 +244,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   labelBlock: {
-    marginLeft: 10,
+
     flex: 1,
     overflow: "hidden",
   },
@@ -141,5 +267,21 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.7,
+  },
+  infoCard: {
+    borderColor: "#ccc",
+    backgroundColor: "#f9f9f9",
+  },
+  rangeCard: {
+    borderColor: "#4f83cc",
+  },
+  multiChoiceCard: {
+    borderColor: "#f39c12",
+  },
+  toggleCard: {
+    borderColor: "#2ecc71",
+  },
+  commandCard: {
+    borderColor: "#e74c3c",
   },
 });

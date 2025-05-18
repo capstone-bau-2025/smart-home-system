@@ -1,20 +1,20 @@
 export const getIconName = (category) => {
-  switch (category) {
-    case 'light':
+  switch (category?.toUpperCase()) {
+    case 'LIGHT':
       return 'bulb-outline';
-    case 'door':
+    case 'DOOR':
       return 'log-out-outline';
-    case 'curtains':
+    case 'CURTAIN':
       return 'albums-outline';
-    case 'ac':
+    case 'AC':
       return 'snow-outline';
-    case 'thermometer':
+    case 'THERMOMETER':
       return 'thermometer-outline';
-    case 'sensor':
+    case 'SENSOR':
       return 'bonfire-outline';
-    case 'garage':
+    case 'GARAGE':
       return 'car-outline';
-    case 'hub':
+    case 'HUB':
       return 'home-outline';
     default:
       return 'help-circle-outline';
@@ -22,52 +22,50 @@ export const getIconName = (category) => {
 };
 
 export const getIconColor = (category) => {
-  switch (category) {
-    case 'light':
-      return '#FFD700'; // gold/yellow
-    case 'door':
-      return '#8B4513'; // brown
-    case 'curtains':
-      return '#A52A2A'; // maroon
-    case 'ac':
-      return '#00BFFF'; // sky blue
-    case 'thermometer':
-      return '#FF4500'; // orange-red
-    case 'sensor':
-      return '#32CD32'; // green
-    case 'garage':
-      return '#000000'; // black
-    case 'hub':
-      return '#4682B4'; // steel blue
+  switch (category?.toUpperCase()) {
+    case 'LIGHT':
+      return '#f1c40f'; // bright yellow
+    case 'DOOR':
+      return '#e67e22'; // orange (easy to spot, warm tone)
+    case 'CURTAIN':
+      return '#8e44ad'; // deep purple
+    case 'AC':
+      return '#3498db'; // cool blue
+    case 'THERMOMETER':
+      return '#e74c3c'; // red-orange for temperature
+    case 'SENSOR':
+      return '#27ae60'; // green (sensors/environment)
+    case 'GARAGE':
+      return '#34495e'; // dark slate (mechanical)
+    case 'HUB':
+      return '#2c3e50'; // strong steel blue
     default:
-      return '#999'; // gray fallback
+      return '#7f8c8d'; // neutral gray
   }
 };
 
 export const getIconBgColor = (category) => {
-  switch (category) {
-    case 'light':
-      return '#FFF8DC'; // light golden
-    case 'door':
-      return '#D2B48C'; // soft brown-beige
-    case 'curtains':
-      return '#F5DEDC'; // muted maroon-pink
-    case 'ac':
-      return '#E0F7FF'; // pale blue
-    case 'thermometer':
-      return '#FFE5D0'; // soft orange
-    case 'sensor':
-      return '#DCF8DC'; // pale green
-    case 'garage':
-      return '#E0E0E0'; // soft pale black/gray
-    case 'hub': 
-    return '#D0E0F7'; // light steel blue
-      default:
-      return '#F0F0F0'; // neutral fallback
+  switch (category?.toUpperCase()) {
+    case 'LIGHT':
+      return '#fcf3cf'; // soft yellow background
+    case 'DOOR':
+      return '#fce9d3'; // light warm orange
+    case 'CURTAIN':
+      return '#f5eef8'; // muted lavender
+    case 'AC':
+      return '#eaf6fb'; // pale cool blue
+    case 'THERMOMETER':
+      return '#fdecea'; // soft red-orange
+    case 'SENSOR':
+      return '#eafaf1'; // light green
+    case 'GARAGE':
+      return '#ecf0f1'; // soft gray
+    case 'HUB':
+      return '#d6eaf8'; // muted blue
+    default:
+      return '#f4f4f4'; // fallback neutral
   }
 };
-
-
 
 export const iconOptions = {
   1: 'home-outline',
