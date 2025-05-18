@@ -4,10 +4,12 @@ import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
 import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.exception.PermissionException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import com.capstonebau2025.centralhub.repository.AreaRepository;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
+import com.capstonebau2025.centralhub.service.PermissionService;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final PermissionService permissionService;
     private final MqttMessageProducer mqttMessageProducer;
     private final AreaRepository areaRepository;
     private final MqttUserControl mqttUserControl;
@@ -63,11 +66,12 @@ public class DeviceService {
         return mqttMessageProducer.pingDevice(device.getUid());
     }
 
-    public List<DeviceInfoDTO> getDevicesByArea(Long areaId) {
+    public List<DeviceInfoDTO> getDevicesByArea(Long areaId, Long userId) {
         if(!areaRepository.existsById(areaId))
             throw new ResourceNotFoundException("Area not found with ID: " + areaId);
 
-        // TODO: return only if user has permission to this area
+        if(!permissionService.isPermittedArea(userId, areaId))
+            throw new PermissionException("User does not have permission to access this area");
 
         return deviceRepository.findByAreaId(areaId).stream()
                 .map(device -> DeviceInfoDTO.builder()
