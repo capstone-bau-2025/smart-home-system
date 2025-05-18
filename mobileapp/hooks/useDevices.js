@@ -62,7 +62,7 @@ export default function useDevices(hubSerialNumber, areas) {
           return Object.values(grouped);
         });
 
-        console.log("✅ Dispatching devices:", enrichedDevices);
+        
         dispatch(setDevices(enrichedDevices));
       } catch (err) {
         console.error("❌ Error in useDevices:", err);
@@ -70,7 +70,8 @@ export default function useDevices(hubSerialNumber, areas) {
         setIsLoading(false);
       }
     },
-    [hubSerialNumber, areas, dispatch, devices]
+    [hubSerialNumber, areas, dispatch]
+
   );
 
   useEffect(() => {

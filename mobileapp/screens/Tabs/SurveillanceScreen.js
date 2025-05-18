@@ -5,6 +5,7 @@ import {
   Platform,
   ScrollView,
   FlatList,
+  Text,
 } from "react-native";
 import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -104,7 +105,7 @@ useEffect(() => {
         />
       </View>
 
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <StatusBar barStyle="dark-content"  />
 
       <View style={styles.header}>
         <HeaderIcons onInfoPress={() => setInfoModal(true)} />
@@ -140,8 +141,8 @@ useEffect(() => {
     showsHorizontalScrollIndicator={false}
     ListEmptyComponent={() => 
     (
-      <View style={{ marginTop: 50 }}>
-        <Ionicons name="camera-off-outline" size={40} color="#999" />
+      <View style={{ marginTop: 50, alignItems: "center" }}>
+        <Ionicons name="camera-outline" size={40} color="#999" />
         <Text style={{ color: "#999", marginTop: 10 }}>
           No cameras available
         </Text>

@@ -45,6 +45,13 @@ export default function RoomCard({ data }) {
         <Text style={styles.roomName}>{data.name}</Text>
       </View>
 
+    {/* {devices.length === 0 && (
+        <Text style={{ fontSize: 16, color: "#888" }}>
+          No devices in this room
+        </Text>
+      )} */}
+
+
       {/* Balanced Two Column Layout */}
       <View style={styles.twoColumnGrid}>
         <View style={styles.column}>
