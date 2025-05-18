@@ -32,9 +32,14 @@ public class DeviceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
 
         device.setName(name);
-        deviceRepository.save(device);
 
-        // TODO: update its state value names too
+        // Update each state value name to follow the pattern: deviceName.stateName
+        device.getStateValues().forEach(stateValue -> {
+            String stateName = stateValue.getState().getName();
+            stateValue.setName(name + "." + stateName);
+        });
+
+        deviceRepository.save(device);
     }
 
     public void setDeviceArea(Long id, Long areaId) {

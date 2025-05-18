@@ -47,6 +47,9 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
+        if(user.getRole().getName().equals("ADMIN"))
+            throw new ValidationException("Admin user cannot be removed.");
+
         cloudClient.unlinkUser(user.getEmail());
         userRepository.delete(user);
     }

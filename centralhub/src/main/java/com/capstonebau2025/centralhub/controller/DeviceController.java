@@ -4,6 +4,7 @@ import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
 import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,9 @@ public class DeviceController {
 
     @GetMapping("/filter")
     @Operation(summary = "REMOTE")
-    public ResponseEntity<List<IdNameDTO>> getDevicesByFilter(@RequestParam String filter) {
+    public ResponseEntity<List<IdNameDTO>> getDevicesByFilter(
+            @Parameter(description = "Filter type: 'ALL' (default), 'EVENT', 'COMMAND', 'IMMUTABLE_STATE', or 'MUTABLE_STATE'")
+            @RequestParam String filter) {
         List<IdNameDTO> devices = deviceService.getDevicesByFilter(filter);
         return ResponseEntity.ok(devices);
     }
