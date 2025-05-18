@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service.device;
 
+import com.capstonebau2025.centralhub.dto.CommandDTO;
 import com.capstonebau2025.centralhub.entity.Command;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.exception.DeviceConnectionException;
@@ -10,6 +11,8 @@ import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,15 @@ public class CommandService {
 
         if(mqttMessageProducer.sendCommand(device.getUid(), command.getNumber()))
             throw new DeviceConnectionException("Device not responding");
+    }
+
+    public List<CommandDTO> getAllByDeviceId(Long id) {
+        return commandRepository.findAllByDeviceId(id).stream()
+                .map(command -> CommandDTO.builder()
+                        .id(command.getId())
+                        .name(command.getName())
+                        .build())
+                .toList();
     }
 }
 
