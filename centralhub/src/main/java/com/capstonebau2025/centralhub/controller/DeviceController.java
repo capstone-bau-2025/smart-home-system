@@ -1,6 +1,7 @@
 package com.capstonebau2025.centralhub.controller;
 
 import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
+import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.RolesAllowed;
@@ -49,8 +50,8 @@ public class DeviceController {
 
     @GetMapping("/filter")
     @Operation(summary = "REMOTE")
-    public ResponseEntity<List<DeviceInfoDTO>> getDevicesByFilter(@RequestParam String filter) {
-        List<DeviceInfoDTO> devices = deviceService.getDevicesByFilter(filter);
+    public ResponseEntity<List<IdNameDTO>> getDevicesByFilter(@RequestParam String filter) {
+        List<IdNameDTO> devices = deviceService.getDevicesByFilter(filter);
         return ResponseEntity.ok(devices);
     }
 

@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.controller;
 
-import com.capstonebau2025.centralhub.dto.CommandDTO;
+import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.service.device.CommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +16,8 @@ public class CommandController {
     private final CommandService commandService;
 
     @GetMapping("/device/{deviceId}")
-    public ResponseEntity<List<CommandDTO>> getAllCommandsByDeviceId(@PathVariable Long deviceId) {
-        List<CommandDTO> commands = commandService.getAllByDeviceId(deviceId);
+    public ResponseEntity<List<IdNameDTO>> getAllCommandsByDeviceId(@PathVariable Long deviceId) {
+        List<IdNameDTO> commands = commandService.getAllByDeviceId(deviceId);
         return ResponseEntity.ok(commands);
     }
 }

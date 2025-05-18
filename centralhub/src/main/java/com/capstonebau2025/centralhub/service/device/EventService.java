@@ -1,5 +1,6 @@
 package com.capstonebau2025.centralhub.service.device;
 
+import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.Event;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -65,5 +67,11 @@ public class EventService {
 
         // TODO: call automation
         // TODO: think of saving event logs
+    }
+
+    public List<IdNameDTO> getAllByDeviceId(Long id) {
+        return eventRepository.findAllByDeviceId(id).stream()
+                .map(event -> new IdNameDTO(event.getId(), event.getName()))
+                .toList();
     }
 }

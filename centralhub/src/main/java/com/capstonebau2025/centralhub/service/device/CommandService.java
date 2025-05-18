@@ -1,6 +1,6 @@
 package com.capstonebau2025.centralhub.service.device;
 
-import com.capstonebau2025.centralhub.dto.CommandDTO;
+import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.entity.Command;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.exception.DeviceConnectionException;
@@ -36,12 +36,9 @@ public class CommandService {
             throw new DeviceConnectionException("Device not responding");
     }
 
-    public List<CommandDTO> getAllByDeviceId(Long id) {
+    public List<IdNameDTO> getAllByDeviceId(Long id) {
         return commandRepository.findAllByDeviceId(id).stream()
-                .map(command -> CommandDTO.builder()
-                        .id(command.getId())
-                        .name(command.getName())
-                        .build())
+                .map(command -> new IdNameDTO(command.getId(), command.getName()))
                 .toList();
     }
 }

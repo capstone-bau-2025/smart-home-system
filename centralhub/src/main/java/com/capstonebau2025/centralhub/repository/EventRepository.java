@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Optional<Event> findByDeviceUidAndEventNumber(
             @Param("deviceUid") Long deviceUid,
             @Param("eventNumber") Integer eventNumber);
+
+    /**
+     * Get list of events by device id
+     *
+     * @param deviceId the id of the device
+     * @return List of Events
+     */
+    @Query("SELECT e FROM Event e " +
+            "JOIN e.model m " +
+            "JOIN Device d ON d.model = m " +
+            "WHERE d.id = :deviceId")
+    List<Event> findAllByDeviceId(@Param("deviceId") Long deviceId);
 }

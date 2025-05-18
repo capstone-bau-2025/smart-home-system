@@ -1,6 +1,7 @@
 package com.capstonebau2025.centralhub.service.device;
 
 import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
+import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
@@ -79,35 +80,22 @@ public class DeviceService {
                 .toList();
     }
 
-    public List<DeviceInfoDTO> getDevicesByFilter(String filter) {
-        List<Device> devices;
-
-        switch (filter.toUpperCase()) {
-            case "EVENT":
-                // Devices that can trigger events
-                devices = deviceRepository.findByModelEventsIsNotEmpty();
-                break;
-            case "COMMAND":
-                // Devices that can receive commands
-                devices = deviceRepository.findByModelCommandsIsNotEmpty();
-                break;
-            case "IMMUTABLE_STATE":
-                // Devices that have immutable states
-                devices = deviceRepository.findByModelImmutableStatesIsNotEmpty();
-                break;
-            case "MUTABLE_STATE":
-                devices = deviceRepository.findByModelMutableStatesIsNotEmpty();
-                break;
-            default:
-                devices = deviceRepository.findAll();
-        }
+    public List<IdNameDTO> getDevicesByFilter(String filter) {
+        List<Device> devices = switch (filter.toUpperCase()) {
+            case "EVENT" ->
+                    deviceRepository.findByModelEventsIsNotEmpty();
+            case "COMMAND" ->
+                    deviceRepository.findByModelCommandsIsNotEmpty();
+            case "IMMUTABLE_STATE" ->
+                    deviceRepository.findByModelImmutableStatesIsNotEmpty();
+            case "MUTABLE_STATE" ->
+                    deviceRepository.findByModelMutableStatesIsNotEmpty();
+            default ->
+                    deviceRepository.findAll();
+        };
 
         return devices.stream()
-                .map(device -> DeviceInfoDTO.builder()
-                        .id(device.getId())
-                        .name(device.getName())
-                        .modelName(device.getModel().getName())
-                        .build())
+                .map(device -> new IdNameDTO(device.getId(), device.getName()))
                 .toList();
     }
 
