@@ -1,12 +1,15 @@
 package com.capstonebau2025.centralhub.service.device;
 
 import com.capstonebau2025.centralhub.dto.DeviceInfoDTO;
+import com.capstonebau2025.centralhub.dto.IdNameDTO;
 import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
+import com.capstonebau2025.centralhub.exception.PermissionException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import com.capstonebau2025.centralhub.repository.AreaRepository;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
+import com.capstonebau2025.centralhub.service.PermissionService;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final PermissionService permissionService;
     private final MqttMessageProducer mqttMessageProducer;
     private final AreaRepository areaRepository;
     private final MqttUserControl mqttUserControl;
@@ -31,9 +35,14 @@ public class DeviceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
 
         device.setName(name);
-        deviceRepository.save(device);
 
-        // TODO: update its state value names too
+        // Update each state value name to follow the pattern: deviceName.stateName
+        device.getStateValues().forEach(stateValue -> {
+            String stateName = stateValue.getState().getName();
+            stateValue.setName(name + "." + stateName);
+        });
+
+        deviceRepository.save(device);
     }
 
     public void setDeviceArea(Long id, Long areaId) {
@@ -57,11 +66,12 @@ public class DeviceService {
         return mqttMessageProducer.pingDevice(device.getUid());
     }
 
-    public List<DeviceInfoDTO> getDevicesByArea(Long areaId) {
+    public List<DeviceInfoDTO> getDevicesByArea(Long areaId, Long userId) {
         if(!areaRepository.existsById(areaId))
             throw new ResourceNotFoundException("Area not found with ID: " + areaId);
 
-        // TODO: return only if user has permission to this area
+        if(!permissionService.isPermittedArea(userId, areaId))
+            throw new PermissionException("User does not have permission to access this area");
 
         return deviceRepository.findByAreaId(areaId).stream()
                 .map(device -> DeviceInfoDTO.builder()
@@ -76,6 +86,25 @@ public class DeviceService {
                         .description(device.getModel().getDescription())
                         .type(device.getModel().getType())
                         .build())
+                .toList();
+    }
+
+    public List<IdNameDTO> getDevicesByFilter(String filter) {
+        List<Device> devices = switch (filter.toUpperCase()) {
+            case "EVENT" ->
+                    deviceRepository.findByModelEventsIsNotEmpty();
+            case "COMMAND" ->
+                    deviceRepository.findByModelCommandsIsNotEmpty();
+            case "IMMUTABLE_STATE" ->
+                    deviceRepository.findByModelImmutableStatesIsNotEmpty();
+            case "MUTABLE_STATE" ->
+                    deviceRepository.findByModelMutableStatesIsNotEmpty();
+            default ->
+                    deviceRepository.findAll();
+        };
+
+        return devices.stream()
+                .map(device -> new IdNameDTO(device.getId(), device.getName()))
                 .toList();
     }
 

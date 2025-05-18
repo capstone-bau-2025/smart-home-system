@@ -47,6 +47,16 @@ public class PermissionService {
         return permissionRepository.existsByUserIdAndAreaId(userId, stateValue.getDevice().getArea().getId());
     }
 
+    public boolean isPermittedArea(Long userId, Long areaId) {
+
+        if (isUserAdmin(userId)) return true;
+
+        Area area = areaRepository.findById(areaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
+
+        return permissionRepository.existsByUserIdAndAreaId(userId, area.getId());
+    }
+
     public boolean isUserAdmin(Long userId) {
         return userRepository.findById(userId)
                 .map(user -> "ADMIN".equals(user.getRole().getName()))

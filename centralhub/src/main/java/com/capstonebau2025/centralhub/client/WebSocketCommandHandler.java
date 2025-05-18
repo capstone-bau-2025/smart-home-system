@@ -288,8 +288,10 @@ public class WebSocketCommandHandler {
     private RemoteCommandResponse handleGetDevicesByArea(RemoteCommandMessage message) {
         try {
             Long areaId = objectMapper.convertValue(message.getPayload(), Long.class);
+            Long userId = userRepository.findByEmail(message.getEmail())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found")).getId();
 
-            List<DeviceInfoDTO> devices = deviceService.getDevicesByArea(areaId);
+            List<DeviceInfoDTO> devices = deviceService.getDevicesByArea(areaId, userId);
 
             return RemoteCommandResponse.builder()
                     .commandType(message.getCommandType())

@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -31,6 +33,10 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if(userOptional.isPresent())
+            throw new AuthException("User already exists.");
+
         // 1. Validate invitation and get role
         Role role = invitationService.validateInvitation(request.getInvitation());
 

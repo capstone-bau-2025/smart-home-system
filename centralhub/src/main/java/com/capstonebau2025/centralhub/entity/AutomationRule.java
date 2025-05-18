@@ -54,6 +54,6 @@ public class AutomationRule {
     private List<AutomationAction> actions = new ArrayList<>();
 
     public enum TriggerType {
-        SCHEDULE, EVENT, STATUS_VALUE
+        SCHEDULE, EVENT, STATE_UPDATE
     }
 }

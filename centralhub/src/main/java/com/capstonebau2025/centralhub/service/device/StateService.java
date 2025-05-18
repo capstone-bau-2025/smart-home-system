@@ -1,7 +1,9 @@
 package com.capstonebau2025.centralhub.service.device;
 
+import com.capstonebau2025.centralhub.dto.StateDTO;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.entity.State;
+import com.capstonebau2025.centralhub.entity.StateChoice;
 import com.capstonebau2025.centralhub.entity.StateValue;
 import com.capstonebau2025.centralhub.exception.DeviceConnectionException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
@@ -130,6 +132,7 @@ public class StateService {
     }
 
     @Async
+    @Transactional
     public void fetchDeviceStatesAsync(Long deviceId) {
         CompletableFuture.runAsync(() -> {
             List<StateValue> stateValues = stateValueRepository.findByDeviceId(deviceId);
@@ -137,6 +140,48 @@ public class StateService {
                 fetchState(stateValue.getId());
             }
         });
+    }
+
+    public List<StateDTO> getStatesByFilterAndDeviceId(Long deviceId, String filter) {
+        List<StateValue> states = switch (filter.toUpperCase()) {
+            case "MUTABLE" ->
+                    stateValueRepository.findMutableStatesByDeviceId(deviceId);
+            case "IMMUTABLE" ->
+                    stateValueRepository.findImmutableStatesByDeviceId(deviceId);
+            default ->
+                    stateValueRepository.findByDeviceId(deviceId);
+        };
+
+        return states.stream()
+                .map(this::mapToStateDTO)
+                .toList();
+    }
+
+    /**
+     * Maps a StateValue entity to a StateDTO object
+     *
+     * @param stateValue The StateValue entity to map
+     * @return The mapped StateDTO
+     */
+    private StateDTO mapToStateDTO(StateValue stateValue) {
+        State state = stateValue.getState();
+        StateDTO.StateDTOBuilder builder = StateDTO.builder()
+                .id(stateValue.getId())
+                .name(state.getName())
+                .type(state.getType().toString());
+
+        // Add type-specific properties
+        if (state.getType() == State.StateType.RANGE) {
+            builder.maxRange(state.getMaxRange())
+                   .minRange(state.getMinRange());
+        } else if (state.getType() == State.StateType.ENUM) {
+            List<String> choiceNames = state.getChoices().stream()
+                    .map(StateChoice::getName)
+                    .toList();
+            builder.choices(choiceNames);
+        }
+
+        return builder.build();
     }
 }
 

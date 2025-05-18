@@ -11,6 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface StateValueRepository extends JpaRepository<StateValue, Long> {
+
+    /**
+     * Find all state values by device id
+     *
+     * @param deviceId the id of the device
+     * @return List of StateValues
+     */
     List<StateValue> findByDeviceId(Long deviceId);
 
     /**
@@ -25,4 +32,22 @@ public interface StateValueRepository extends JpaRepository<StateValue, Long> {
     Optional<StateValue> findByDeviceUidAndStateNumber(
             @Param("deviceUid") Long deviceUid,
             @Param("stateNumber") Integer stateNumber);
+
+    /**
+     * Find all mutable states by device id
+     *
+     * @param deviceId the id of the device
+     * @return List of StateValues with mutable states
+     */
+    @Query("SELECT sv FROM StateValue sv JOIN sv.state s WHERE sv.device.id = :deviceId AND s.isMutable = true")
+    List<StateValue> findMutableStatesByDeviceId(@Param("deviceId") Long deviceId);
+
+    /**
+     * Find all immutable states by device id
+     *
+     * @param deviceId the id of the device
+     * @return List of StateValues with immutable states
+     */
+    @Query("SELECT sv FROM StateValue sv JOIN sv.state s WHERE sv.device.id = :deviceId AND s.isMutable = false")
+    List<StateValue> findImmutableStatesByDeviceId(@Param("deviceId") Long deviceId);
 }

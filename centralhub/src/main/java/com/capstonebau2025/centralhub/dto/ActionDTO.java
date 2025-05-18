@@ -1,6 +1,5 @@
 package com.capstonebau2025.centralhub.dto;
 
-import com.capstonebau2025.centralhub.entity.AutomationAction;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,10 +7,14 @@ import lombok.Data;
 @Builder
 public class ActionDTO {
 
+    private String type;
+
+    // only if ActionType is COMMAND -> LIST OF DEVICES -> LIST OF COMMANDS
     private Long deviceId;
     private Long commandId;
-    private Long statusValueId;
-    private String type;
+
+    // only if ActionType is STATE_UPDATE -> LIST OF DEVICES -> LIST OF STATES (MUTABLE), STATE ACTION VALUE
+    private Long stateValueId;
     private String actionValue;
 
 }
