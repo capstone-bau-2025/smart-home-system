@@ -30,7 +30,9 @@ export default function RoomModal({
   refetchAreas,
   devices,
   rooms,
-  refetchDevices
+  refetchDevices,
+  setSelectedRoom,
+  setModalVisible,
 }) {
   const navigation = useNavigation();
   const localToken = store.getState().user.localToken;
@@ -45,7 +47,6 @@ export default function RoomModal({
   const [deleteDeviceModal, setDeleteDeviceModal] = useState(false);
   const [deleteRoomModal, setDeleteRoomModal] = useState(false);
 
-  
   useEffect(() => {
     setRenameText(selectedDevice?.name || "");
   }, [selectedDevice]);
@@ -123,8 +124,10 @@ export default function RoomModal({
         text1: "Room deletion successful",
         text2: `${room.name} was deleted`,
       });
+      
       setDeleteRoomModal(false);
-      onClose();
+
+      setTimeout(() => setSelectedRoom(null), 500);
     } catch (error) {
       console.error("Error deleting room:", error.message || error);
     }
@@ -190,44 +193,42 @@ export default function RoomModal({
           />
         </View>
 
-
-          <ScrollableList
-            data={roomDevices}
-            textFields={["name"]}
-            buttonConfig={[
-              {
-                icon: "repeat-outline",
-                onPress: handleDevicePress,
+        <ScrollableList
+          data={roomDevices}
+          textFields={["name"]}
+          buttonConfig={[
+            {
+              icon: "repeat-outline",
+              onPress: handleDevicePress,
+            },
+            {
+              icon: "pencil-outline",
+              onPress: (device) => {
+                setSelectedDevice(device);
+                setRenameModal(true);
               },
-              {
-                icon: "pencil-outline",
-                onPress: (device) => {
-                  setSelectedDevice(device);
-                  setRenameModal(true);
-                },
-              },
-              {
-                icon: "remove-circle-outline",
-                onPress: handleRemovePress,
-              },
-            ]}
-            noData="No devices in this room"
-          />
-        </View>
-
-        <SelectRoom
-          visible={moveDevice}
-          onClose={() => {
-            setMoveDevice(false);
-            setSelectedDevice(null);
-          }}
-          room={room}
-          rooms={rooms}
-          selectedTab={selectedTab}
-          selectedDevice={selectedDevice}
-          onMove={handleMoveDevice}
+            },
+            {
+              icon: "remove-circle-outline",
+              onPress: handleRemovePress,
+            },
+          ]}
+          noData="No devices in this room"
         />
+      </View>
 
+      <SelectRoom
+        visible={moveDevice}
+        onClose={() => {
+          setMoveDevice(false);
+          setSelectedDevice(null);
+        }}
+        room={room}
+        rooms={rooms}
+        selectedTab={selectedTab}
+        selectedDevice={selectedDevice}
+        onMove={handleMoveDevice}
+      />
 
       <InfoModal
         visible={infoModal}
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryBackground,
     paddingTop: 50,
     alignItems: "center",
-    paddingBottom: 30, 
+    paddingBottom: 30,
   },
   header: {
     width: "100%",

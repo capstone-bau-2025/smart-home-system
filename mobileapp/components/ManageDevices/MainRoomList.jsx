@@ -61,6 +61,8 @@ export default function MainRoomList({
         devices={devices}
         rooms={areas}
         refetchDevices={refetchDevices}
+        setModalVisible={setModalVisible}
+        setSelectedRoom={setSelectedRoom}
       />
     </>
   );

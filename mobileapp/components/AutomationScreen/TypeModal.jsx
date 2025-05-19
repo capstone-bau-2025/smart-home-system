@@ -1,21 +1,45 @@
-import { StyleSheet, Text, View, Modal, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 
-export default function TypeModal({ visible, setVisible, onSelect, selectedType,  }) {
+export default function TypeModal({ visible, setVisible, onSelect, selectedType, selectedTime, setSelectedTime, setSelectedType }) {
   const options = [
-    { label: "Schedule",value: "Schedule" , icon: "alarm-sharp", gradient: ["#14f423", "#9fc464"] },
-    { label: "Trigger", value: "Device Trigger", icon: "eye-sharp", gradient: ["#56CCF2", "#2F80ED"] },
-    { label: "StatusChange",value: "Device Status Change" , icon: "bulb-sharp", gradient: ["#6a11cb", "#2575fc"] },
+    {
+      label: "Schedule",
+      value: "Schedule",
+      icon: "alarm-sharp",
+      bg: "#eaffea",
+      color: "#3e914f",
+    },
+    {
+      label: "Event",
+      value: "Event",
+      icon: "eye-sharp",
+      bg: "#e3f0ff",
+      color: "#2f5fa3",
+    },
+    {
+      label: "StatusChange",
+      value: "Device Status Change",
+      icon: "bulb-sharp",
+      bg: "#efe3ff",
+      color: "#6a11cb",
+    },
   ];
 
   return (
-    <Modal 
-      visible={visible} 
-      transparent 
+    <Modal
+      visible={visible}
+      transparent
       animationType="fade"
-      onRequestClose={() => setVisible(false)} 
+      onRequestClose={() => setVisible(false)}
     >
       <TouchableWithoutFeedback onPress={() => setVisible(false)}>
         <View style={styles.modalOverlay}>
@@ -23,17 +47,17 @@ export default function TypeModal({ visible, setVisible, onSelect, selectedType,
             <Text style={styles.modalTitle}>Select Type</Text>
 
             {options.map((option, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={styles.optionButton} 
+              <TouchableOpacity
+                key={index}
+                style={styles.optionButton}
                 onPress={() => {
                   onSelect(option.label);
                   setVisible(false);
                 }}
               >
-                <LinearGradient colors={option.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.gradientIcon}>
-                  <Ionicons name={option.icon} size={24} color="white" />
-                </LinearGradient>
+                <View style={[styles.iconWrapper, { backgroundColor: option.bg }]}>
+                  <Ionicons name={option.icon} size={24} color={option.color} />
+                </View>
                 <Text style={styles.optionText}>{option.value}</Text>
               </TouchableOpacity>
             ))}
@@ -56,16 +80,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#ccc",
     width: "80%",
     padding: 20,
     borderRadius: 12,
     alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+
   },
   modalTitle: {
     fontSize: 22,
@@ -98,7 +118,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
-  gradientIcon: {
+  iconWrapper: {
     padding: 10,
     borderRadius: 50,
     justifyContent: "center",

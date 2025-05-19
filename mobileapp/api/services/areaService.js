@@ -18,8 +18,10 @@ export const addRoom = async (areaName, iconID, hubSerialNumber) => {
     {
       headers: {
         Authorization: `Bearer ${localToken}`,
-        parameter: hubSerialNumber,
       },
+      params:{
+          hubSerialNumber,
+      }
     }
   );
   return response.data;

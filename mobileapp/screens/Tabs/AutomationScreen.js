@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, View, Platform } from "react-native";
+import { SafeAreaView, StyleSheet, View, Platform, } from "react-native";
 import { automations } from "../../Data/Automations";
 import AutomationsList from "../../components/AutomationScreen/AutomationsList";
 import { useState } from "react";
@@ -21,13 +21,14 @@ export default function AutomationScreen({ navigation }) {
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content"  />
+        <StatusBar barStyle="dark-content" />
         <BottomLeftBlob />
 
         <View style={styles.header}>
           <HeaderIcons
             onInfoPress={() => setInfoModal(true)}
             onAddPress={() => navigation.push("NewAutomation")}
+            cogHidden={true}
           />
         </View>
 
@@ -40,10 +41,6 @@ export default function AutomationScreen({ navigation }) {
 
           <AutomationsList
             automations={automations}
-            currentHub={
-              (selectedTab?.name?.charAt(0).toUpperCase() || "") +
-              (selectedTab?.name?.slice(1) || "")
-            }
             setModalVisible={setModalVisible}
             setCurrentAutomation={setCurrentAutomation}
           />
@@ -62,7 +59,7 @@ export default function AutomationScreen({ navigation }) {
           cancelLabel="Close"
           iconName="help-outline"
           iconColor="orange"
-          message="In this screen, you can view and manage your automations. You can add or edit automations as needed. To add a new automation, click the '+' icon in the top right corner. To edit an existing automation, click on it in the list then press on 'Edit'."
+          message="In this screen, you can view and manage your automations. To add a new automation, click the '+' icon in the top right corner."
           title="Automation"
         />
       </SafeAreaView>
@@ -82,7 +79,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   body: {
-
     justifyContent: "flex-start",
     alignItems: "center",
   },

@@ -18,7 +18,7 @@ import { useContext, useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import AuthContextProvider, { AuthContext } from "./store/auth-context";
 import ConfigureAutomation from "./screens/Tabs/AutomationScreen/ConfigureAutomation"
-import Trigger from "./screens/Tabs/AutomationScreen/Trigger";
+import Event from "./screens/Tabs/AutomationScreen/Event";
 import StatusChange from "./screens/Tabs/AutomationScreen/StatusChange";
 import Schedule from "./screens/Tabs/AutomationScreen/Schedule";
 import Action from "./screens/Tabs/AutomationScreen/Action";
@@ -298,10 +298,10 @@ function AutomationStackNavigator({ currentHub, setCurrentHub }) {
         {(props) => <Schedule {...props} />}
       </Stack.Screen>
       <Stack.Screen
-        name="Trigger"
+        name="Event"
         options={{ headerTransparent: true, headerTitle: "" }}
       >
-        {(props) => <Trigger {...props} />}
+        {(props) => <Event {...props} />}
       </Stack.Screen>
       <Stack.Screen
         name="StatusChange"
