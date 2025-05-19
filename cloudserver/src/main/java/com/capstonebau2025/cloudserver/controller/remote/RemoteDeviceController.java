@@ -114,6 +114,25 @@ public class RemoteDeviceController {
         return ResponseEntity.ok(response.getPayload());
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<?> getDevicesByFilter(
+            @RequestParam String filter,
+            @RequestParam String hubSerialNumber) {
+
+        User user = hubAccessService.validateUserHubAccess(hubSerialNumber);
+
+        RemoteCommandMessage message = RemoteCommandMessage.builder()
+                .commandType("GET_DEVICES_BY_FILTER")
+                .email(user.getEmail())
+                .payload(filter)
+                .build();
+
+        RemoteCommandResponse response = commandProcessor.processCommandAndWaitForResponse(
+                hubSerialNumber, message, 10);
+
+        return ResponseEntity.ok(response.getPayload());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDevice(
             @PathVariable Long id,

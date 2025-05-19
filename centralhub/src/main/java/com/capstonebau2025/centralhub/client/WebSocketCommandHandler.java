@@ -9,8 +9,11 @@ import com.capstonebau2025.centralhub.exception.*;
 import com.capstonebau2025.centralhub.repository.UserRepository;
 import com.capstonebau2025.centralhub.service.*;
 import com.capstonebau2025.centralhub.service.automation.AutomationService;
+import com.capstonebau2025.centralhub.service.device.CommandService;
 import com.capstonebau2025.centralhub.service.device.DeviceService;
 import com.capstonebau2025.centralhub.service.auth.InvitationService;
+import com.capstonebau2025.centralhub.service.device.EventService;
+import com.capstonebau2025.centralhub.service.device.StateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -38,6 +41,9 @@ public class WebSocketCommandHandler {
     private final StreamingService streamingService;
     private final SurveillanceService surveillanceService;
     private final AutomationService automationService;
+    private final CommandService commandService;
+    private final EventService eventService;
+    private final StateService stateService;
     @Setter
     private StompSession stompSession;
 
@@ -82,6 +88,9 @@ public class WebSocketCommandHandler {
                     break;
                 case "GET_DEVICES_BY_AREA":
                     response = handleGetDevicesByArea(message);
+                    break;
+                case "GET_DEVICES_BY_FILTER":
+                    response = handleGetDevicesByFilter(message);
                     break;
                 case "DELETE_DEVICE":
                     response = handleDeleteDevice(message);
@@ -131,6 +140,15 @@ public class WebSocketCommandHandler {
                     break;
                 case "DELETE_AUTOMATION":
                     response = handleDeleteAutomation(message);
+                    break;
+                case "GET_COMMANDS_BY_DEVICE":
+                    response = handleGetCommandsByDevice(message);
+                    break;
+                case "GET_EVENTS_BY_DEVICE":
+                    response = handleGetEventsByDevice(message);
+                    break;
+                case "GET_STATES_BY_DEVICE":
+                    response = handleGetStatesByDevice(message);
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
@@ -302,6 +320,24 @@ public class WebSocketCommandHandler {
                     .build();
         } catch (Exception e) {
             log.error("Error processing GET_DEVICES_BY_AREA command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleGetDevicesByFilter(RemoteCommandMessage message) {
+        try {
+            String filter = objectMapper.convertValue(message.getPayload(), String.class);
+            List<IdNameDTO> devices = deviceService.getDevicesByFilter(filter);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Devices retrieved by filter successfully")
+                    .payload(devices)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_DEVICES_BY_FILTER command: {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -647,6 +683,64 @@ public class WebSocketCommandHandler {
                     .build();
         } catch (Exception e) {
             log.error("Error processing DELETE_AUTOMATION command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleGetCommandsByDevice(RemoteCommandMessage message) {
+        try {
+            Long deviceId = objectMapper.convertValue(message.getPayload(), Long.class);
+            List<IdNameDTO> commands = commandService.getAllByDeviceId(deviceId);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Commands retrieved successfully")
+                    .payload(commands)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_COMMANDS_BY_DEVICE command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleGetEventsByDevice(RemoteCommandMessage message) {
+        try {
+            Long deviceId = objectMapper.convertValue(message.getPayload(), Long.class);
+            List<IdNameDTO> events = eventService.getAllByDeviceId(deviceId);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Events retrieved successfully")
+                    .payload(events)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_EVENTS_BY_DEVICE command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleGetStatesByDevice(RemoteCommandMessage message) {
+        try {
+            Map<String, Object> payload = (Map<String, Object>) message.getPayload();
+            Long deviceId = Long.valueOf(payload.get("deviceId").toString());
+            String filter = (String) payload.get("filter");
+
+            // Use stateService to get states by filter and device ID
+            List<StateDTO> states = stateService.getStatesByFilterAndDeviceId(deviceId, filter);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("States retrieved successfully")
+                    .payload(states)
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing GET_STATES_BY_DEVICE command: {}", e.getMessage(), e);
             throw e;
         }
     }
