@@ -57,30 +57,31 @@ export default function DeviceCard({ data }) {
       const currentIndex = data.choices.findIndex((c) => c === value);
       const nextIndex = (currentIndex + 1) % data.choices.length;
       const newValue = data.choices[nextIndex];
-      setValue(newValue);
 
-      highlight.value =
-        newValue === "ON" || newValue === "OPEN" ? "#d4f8d4" : "#f8d4d4";
+      try {
+        await updateInteractionState(data.stateValueId, newValue);
+        setValue(newValue);
+        highlight.value =
+          newValue === "ON" || newValue === "OPEN" ? "#d4f8d4" : "#f8d4d4";
 
-      updateInteractionState(data.stateValueId, newValue).catch((err) =>
-        console.warn("Toggle update failed:", err)
-      );
-
-      setTimeout(() => {
-        highlight.value = "white";
-      }, 600);
+        setTimeout(() => {
+          highlight.value = "white";
+        }, 600);
+      } catch (err) {
+        console.warn("Toggle update failed:", err);
+      }
     }
 
     if (isCommand) {
-      highlight.value = "#d4f8d4";
-
-      executeInteractionCommand(data.deviceId, data.commandId).catch((err) =>
-        console.warn("Command failed:", err)
-      );
-
-      setTimeout(() => {
-        highlight.value = "white";
-      }, 600);
+      try {
+        await executeInteractionCommand(data.deviceId, data.commandId);
+        highlight.value = "#d4f8d4";
+        setTimeout(() => {
+          highlight.value = "white";
+        }, 600);
+      } catch (err) {
+        console.warn("Command failed:", err);
+      }
     }
   };
 
@@ -176,28 +177,16 @@ export default function DeviceCard({ data }) {
               setValue={async (val) => {
                 if (isRange) {
                   const newVal = val.toString();
-                  setValue(newVal);
-
-                  highlight.value = "#d4f8d4";
-                  await updateInteractionState(data.stateValueId, newVal).catch(
-                    (err) => console.warn("Range update failed:", err)
-                  );
-                  setTimeout(() => {
-                    highlight.value = "white";
-                  }, 600);
-                } else if (hasMultipleChoices) {
-                  const choiceVal = data.choices[val];
-                  setIndex(val);
-                  setValue(choiceVal);
-
-                  highlight.value = "#d4f8d4";
-                  await updateInteractionState(
-                    data.stateValueId,
-                    choiceVal
-                  ).catch((err) => console.warn("Choice update failed:", err));
-                  setTimeout(() => {
-                    highlight.value = "white";
-                  }, 600);
+                  try {
+                    await updateInteractionState(data.stateValueId, newVal);
+                    setValue(newVal);
+                    highlight.value = "#d4f8d4";
+                    setTimeout(() => {
+                      highlight.value = "white";
+                    }, 600);
+                  } catch (err) {
+                    console.warn("Range update failed:", err);
+                  }
                 }
               }}
             />
@@ -244,7 +233,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   labelBlock: {
-
     flex: 1,
     overflow: "hidden",
   },

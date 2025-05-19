@@ -1,66 +1,96 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
 import AutomationDetails from "../../../components/AutomationScreen/AutomationDetails";
-import FooterButtons from "../../../components/AutomationScreen/FooterButtons"
-import { useState } from "react";
+import FooterButtons from "../../../components/AutomationScreen/FooterButtons";
 import TypeModal from "../../../components/AutomationScreen/TypeModal";
-
-export default function NewAutomation({ route,navigation }) {
+import Colors from "../../../constants/Colors";
+import Toast from "react-native-toast-message";
+import { useSelector } from "react-redux";
+export default function NewAutomation({ route, navigation }) {
   const { currentAutomation } = route.params || {};
 
+  const savedType = useSelector((state) => state.automation.type);
+  const storedSelectedTime = useSelector((state) => state.automation.selectedTime);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedType, setSelectedType] = useState("");
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState("");
+  const [action, setAction] = useState("");
+  const [cd, setCd] = useState("");
 
-  const [name, setName] = useState(name ?? "");
-  const [description, setDescription] = useState(
-  description ?? ""
-  );
-  const [type, setType] = useState(type ?? "");
-  const [action, setAction] = useState(action ?? "");
   return (
     <>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.innerContainer}>
-          <AutomationDetails
-            currentAutomation={'aaa'}
-            edit={true}
-            name={name}
-            setName={setName}
-            description={description}
-            setDescription={setDescription}
-            type={type}
-            setType={setType}
-            action={action}
-            setAction={setAction}
-            setModalVisible={setModalVisible}
-            navigation={navigation}
-          />
-          <FooterButtons edit={true} />
-        </View>
-      </ScrollView>
+      <View style={styles.container}>
+        <AutomationDetails
+          currentAutomation={"aaa"}
+          edit={true}
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          type={type}
+          setType={setType}
+          action={action}
+          setAction={setAction}
+          setModalVisible={setModalVisible}
+          navigation={navigation}
+          setCooldown={setCd}
+          cooldownDuration={cd}
+          selectedTime={selectedTime}
+          setSelectedTime={setSelectedTime}
+        />
+
+        <FooterButtons
+          handleCloseModal={() => navigation.goBack()}
+          handleSave={() => {
+            setSelectedType(savedType);
+            
+            if (
+              !name.trim() ||
+              !description.trim() ||
+              !type ||
+              // !action ||
+              !cd.trim()
+            ) {
+              Toast.show({
+                type: "error",
+                text1: "Can't create automation",
+                text2: "Please fill all fields",
+                position: "top",
+                swipeable: true,
+                topOffset: 60,
+              });
+              return;
+            }
+
+            console.log(
+              `Name: ${name}, Description: ${description}, Type: ${type}, Action: ${action}, Cooldown: ${cd}`
+            );
+          }}
+          create={true}
+          hideClose={true}
+        />
+      </View>
 
       <TypeModal
         visible={modalVisible}
         setVisible={setModalVisible}
         onSelect={(type) => {
           setSelectedType(type);
-          navigation.navigate(type)
+          navigation.navigate(type);
         }}
-        navigation={navigation}
-        selectedType={selectedType}
       />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
+    padding: 20,
     justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 20,
-  },
-  innerContainer: {
-    width: "90%",
+    backgroundColor: Colors.primaryBackground,
   },
 });

@@ -32,110 +32,105 @@ export default function DeviceModal({
       animationType="fade"
       onRequestClose={onClose}
     >
+      <View style={styles.modalOverlay}>
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <ScrollView
-              style={styles.scrollContainer}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            >
-          
-              <Text style={styles.deviceTitle}>
-                {selectedDevice?.name ?? "Unnamed Device"}
-              </Text>
-
-        
-              <View style={styles.inputBlock}>
-                <Text style={styles.inputLabel}>
-                  Rename current interaction
-                </Text>
-                <EditInput
-                  placeholder="Enter new name"
-                  setChange={setInputValue}
-                  value={inputValue}
-                />
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.confirmBtn,
-                    pressed && { opacity: 0.7 },
-                  ]}
-                  onPress={async () => {
-                    if (!inputValue.trim()) return;
-
-                    await setCustomName(interaction, inputValue.trim());
-                    setInputValue("");
-                    Toast.show({
-                      topOffset: 60,
-                      type: "success",
-                      text1: "Interaction Name Updated",
-                      text2: `Interaction name is now ${inputValue.trim()}.`,
-                      swipeable: true,
-                    })
-                    if (onRename) onRename();
-                    onClose();
-                  }}
-                >
-                  <Text style={styles.confirmText}>Confirm</Text>
-                </Pressable>
-              </View>
-
-          
-              <View style={styles.metadataRow}>
-                <View style={styles.metadataBlock}>
-                  <Text style={styles.metaLabel}>Interaction Name</Text>
-                  <Text style={styles.metaValue}>
-                    {interaction?.name ?? "N/A"}
-                  </Text>
-                </View>
-                <View style={styles.metadataBlock}>
-                  <Text style={styles.metaLabel}>Status</Text>
-                  <Text
-                    style={[
-                      styles.metaValue,
-                      selectedDevice?.status === "CONNECTED"
-                        ? styles.connected
-                        : styles.disconnected,
-                    ]}
-                  >
-                    {selectedDevice?.status ?? "N/A"}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.metadataRow}>
-                <View style={styles.metadataBlock}>
-                  <Text style={styles.metaLabel}>Type</Text>
-                  <Text style={styles.metaValue}>
-                    {interaction?.type ?? "N/A"}
-                  </Text>
-                </View>
-                <View style={styles.metadataBlock}>
-                  <Text style={styles.metaLabel}>Area</Text>
-                  <Text style={styles.metaValue}>
-                    {selectedDevice?.areaName ?? "N/A"}
-                  </Text>
-                </View>
-              </View>
-
-
-              <View style={styles.metadataRow}>
-                <View style={styles.metadataBlock}>
-                  <Text style={styles.metaLabel}>Last Seen</Text>
-                  <Text style={styles.metaValue}>
-                    {selectedDevice?.lastSeen?.split("T")[0] ?? "N/A"}
-                  </Text>
-                </View>
-                <View style={styles.metadataBlock}>
-                  <Text style={styles.metaLabel}>Model</Text>
-                  <Text style={styles.metaValue}>
-                    {selectedDevice?.model ?? "N/A"}
-                  </Text>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
+        <View style={StyleSheet.absoluteFill} />
       </TouchableWithoutFeedback>
+        <View style={styles.modalContainer}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            <Text style={styles.deviceTitle}>
+              {selectedDevice?.name ?? "Unnamed Device"}
+            </Text>
+
+            <View style={styles.inputBlock}>
+              <Text style={styles.inputLabel}>Rename current interaction</Text>
+              <EditInput
+                placeholder="Enter new name"
+                setChange={setInputValue}
+                value={inputValue}
+              />
+              <Pressable
+                style={({ pressed }) => [
+                  styles.confirmBtn,
+                  pressed && { opacity: 0.7 },
+                ]}
+                onPress={async () => {
+                  if (!inputValue.trim()) return;
+
+                  await setCustomName(interaction, inputValue.trim());
+                  setInputValue("");
+                  Toast.show({
+                    topOffset: 60,
+                    type: "success",
+                    text1: "Interaction Name Updated",
+                    text2: `Interaction name is now ${inputValue.trim()}.`,
+                    swipeable: true,
+                  });
+                  if (onRename) onRename();
+                  onClose();
+                }}
+              >
+                <Text style={styles.confirmText}>Confirm</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.metadataRow}>
+              <View style={styles.metadataBlock}>
+                <Text style={styles.metaLabel}>Interaction Name</Text>
+                <Text style={styles.metaValue}>
+                  {interaction?.name ?? "N/A"}
+                </Text>
+              </View>
+              <View style={styles.metadataBlock}>
+                <Text style={styles.metaLabel}>Status</Text>
+                <Text
+                  style={[
+                    styles.metaValue,
+                    selectedDevice?.status === "CONNECTED"
+                      ? styles.connected
+                      : styles.disconnected,
+                  ]}
+                >
+                  {selectedDevice?.status ?? "N/A"}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.metadataRow}>
+              <View style={styles.metadataBlock}>
+                <Text style={styles.metaLabel}>Type</Text>
+                <Text style={styles.metaValue}>
+                  {interaction?.type ?? "N/A"}
+                </Text>
+              </View>
+              <View style={styles.metadataBlock}>
+                <Text style={styles.metaLabel}>Area</Text>
+                <Text style={styles.metaValue}>
+                  {selectedDevice?.areaName ?? "N/A"}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.metadataRow}>
+              <View style={styles.metadataBlock}>
+                <Text style={styles.metaLabel}>Last Seen</Text>
+                <Text style={styles.metaValue}>
+                  {selectedDevice?.lastSeen?.split("T")[0] ?? "N/A"}
+                </Text>
+              </View>
+              <View style={styles.metadataBlock}>
+                <Text style={styles.metaLabel}>Model</Text>
+                <Text style={styles.metaValue}>
+                  {selectedDevice?.model ?? "N/A"}
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -198,7 +193,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: 420,
     marginBottom: 12,
-    
   },
   metadataBlock: {
     flex: 1,

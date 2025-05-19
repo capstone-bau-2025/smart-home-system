@@ -4,7 +4,7 @@ import userReducer from "./slices/userSlice"
 import areaReducer from "./slices/areaSlice";
 import urlReducer from "./slices/urlSlice";
 import devicesReducer from "./slices/devicesSlice";
-
+import automationReducer from "./slices/automationSlice";
 export const store = configureStore({
   reducer: {
     hub: hubReducer,
@@ -12,5 +12,6 @@ export const store = configureStore({
     areas: areaReducer,
     url: urlReducer,
     devices: devicesReducer,
+    automation: automationReducer,
   },
 });

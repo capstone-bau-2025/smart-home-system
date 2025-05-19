@@ -1,8 +1,8 @@
 import axios from "axios";
 import { AppState, Platform } from "react-native";
-import * as Network from 'expo-network';
-
-const LOCAL_IP = "192.168.1.36"; 
+import * as Network from "expo-network";
+import { store } from "../store/store";
+const LOCAL_IP = "192.168.1.36";
 const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
 
 export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub
@@ -12,21 +12,44 @@ let ACTIVE_URL = null;
 let pingInterval = null;
 
 //Determine base URL based on connection type (wifi or not)
-export async function getActiveBaseUrl() {
+// export async function getActiveBaseUrl() {
+//   try {
+//     const networkState = await Network.getNetworkStateAsync();
+//     console.log('NETWORK STATE:', networkState);
+//     const isWifi = networkState?.type === Network.NetworkStateType.WIFI;
+//     console.log(networkState)
+//     const selectedUrl = isWifi ? LOCAL_URL : BASE_URL;
+
+//     console.log("📡 Network type:", networkState.type);
+//     console.log("🌐 ACTIVE_URL determined as:", selectedUrl);
+
+//     return selectedUrl;
+//   } catch (err) {
+//     console.error("❌ Failed to determine network type:", err.message);
+//     return BASE_URL;
+//   }
+// }
+
+export async function getActiveUrl() {
+  const token = store.getState().user.localToken;
   try {
-    const networkState = await Network.getNetworkStateAsync();
-    console.log('NETWORK STATE:', networkState);
-    const isWifi = networkState?.type === Network.NetworkStateType.WIFI;
-    console.log(networkState)
-    const selectedUrl = isWifi ? LOCAL_URL : BASE_URL;
-
-    console.log("📡 Network type:", networkState.type);
-    console.log("🌐 ACTIVE_URL determined as:", selectedUrl);
-
-    return selectedUrl;
+    await axios.get(`http://192.168.1.36:8080/ping`, {
+      // headers: {
+      //   Authorization: `Bearer ${token}`,
+      // },
+      timeout: 1500,
+    });
+    console.log("ACTIVE_URL set to LOCAL:", LOCAL_URL);
+    return LOCAL_URL;
   } catch (err) {
-    console.error("❌ Failed to determine network type:", err.message);
-    return BASE_URL; 
+    try {
+      await axios.get(`${BASE_URL}`);
+      console.log("ACTIVE_URL set to CLOUD:", BASE_URL);
+      return BASE_URL;
+    } catch (error) {
+      console.error("❌ Both LOCAL and BASE URLs failed.");
+      return null;
+    }
   }
 }
 
@@ -40,7 +63,7 @@ export function stopActiveUrlMonitor() {
 export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
   const checkAndUpdateUrl = async () => {
     try {
-      const newUrl = await getActiveBaseUrl();
+      const newUrl = await getActiveUrl();
       if (newUrl && newUrl !== ACTIVE_URL) {
         ACTIVE_URL = newUrl;
         console.log("🌐 ACTIVE_URL updated to:", newUrl);
@@ -52,7 +75,7 @@ export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
   };
 
   const handleAppStateChange = (nextAppState) => {
-    console.log("📱 App is now:", nextAppState);
+    console.log("App is now:", nextAppState);
     if (nextAppState === "active") {
       if (!pingInterval) {
         checkAndUpdateUrl();
@@ -64,6 +87,7 @@ export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
   };
 
   AppState.addEventListener("change", handleAppStateChange);
+
   checkAndUpdateUrl();
   pingInterval = setInterval(checkAndUpdateUrl, intervalMs);
 }

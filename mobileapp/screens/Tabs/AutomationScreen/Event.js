@@ -20,11 +20,11 @@ import {
 import ListModal from "../../../components/AutomationScreen/ListModal";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function StatusChange() {
+export default function Event() {
   const [devicesModal, setDevicesModal] = useState(false);
-  const [statesModal, setStatesModal] = useState(false);
+  const [eventsModal, setEventsModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const [selectedState, setSelectedState] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -32,22 +32,24 @@ export default function StatusChange() {
   const dummyDevices = [
     { id: "dev1", name: "Living Room Sensor" },
     { id: "dev2", name: "Front Door" },
+      { id: "brightness", name: "Brightness", min: 0, max: 100 },
+  { id: "volume", name: "Volume", min: 1, max: 10 },
   ];
 
-  const dummyStates = [
-    { id: "on", name: "Turned ON" },
-    { id: "off", name: "Turned OFF" },
+  const dummyEvents = [
+    { id: "open", name: "Opened" },
+    { id: "motion", name: "Motion Detected" },
   ];
 
   const handleSave = () => {
-    if (!selectedDevice || !selectedState) {
-      alert("Please select both a device and a status.");
+    if (!selectedDevice || !selectedEvent) {
+      alert("Please select both a device and an event.");
       return;
     }
 
-    dispatch(setType("device_status_change"));
+    dispatch(setType("event"));
     dispatch(setIfDevice(selectedDevice.id));
-    dispatch(setIfDeviceStatus(selectedState.id));
+    dispatch(setIfDeviceStatus(selectedEvent.id));
     dispatch(clearScheduleFields());
     dispatch(clearStatusChangeFields());
 
@@ -58,9 +60,9 @@ export default function StatusChange() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.iconWrapper}>
-          <Ionicons name="bulb-outline" size={24} color="#6a11cb" />
+          <Ionicons name="eye-outline" size={24} color="#2f5fa3" />
         </View>
-        <Text style={styles.title}>Device Status Change</Text>
+        <Text style={styles.title}>Event Trigger</Text>
       </View>
 
       <View style={styles.card}>
@@ -78,16 +80,16 @@ export default function StatusChange() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Trigger Status</Text>
+        <Text style={styles.label}>Trigger Event</Text>
         <Pressable
           style={styles.inlineButton}
-          onPress={() => setStatesModal(true)}
+          onPress={() => setEventsModal(true)}
         >
           <Text style={styles.buttonText}>Select</Text>
         </Pressable>
 
         <Text style={styles.selected}>
-          Selected: {selectedState?.name || ""}
+          Selected: {selectedEvent?.name || ""}
         </Text>
       </View>
 
@@ -100,15 +102,14 @@ export default function StatusChange() {
         data={dummyDevices}
         onSelect={(device) => setSelectedDevice(device)}
         onClose={() => setDevicesModal(false)}
-
       />
 
       <ListModal
-        visible={statesModal}
-        data={dummyStates}
-        onSelect={(state) => setSelectedState(state)}
-        onClose={() => setStatesModal(false)}
-        title="Select Status"
+        visible={eventsModal}
+        data={dummyEvents}
+        onSelect={(event) => setSelectedEvent(event)}
+        onClose={() => setEventsModal(false)}
+        title="Select Event"
       />
     </SafeAreaView>
   );
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   iconWrapper: {
-    backgroundColor: "#efe3ff",
+    backgroundColor: "#e3f0ff",
     padding: 10,
     borderRadius: 30,
     justifyContent: "center",

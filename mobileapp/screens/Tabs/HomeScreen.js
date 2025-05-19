@@ -15,7 +15,9 @@ import useDevices from "../../hooks/useDevices";
 import { setAreas } from "../../store/slices/areaSlice";
 import { setInteractions } from "../../store/slices/devicesSlice";
 import { fetchAllInteractions } from "../../api/services/interactionService";
-
+import { setUrl } from "../../store/slices/urlSlice";
+import { getActiveUrl } from "../../util/auth";
+import { startActiveUrlMonitor } from "../../util/auth";
 import Colors from "../../constants/Colors";
 
 export default function HomeScreen() {
@@ -65,6 +67,15 @@ export default function HomeScreen() {
       setRefreshing(false);
     }
   };
+
+  
+  // useEffect(() => {
+  //   startActiveUrlMonitor((newUrl) => {
+  
+  //     dispatch(setUrl(newUrl));
+  //   });
+  // }, []);
+
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,9 +1,15 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+import { useSelector } from "react-redux";
+import DismissKeyboard from "../utils/DismissKeyboard";
 
-// shows the details of the automation when the user clicks on it
 export default function AutomationDetails({
   currentAutomation,
   edit,
@@ -11,12 +17,12 @@ export default function AutomationDetails({
   setName,
   description,
   setDescription,
-  type,
-  setType,
   action,
   setAction,
   setModalVisible,
-  navigation
+  navigation,
+  setCooldown,
+  cooldownDuration,
 }) {
   const iconName = {
     schedule: "alarm-sharp",
@@ -24,92 +30,163 @@ export default function AutomationDetails({
     device_status_change: "bulb-sharp",
   };
 
-  const iconGradients = {
-    schedule: ["#14f423", "#9fc464"],
-    device_trigger: ["#56CCF2", "#2F80ED"],
-    device_status_change: ["#6a11cb", "#2575fc"],
+  const paleIconBg = {
+    schedule: "#eaffea",
+    device_trigger: "#e3f0ff",
+    device_status_change: "#efe3ff",
+  };
+
+  const iconColorMap = {
+    schedule: "#3e914f",
+    device_trigger: "#2f5fa3",
+    device_status_change: "#6a11cb",
+    action: "#244ced",
+    cooldown: "#a37000",
+  };
+
+  const savedType = useSelector((state) => state.automation.type);
+  const storedSelectedTime = useSelector(
+    (state) => state.automation.selectedTime
+  );
+  const resolvedType = savedType || currentAutomation.type;
+
+  const typeContent = {
+    schedule: storedSelectedTime,
+    device_trigger: "Event",
+    device_status_change: "Device Status Change",
   };
 
   return (
-    <>
-      {edit && (
-        <>
-          <Text style={styles.infoText}>Name</Text>
-          <View style={styles.propContainer}>
+    <DismissKeyboard>
+      <View>
+        {edit && (
+          <>
+            <Text style={styles.infoText}>Name</Text>
+            <View style={styles.propContainer}>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter Automation Name"
+                placeholderTextColor="#999"
+                multiline
+              />
+            </View>
+          </>
+        )}
+
+        <Text style={styles.infoText}>Description</Text>
+        <View style={styles.propContainer}>
+          {edit ? (
             <TextInput
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholder="Enter Automation Name"
+              style={[styles.input, styles.descriptionInput]}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Enter description"
               placeholderTextColor="#999"
               multiline
+              maxLength={100}
+              numberOfLines={1}
+              max
+              
+            />
+          ) : (
+            <Text style={styles.propText}>
+              {currentAutomation.description || "No details available."}
+            </Text>
+          )}
+        </View>
+
+        <Text style={styles.infoText}>Type (If)</Text>
+        <View style={styles.propContainerRow}>
+          <View
+            style={[
+              styles.iconWrapper,
+              { backgroundColor: paleIconBg[resolvedType] || "#ddd" },
+            ]}
+          >
+            <Ionicons
+              name={iconName[resolvedType] || "help-circle-outline"}
+              size={24}
+              color={iconColorMap[resolvedType] || "#333"}
             />
           </View>
-        </>
-      )}
+          {edit ? (
+            <TouchableOpacity
+              style={styles.touchableField}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.propText}>
+                {typeContent[resolvedType] || "Select type"}
+              </Text>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color="#666"
+                style={styles.editIcon}
+              />
+            </TouchableOpacity>
+          ) : (
+            <Text style={styles.propText}>
+              {currentAutomation.type || "No details available."}
+            </Text>
+          )}
+        </View>
 
-      <Text style={styles.infoText}>Description</Text>
-      <View style={styles.propContainer}>
-        {edit ? (
-          <TextInput
-            style={[styles.input, styles.descriptionInput]}
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Enter description"
-            placeholderTextColor="#999"
-            multiline
-          />
-        ) : (
-          <Text style={styles.propText}>{currentAutomation.description || "No details available."}</Text>
-        )}
-      </View>
+        <Text style={styles.infoText}>Action (Then)</Text>
+        <View style={styles.propContainerRow}>
+          <View style={[styles.iconWrapper, { backgroundColor: "#e7edff" }]}>
+            <Ionicons name="flash" size={24} color={iconColorMap.action} />
+          </View>
+          {edit ? (
+            <TouchableOpacity
+              style={styles.touchableField}
+              onPress={() => navigation.navigate("Action")}
+            >
+              <Text style={styles.propText}>{action || "Select action"}</Text>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color="#666"
+                style={styles.editIcon}
+              />
+            </TouchableOpacity>
+          ) : (
+            <Text style={styles.propText}>
+              {currentAutomation.action || "No details available."}
+            </Text>
+          )}
+        </View>
 
-      <Text style={styles.infoText}>Type</Text>
-      <View style={styles.propContainerRow}>
-        <LinearGradient
-          colors={iconGradients[currentAutomation.type] || ["#ddd", "#bbb"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientIcon}
-        >
-          <Ionicons name={iconName[currentAutomation.type] || "help-circle-outline"} size={24} color="white" />
-        </LinearGradient>
-        {edit ? (
-          <TouchableOpacity
-            style={styles.touchableField}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={styles.propText}>{type || "Select type"}</Text>
-            <Ionicons name="chevron-forward-outline" size={20} color="#666" style={styles.editIcon} />
-          </TouchableOpacity>
-        ) : (
-          <Text style={styles.propText}>{currentAutomation.type || "No details available."}</Text>
-        )}
+        <Text style={styles.infoText}>Cool Down Duration (minutes)</Text>
+        <View style={styles.propContainerRow}>
+          <View style={[styles.iconWrapper, { backgroundColor: "#fff3cd" }]}>
+            <Ionicons
+              name="hourglass"
+              size={24}
+              color={iconColorMap.cooldown}
+            />
+          </View>
+          {edit ? (
+            <TextInput
+              style={styles.propText}
+              keyboardType="numeric"
+              placeholder="Enter duration"
+              value={cooldownDuration}
+              onChangeText={setCooldown}
+              placeholderTextColor="#999"
+              maxLength={2}
+            />
+          ) : (
+            <Text style={styles.propText}>
+              {currentAutomation.cooldownDuration
+                ? `${currentAutomation.cooldownDuration} minutes`
+                : "No details available."}
+            </Text>
+          )}
+        </View>
       </View>
-
-      <Text style={styles.infoText}>Action</Text>
-      <View style={styles.propContainerRow}>
-        <LinearGradient
-          colors={["#757af5", "#244ced"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradientIcon}
-        >
-          <Ionicons name={"flash"} size={24} color="white" />
-        </LinearGradient>
-        {edit ? (
-          <TouchableOpacity
-            style={styles.touchableField}
-            onPress={()=> navigation.navigate("Action")}
-          >
-            <Text style={styles.propText}>{action || "Select action"}</Text>
-            <Ionicons name="chevron-forward-outline" size={20} color="#666" style={styles.editIcon} />
-          </TouchableOpacity>
-        ) : (
-          <Text style={styles.propText}>{currentAutomation.action || "No details available."}</Text>
-        )}
-      </View>
-    </>
+    </DismissKeyboard>
   );
 }
 
@@ -141,14 +218,14 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   input: {
-    fontSize: 18,
-    flex: 1,
+    fontSize: 16,
     fontFamily: "Lexend-Regular",
-    padding: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     backgroundColor: "white",
-    borderRadius: 8,
-    borderBottomWidth:1,
-    borderBottomColor:'grey'
+    borderRadius: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "grey",
   },
   descriptionInput: {
     maxHeight: 200,
@@ -160,23 +237,22 @@ const styles = StyleSheet.create({
     marginBottom: 3,
     left: 5,
   },
-  gradientIcon: {
-    padding: 5,
-    borderRadius: 50,
+  iconWrapper: {
+    padding: 6,
+    borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
   },
   touchableField: {
     flex: 1,
-    flexDirection: "row", 
+    flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-
   },
   editIcon: {
-    marginLeft: 10, 
+    marginLeft: 10,
   },
 });

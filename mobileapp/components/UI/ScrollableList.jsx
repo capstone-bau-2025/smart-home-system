@@ -26,11 +26,11 @@ export default function ScrollableList({
   noData = "No data available",
 }) {
   if (!data || data.length === 0) {
-    return( 
-    <View  style={styles.listContainer}>
-      <Text style={styles.emptyText}>{noData}</Text>
-    </View>
-    )
+    return (
+      <View style={styles.listContainer}>
+        <Text style={styles.emptyText}>{noData}</Text>
+      </View>
+    );
   }
 
   return (
@@ -57,7 +57,7 @@ export default function ScrollableList({
                 {textFields.map((field, index) => (
                   <Text
                     style={styles.pressableItemText}
-                    numberOfLines={5}
+                    numberOfLines={1}
                     ellipsizeMode="tail"
                     key={index}
                   >
@@ -147,7 +147,6 @@ export default function ScrollableList({
 const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
-    
   },
   itemContainer: {
     flexDirection: "row",
@@ -167,6 +166,7 @@ const styles = StyleSheet.create({
     paddingRight: 1,
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 10,
   },
   itemText: {
     fontSize: 20,
