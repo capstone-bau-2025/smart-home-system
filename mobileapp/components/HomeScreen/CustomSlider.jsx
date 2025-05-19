@@ -11,6 +11,8 @@ export default function CustomSlider({
   maxRange,
   value,
   setValue,
+  onChange,
+  onComplete, 
 }) {
   return (
     <View style={styles.container}>
@@ -25,7 +27,8 @@ export default function CustomSlider({
         }
         thumbTintColor={Platform.OS === "android" ? "#007AFF" : "#fff"}
         value={value}
-        onSlidingComplete={(val) => setValue(val)}
+         onValueChange={onChange} 
+        onSlidingComplete={onComplete}
       />
 
       <View style={styles.labels}>

@@ -14,7 +14,7 @@ export default function RoomCard({ data }) {
   let leftHeight = 0;
   let rightHeight = 0;
 
-  const devices = useSelector((state) => state.devices.interactions); 
+  const devices = useSelector((state) => state.devices.interactions);
   //fetch interactions from redux store
   const roomDevices = devices.filter((d) => d.areaId === data.id);
 
@@ -45,12 +45,11 @@ export default function RoomCard({ data }) {
         <Text style={styles.roomName}>{data.name}</Text>
       </View>
 
-    {/* {devices.length === 0 && (
+      {/* {devices.length === 0 && (
         <Text style={{ fontSize: 16, color: "#888" }}>
           No devices in this room
         </Text>
       )} */}
-
 
       {/* Balanced Two Column Layout */}
       <View style={styles.twoColumnGrid}>
@@ -58,9 +57,11 @@ export default function RoomCard({ data }) {
           {leftColumn.map((device) => (
             <DeviceCard
               key={
-                device.stateValueId ||
-                device.commandId ||
-                `${device.deviceId}-${device.name}`
+                device.stateValueId != null
+                  ? `state-${device.stateValueId}`
+                  : device.commandId != null
+                  ? `cmd-${device.commandId}`
+                  : `${device.deviceId}-${device.name}`
               }
               data={device}
             />
@@ -70,9 +71,11 @@ export default function RoomCard({ data }) {
           {rightColumn.map((device) => (
             <DeviceCard
               key={
-                device.stateValueId ||
-                device.commandId ||
-                `${device.deviceId}-${device.name}`
+                device.stateValueId != null
+                  ? `state-${device.stateValueId}`
+                  : device.commandId != null
+                  ? `cmd-${device.commandId}`
+                  : `${device.deviceId}-${device.name}`
               }
               data={device}
             />

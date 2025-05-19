@@ -1,74 +1,112 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AutomationDetails from "../../../components/AutomationScreen/AutomationDetails";
 import FooterButtons from "../../../components/AutomationScreen/FooterButtons";
 import TypeModal from "../../../components/AutomationScreen/TypeModal";
 import Colors from "../../../constants/Colors";
 import Toast from "react-native-toast-message";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { createAutomationRule } from "../../../api/services/automationService";
+import { resetAutomation } from "../../../store/slices/automationSlice";
+
 export default function NewAutomation({ route, navigation }) {
   const { currentAutomation } = route.params || {};
 
-  const savedType = useSelector((state) => state.automation.type);
-  const storedSelectedTime = useSelector((state) => state.automation.selectedTime);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("");
-  const [action, setAction] = useState("");
-  const [cd, setCd] = useState("");
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      dispatch(resetAutomation());
+    });
 
+    return unsubscribe;
+  }, [navigation]);
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const dispatch = useDispatch();
+  //fetch createauto values from the redux store
+  const ruleName = useSelector((state) => state.automation.ruleName);
+  const ruleDescription = useSelector(
+    (state) => state.automation.ruleDescription
+  );
+  const triggerType = useSelector((state) => state.automation.triggerType);
+  const scheduledTime = useSelector((state) => state.automation.scheduledTime);
+  const cooldownDuration = useSelector(
+    (state) => state.automation.cooldownDuration
+  );
+  const eventId = useSelector((state) => state.automation.eventId);
+  const deviceId = useSelector((state) => state.automation.deviceId);
+  const stateValueId = useSelector((state) => state.automation.stateValueId);
+  const stateTriggerValue = useSelector(
+    (state) => state.automation.stateTriggerValue
+  );
+  const actions = useSelector((state) => state.automation.actions);
+
+  const handleSave = async () => {
+    const payload = {
+      ruleName,
+      ruleDescription,
+      triggerType,
+      scheduledTime,
+      cooldownDuration,
+      eventId,
+      deviceId,
+      stateValueId,
+      stateTriggerValue,
+      actions,
+    };
+
+    console.log("🚨 Payload before sending:", payload);
+    try {
+      await createAutomationRule({
+        ruleName,
+        ruleDescription,
+        triggerType,
+        scheduledTime,
+        cooldownDuration,
+        eventId,
+        deviceId,
+        stateValueId,
+        stateTriggerValue,
+        actions,
+      });
+
+      Toast.show({
+        type: "success",
+        text1: "Automation created",
+        text2: "Automation has been created successfully.",
+        position: "top",
+        topOffset: 60,
+        swipeable: true,
+      });
+      if (route.params?.onAutomationCreated) {
+        route.params.onAutomationCreated(); 
+      }
+      navigation.goBack();
+      dispatch(resetAutomation());
+    } catch (err) {
+      console.error("❌ Failed to create automation:", err);
+      Toast.show({
+        type: "error",
+        text1: "Failed to create automation",
+        text2: "Something went wrong. Try again.",
+        position: "top",
+        topOffset: 60,
+      });
+    }
+  };
   return (
     <>
       <View style={styles.container}>
         <AutomationDetails
-          currentAutomation={"aaa"}
           edit={true}
-          name={name}
-          setName={setName}
-          description={description}
-          setDescription={setDescription}
-          type={type}
-          setType={setType}
-          action={action}
-          setAction={setAction}
           setModalVisible={setModalVisible}
           navigation={navigation}
-          setCooldown={setCd}
-          cooldownDuration={cd}
-          selectedTime={selectedTime}
-          setSelectedTime={setSelectedTime}
+          currentAutomation={currentAutomation}
         />
 
         <FooterButtons
           handleCloseModal={() => navigation.goBack()}
-          handleSave={() => {
-            setSelectedType(savedType);
-            
-            if (
-              !name.trim() ||
-              !description.trim() ||
-              !type ||
-              // !action ||
-              !cd.trim()
-            ) {
-              Toast.show({
-                type: "error",
-                text1: "Can't create automation",
-                text2: "Please fill all fields",
-                position: "top",
-                swipeable: true,
-                topOffset: 60,
-              });
-              return;
-            }
-
-            console.log(
-              `Name: ${name}, Description: ${description}, Type: ${type}, Action: ${action}, Cooldown: ${cd}`
-            );
-          }}
+          handleSave={handleSave}
           create={true}
           hideClose={true}
         />
@@ -78,7 +116,6 @@ export default function NewAutomation({ route, navigation }) {
         visible={modalVisible}
         setVisible={setModalVisible}
         onSelect={(type) => {
-          setSelectedType(type);
           navigation.navigate(type);
         }}
       />

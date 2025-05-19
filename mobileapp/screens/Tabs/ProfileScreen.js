@@ -40,7 +40,7 @@ export default function ProfileScreen() {
           <Ionicons name="cube-outline" size={22} color="#2aa8a8" />
           <View style={styles.infoTextBlock}>
             <Text style={styles.label}>Current Hub</Text>
-            <Text style={styles.value}>{currentHub?.name || "Not set"}</Text>
+            <Text style={styles.value}>{currentHub?.name || "No current hub"}</Text>
           </View>
         </View>
 
@@ -48,7 +48,7 @@ export default function ProfileScreen() {
           <Ionicons name="briefcase-outline" size={22} color="#2aa8a8" />
           <View style={styles.infoTextBlock}>
             <Text style={styles.label}>Role</Text>
-            <Text style={styles.value}>{currentHub?.role || "Unknown"}</Text>
+            <Text style={styles.value}>{currentHub?.role || " "}</Text>
           </View>
         </View>
 

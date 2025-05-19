@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import DiscoveryModal from "./DiscoveryModal";
-// Card that shows either discovered hubs or devices based on the 
+// Card that shows either discovered hubs or devices based on the
 export default function DiscoverCard({ hubs, onScanPress, isDevice }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -16,7 +16,10 @@ export default function DiscoverCard({ hubs, onScanPress, isDevice }) {
     <>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {hubs.map((item, index) => {
-          const isConfigured = item.status && item.status !== "SETUP";
+          const isConfigured =
+            item.status &&
+            item.status !== "SETUP" &&
+            item.status !== "INITIALIZING";
 
           return (
             <View key={index} style={styles.container}>
@@ -60,12 +63,18 @@ export default function DiscoverCard({ hubs, onScanPress, isDevice }) {
         title={
           isDevice
             ? "Device Details"
-            : selectedItem?.status && selectedItem.status !== "SETUP"
+            : selectedItem?.status &&
+              selectedItem.status !== "SETUP" &&
+              selectedItem.status !== "INITIALIZING"
             ? "Connect to Hub"
             : "Configure Hub"
         }
         selectedHub={selectedItem}
-        isConfigured={selectedItem?.status && selectedItem.status !== "SETUP"}
+        isConfigured={
+          selectedItem?.status &&
+          selectedItem.status !== "SETUP" &&
+          selectedItem.status !== "INITIALIZING"
+        }
       />
     </>
   );

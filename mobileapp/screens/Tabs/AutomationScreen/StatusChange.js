@@ -6,51 +6,97 @@ import {
   Pressable,
   SafeAreaView,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SaveButton from "../../../components/UI/SaveButton";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import {
-  setType,
-  setIfDevice,
-  setIfDeviceStatus,
-  clearScheduleFields,
-  clearStatusChangeFields,
+  setScheduledTime,
+  setTriggerType,
+  setEventId,
+  setDeviceId,
+  setStateValueId,
+  setStateTriggerValue,
 } from "../../../store/slices/automationSlice";
 import ListModal from "../../../components/AutomationScreen/ListModal";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  fetchDeviceByFilter,
+  getStateValuesByDeviceId,
+} from "../../../api/services/deviceService";
+import Toast from "react-native-toast-message";
 
 export default function StatusChange() {
   const [devicesModal, setDevicesModal] = useState(false);
   const [statesModal, setStatesModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
+  const [triggerValue, setTriggerValue] = useState(0);
+  const [immutableDevices, setImmutableDevices] = useState(null);
+  const [states, setStates] = useState(null);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const dummyDevices = [
-    { id: "dev1", name: "Living Room Sensor" },
-    { id: "dev2", name: "Front Door" },
-  ];
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const devices = await fetchDeviceByFilter("IMMUTABLE_STATE");
+        setImmutableDevices(devices);
+        console.log("IMMUTABLE DEVICES", devices);
+      } catch (error) {
+        console.error("Error fetching devices:", error);
+      }
+    };
 
-  const dummyStates = [
-    { id: "on", name: "Turned ON" },
-    { id: "off", name: "Turned OFF" },
-  ];
+    fetchDevices();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDevice) {
+      const fetchStates = async () => {
+        try {
+          const states = await getStateValuesByDeviceId(
+            selectedDevice.id,
+            "IMMUTABLE"
+          );
+          setStates(states);
+          console.log("STATES BY ID", states);
+        } catch (error) {
+          console.error("Error fetching states:", error);
+        }
+      };
+
+      fetchStates();
+    }
+  }, [selectedDevice]);
 
   const handleSave = () => {
     if (!selectedDevice || !selectedState) {
-      alert("Please select both a device and a status.");
+      Toast.show({
+        type: "error",
+        text1: "Missing selection",
+        text2: "Please select both a device and a status.",
+        topOffset: 60,
+        swipeable: true,
+      });
       return;
     }
 
-    dispatch(setType("device_status_change"));
-    dispatch(setIfDevice(selectedDevice.id));
-    dispatch(setIfDeviceStatus(selectedState.id));
-    dispatch(clearScheduleFields());
-    dispatch(clearStatusChangeFields());
-
+    dispatch(setTriggerType("STATE_UPDATE"));
+    dispatch(setDeviceId(selectedDevice.id));
+    dispatch(setStateValueId(selectedState.id));
+    dispatch(setStateTriggerValue(selectedState.value));
+    dispatch(setScheduledTime(null));
+    dispatch(setEventId(null));
+    Toast.show({
+      type: "success",
+      text1: "Type selected",
+      text2: "Automation type has been set to Device Status Change.",
+      position: "top",
+      topOffset: 60,
+      swipeable: true,
+    });
     navigation.goBack();
   };
 
@@ -66,12 +112,15 @@ export default function StatusChange() {
       <View style={styles.card}>
         <Text style={styles.label}>Trigger Device</Text>
         <Pressable
-          style={styles.inlineButton}
+          style={({ pressed }) =>
+            pressed
+              ? [styles.inlineButton, { opacity: 0.7 }]
+              : styles.inlineButton
+          }
           onPress={() => setDevicesModal(true)}
         >
           <Text style={styles.buttonText}>Select</Text>
         </Pressable>
-
         <Text style={styles.selected}>
           Selected: {selectedDevice?.name || ""}
         </Text>
@@ -80,14 +129,30 @@ export default function StatusChange() {
       <View style={styles.card}>
         <Text style={styles.label}>Trigger Status</Text>
         <Pressable
-          style={styles.inlineButton}
-          onPress={() => setStatesModal(true)}
+          style={({ pressed }) =>
+            pressed
+              ? [styles.inlineButton, { opacity: 0.7 }]
+              : styles.inlineButton
+          }
+          onPress={() => {
+            if (!selectedDevice) {
+              Toast.show({
+                type: "error",
+                text1: "Select a device first",
+                text2: "Please select a device to view its statuses.",
+                topOffset: 60,
+                swipeable: true,
+              });
+              return;
+            }
+            setStatesModal(true);
+          }}
         >
           <Text style={styles.buttonText}>Select</Text>
         </Pressable>
-
         <Text style={styles.selected}>
-          Selected: {selectedState?.name || ""}
+          Selected:{" "}
+{selectedState ? `${selectedState.name}, Value = ${selectedState.value}` : ""}
         </Text>
       </View>
 
@@ -97,18 +162,19 @@ export default function StatusChange() {
 
       <ListModal
         visible={devicesModal}
-        data={dummyDevices}
+        data={immutableDevices}
         onSelect={(device) => setSelectedDevice(device)}
         onClose={() => setDevicesModal(false)}
-
       />
 
       <ListModal
         visible={statesModal}
-        data={dummyStates}
+        data={states}
         onSelect={(state) => setSelectedState(state)}
         onClose={() => setStatesModal(false)}
         title="Select Status"
+        setTriggerValue={setTriggerValue}
+        triggerValue={triggerValue}
       />
     </SafeAreaView>
   );

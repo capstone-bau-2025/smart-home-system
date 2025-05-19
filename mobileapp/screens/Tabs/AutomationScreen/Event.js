@@ -6,53 +6,85 @@ import {
   Pressable,
   SafeAreaView,
 } from "react-native";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import SaveButton from "../../../components/UI/SaveButton";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
-import {
-  setType,
-  setIfDevice,
-  setIfDeviceStatus,
-  clearScheduleFields,
-  clearStatusChangeFields,
-} from "../../../store/slices/automationSlice";
+import { setScheduledTime, setTriggerType, setEventId,setDeviceId,setStateValueId,setStateTriggerValue} from "../../../store/slices/automationSlice";
 import ListModal from "../../../components/AutomationScreen/ListModal";
 import { Ionicons } from "@expo/vector-icons";
-
+import { fetchDeviceByFilter } from "../../../api/services/deviceService";
+import { getEventsByDeviceId } from "../../../api/services/deviceService";
+import Toast from "react-native-toast-message";
 export default function Event() {
   const [devicesModal, setDevicesModal] = useState(false);
   const [eventsModal, setEventsModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
+  const [eventDevices, setEventDevices] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
+  const [eventsById, setEventsById] = useState(null);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const dummyDevices = [
-    { id: "dev1", name: "Living Room Sensor" },
-    { id: "dev2", name: "Front Door" },
-      { id: "brightness", name: "Brightness", min: 0, max: 100 },
-  { id: "volume", name: "Volume", min: 1, max: 10 },
-  ];
+  console.log(selectedDevice)
+  console.log(selectedEvent)
 
-  const dummyEvents = [
-    { id: "open", name: "Opened" },
-    { id: "motion", name: "Motion Detected" },
-  ];
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const devices = await fetchDeviceByFilter("EVENT");
+        setEventDevices(devices);
+        console.log("EVENT DEVICES", devices);
+      } catch (error) {
+        console.error("Error fetching devices:", error);
+      }
+    };
+
+    fetchDevices();
+  }, []);
+  useEffect(() => {
+    if (selectedDevice) {
+      const fetchEvents = async () => {
+        try {
+          const events = await getEventsByDeviceId(selectedDevice.id);
+          setEventsById(events);
+          console.log("EVENTS BY ID", events);
+        } catch (error) {
+          console.error("Error fetching events:", error);
+        }
+      };
+
+      fetchEvents();
+    }
+  }, [selectedDevice]);
 
   const handleSave = () => {
     if (!selectedDevice || !selectedEvent) {
-      alert("Please select both a device and an event.");
+      Toast.show({
+        type: "error",
+        text1: "Select a device and event first",
+        text2: "Please select a device and event to proceed.",
+        topOffset: 60,
+        swipeable: true,
+      });
       return;
     }
 
-    dispatch(setType("event"));
-    dispatch(setIfDevice(selectedDevice.id));
-    dispatch(setIfDeviceStatus(selectedEvent.id));
-    dispatch(clearScheduleFields());
-    dispatch(clearStatusChangeFields());
+    dispatch(setTriggerType("EVENT"));
+    dispatch(setEventId(selectedEvent.id));
+    dispatch(setDeviceId(selectedDevice.id));
+    dispatch(setStateValueId(null));
+    dispatch(setStateTriggerValue(null));
+    dispatch(setScheduledTime(null));
 
+        Toast.show({
+          type: "success",
+          text1: "Type selected",
+          text2: "Automation type has been set to Event.",
+          position: "top",
+          topOffset: 60,
+          swipeable: true,
+        });
     navigation.goBack();
   };
 
@@ -68,8 +100,17 @@ export default function Event() {
       <View style={styles.card}>
         <Text style={styles.label}>Trigger Device</Text>
         <Pressable
-          style={styles.inlineButton}
-          onPress={() => setDevicesModal(true)}
+          style={({ pressed }) =>
+            pressed
+              ? [styles.inlineButton, { opacity: 0.7 }]
+              : styles.inlineButton
+          }
+          onPress={() => {
+            if (selectedEvent) {
+              setSelectedEvent(null);
+            }
+            setDevicesModal(true);
+          }}
         >
           <Text style={styles.buttonText}>Select</Text>
         </Pressable>
@@ -82,8 +123,25 @@ export default function Event() {
       <View style={styles.card}>
         <Text style={styles.label}>Trigger Event</Text>
         <Pressable
-          style={styles.inlineButton}
-          onPress={() => setEventsModal(true)}
+          style={({ pressed }) =>
+            pressed
+              ? [styles.inlineButton, { opacity: 0.7 }]
+              : styles.inlineButton
+          }
+          onPress={() => {
+            if (!selectedDevice) {
+              Toast.show({
+                type: "error",
+                text1: "Select a device first",
+                text2: "Please select a device to view its events.",
+                topOffset: 60,
+                swipeable: true,
+              });
+              return;
+            }
+
+            setEventsModal(true);
+          }}
         >
           <Text style={styles.buttonText}>Select</Text>
         </Pressable>
@@ -99,14 +157,14 @@ export default function Event() {
 
       <ListModal
         visible={devicesModal}
-        data={dummyDevices}
+        data={eventDevices}
         onSelect={(device) => setSelectedDevice(device)}
         onClose={() => setDevicesModal(false)}
       />
 
       <ListModal
         visible={eventsModal}
-        data={dummyEvents}
+        data={eventsById}
         onSelect={(event) => setSelectedEvent(event)}
         onClose={() => setEventsModal(false)}
         title="Select Event"

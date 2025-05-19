@@ -108,8 +108,8 @@ useEffect(() => {
       <StatusBar barStyle="dark-content"  />
 
       <View style={styles.header}>
-        <HeaderIcons onInfoPress={() => setInfoModal(true)} />
-      </View>
+        <HeaderIcons onInfoPress={() => setInfoModal(true)}  cogHidden={true} />
+      </View> 
 
       <View style={styles.cardSection}>
         <View style={styles.tabs}>

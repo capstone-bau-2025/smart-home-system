@@ -9,6 +9,10 @@ import {
   setSelectedTime,
   setType,
 } from "../../../store/slices/automationSlice";
+import { setScheduledTime, setTriggerType, setEventId,setDeviceId,setStateValueId,setStateTriggerValue} from "../../../store/slices/automationSlice";
+import Toast from "react-native-toast-message";
+
+
 export default function Schedule({ route }) {
   const [time, setTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(Platform.OS === "ios");
@@ -26,9 +30,22 @@ export default function Schedule({ route }) {
     const formattedTime = `${hours}:${minutes}`;
     
     console.log("Saved Time:", formattedTime);
-    dispatch(setSelectedTime(formattedTime));
-    dispatch(setType("schedule"));
-
+    dispatch(setScheduledTime(formattedTime));
+    dispatch(setTriggerType("SCHEDULE"));
+    dispatch(setEventId(null));
+    dispatch(setDeviceId(null));
+    dispatch(setStateValueId(null));
+    dispatch(setStateTriggerValue(null));
+    
+        Toast.show({
+          type: "success",
+          text1: "Type selected",
+          text2: "Automation type has been set to Schedule.",
+          position: "top",
+          topOffset: 60,
+          swipeable: true,
+        });
+    
     navigation.goBack();
   };
 

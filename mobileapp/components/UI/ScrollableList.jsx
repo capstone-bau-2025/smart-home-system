@@ -85,10 +85,10 @@ export default function ScrollableList({
                 {toggle && (
                   <Switch
                     trackColor={{ false: "#767577", true: "#34C759" }}
-                    thumbColor={isEnabled ? "#fff" : "#f4f3f4"}
+                    thumbColor={item.isEnabled ? "#fff" : "#f4f3f4"}
                     ios_backgroundColor="#a3a3a3"
-                    onValueChange={() => toggleSwitch(item.id)}
-                    value={isEnabled}
+                    onValueChange={() => toggleSwitch(item.id, item.isEnabled, item.ruleName)}
+                    value={item.isEnabled}
                     style={
                       Platform.OS === "android" ? styles.switch : undefined
                     }
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
 
     borderBottomWidth: 1,
     borderColor: "#c4c4c4",
-    width: "90%",
+    width: "80%",
     alignSelf: "center",
   },
   textContainer: {

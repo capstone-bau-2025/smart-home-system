@@ -18,6 +18,8 @@ export const getIconName = (category) => {
       return "home-outline";
     case "CAMERA":
       return "camera-outline";
+    case "FAN":
+      return "sync-circle-outline";
     default:
       return "help-circle-outline";
   }
@@ -43,6 +45,8 @@ export const getIconColor = (category) => {
       return "#2c3e50"; // strong steel blue
     case "CAMERA":
       return "#2c3e50"; // strong steel blue
+    case "FAN":
+      return "#f39c12"; // warm orange    
     default:
       return "#7f8c8d"; // neutral gray
   }
@@ -68,6 +72,8 @@ export const getIconBgColor = (category) => {
       return "#d6eaf8"; // muted blue
     case "CAMERA":
       return "#d1d1d1"; // pale black (light gray with a black tint)
+    case "FAN":
+      return "#f0e5d8"; // light beige
     default:
       return "#f4f4f4"; // fallback neutral
   }
