@@ -4,7 +4,7 @@ import { homeHub } from "../../Data/homehub";
 import { useState, useEffect } from "react";
 import { fetchRooms } from "../../api/services/areaService";
 import RoomCard from "./RoomCard";
-import HeaderDevices from "./HeaderDevices";
+import HubConnectionCard from "./HubConnectionCard";
 
 //this is the feed that shows the rooms and devices in the home hub
 export default function Home({ data, onRefresh, refreshing }) {
@@ -19,7 +19,7 @@ export default function Home({ data, onRefresh, refreshing }) {
         contentContainerStyle={{ padding: 15 }}
         ListHeaderComponent={() => (
           <View>
-            <HeaderDevices />
+            <HubConnectionCard />
           </View>
         )}
         onRefresh={onRefresh}

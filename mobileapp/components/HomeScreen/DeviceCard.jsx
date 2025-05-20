@@ -76,7 +76,7 @@ export default function DeviceCard({ data }) {
           type: "error",
           duration: 2000,
           position: "top",
-          topofset: 70,
+          topOffset: 60,
           swipeable: true,
         });
         console.warn("Toggle update failed:", err);

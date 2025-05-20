@@ -33,11 +33,11 @@ let pingInterval = null;
 export async function getActiveUrl() {
   const token = store.getState().user.localToken;
   try {
-    await axios.get(`http://192.168.1.36:8080/ping`, {
+    await axios.get(`http://192.168.1.36:8080/api/hub/discover`, {
       // headers: {
       //   Authorization: `Bearer ${token}`,
       // },
-      timeout: 1500,
+      timeout: 60000,
     });
     console.log("ACTIVE_URL set to LOCAL:", LOCAL_URL);
     return LOCAL_URL;
@@ -60,7 +60,7 @@ export function stopActiveUrlMonitor() {
   }
 }
 
-export function startActiveUrlMonitor(onUrlChange, intervalMs = 10000) {
+export function startActiveUrlMonitor(onUrlChange, intervalMs = 60000) {
   const checkAndUpdateUrl = async () => {
     try {
       const newUrl = await getActiveUrl();

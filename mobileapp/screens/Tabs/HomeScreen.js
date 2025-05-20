@@ -79,10 +79,10 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <StatusBar barStyle="dark-content" />
       <TopRightBlob />
-      <Header setModalVisible={setModalVisible} />
-      <Text>{currentUrl}</Text>
+      <Header setModalVisible={setModalVisible}  modalVisible={modalVisible}/>
+      
 
       <HubInfoModal
         visible={modalVisible}
