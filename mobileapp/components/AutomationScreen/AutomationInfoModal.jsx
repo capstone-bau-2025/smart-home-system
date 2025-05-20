@@ -7,26 +7,59 @@ import {
   ScrollView,
 } from "react-native";
 import FooterButtons from "./FooterButtons";
-import AutomationDetails from "./AutomationDetails"; 
+import AutomationDetails from "./AutomationDetails";
 import ConfirmationModal from "../UI/ConfirmationModal";
 import { useState } from "react";
-
+import { deleteAutomation } from "../../api/services/automationService";
+import Toast from "react-native-toast-message";
 
 export default function AutomationInfoModal({
   modalVisible,
   setModalVisible,
   currentAutomation,
+  onDeleted,
 }) {
   const handleCloseModal = () => {
     setModalVisible(false);
   };
 
-  const[deleteModal,setDeleteModal]=useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
   if (!currentAutomation) return null;
 
   const handleDelete = () => {
-  setDeleteModal(true);
-  }
+    setDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteAutomation(currentAutomation.id);
+
+      Toast.show({
+        type: "success",
+        text1: "Automation Deleted",
+        text2: `${currentAutomation.ruleName} has been deleted.`,
+        topOffset: 60,
+        swipeable: true,
+      });
+
+      setDeleteModal(false);
+      setTimeout(() => {
+        setModalVisible(false);
+      }, 500);
+
+      if (onDeleted) {
+        onDeleted();
+      }
+    } catch (err) {
+      console.error("❌ Delete failed:", err);
+      Toast.show({
+        type: "error",
+        text1: "Delete failed",
+        text2: "Something went wrong. Try again.",
+        topOffset: 60,
+      });
+    }
+  };
   return (
     <Modal
       transparent
@@ -40,7 +73,9 @@ export default function AutomationInfoModal({
         </TouchableWithoutFeedback>
 
         <View style={styles.modalContainer}>
-          <Text style={styles.autoName}>{currentAutomation.name}</Text>
+          <Text style={styles.autoName}>
+            {currentAutomation?.ruleName || " "}
+          </Text>
 
           <ScrollView
             style={styles.scrollContainer}
@@ -49,27 +84,25 @@ export default function AutomationInfoModal({
             <AutomationDetails currentAutomation={currentAutomation} />
           </ScrollView>
 
-          <FooterButtons handleCloseModal={handleCloseModal} showDelete={true} handleDelete={handleDelete} />
+          <FooterButtons
+            handleCloseModal={handleCloseModal}
+            showDelete={true}
+            handleDelete={handleDelete}
+          />
         </View>
       </View>
 
       <ConfirmationModal
-      visible={deleteModal}
-      onClose={() => setDeleteModal(false)}
-      onConfirm={() => {
-    
-        setDeleteModal(false);
-          setTimeout(() => {
-    setModalVisible(false);
-  }, 250);
-      }}
-  
-      message="Are you sure you want to delete this automation?"
-      cancelLabel="No"
-      confirmLabel="Yes"
-      iconName="trash-outline"
-      iconColor="red" 
-      
+        visible={deleteModal}
+        onClose={() => setDeleteModal(false)}
+        onConfirm={() => {
+          handleConfirmDelete();
+        }}
+        message="Are you sure you want to delete this automation?"
+        cancelLabel="No"
+        confirmLabel="Yes"
+        iconName="trash-outline"
+        iconColor="red"
       />
     </Modal>
   );

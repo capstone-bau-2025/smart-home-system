@@ -16,30 +16,54 @@ export default function ListModal({
   onSelect,
   onClose,
   title = "Select Device",
+  setTriggerValue,
+  triggerValue,
+  buttonColor = "#fcae11",
+  choiceButtonColor = "#fcae11",
 }) {
-  const [rangeValue, setRangeValue] = useState("");
   const [activeItem, setActiveItem] = useState(null);
-
-  const handleSelect = (item) => {
-    if (item.min != null && item.max != null) {
-      const numericValue = Number(rangeValue);
-      if (
-        !isNaN(numericValue) &&
-        numericValue >= item.min &&
-        numericValue <= item.max
-      ) {
-        onSelect({ ...item, value: numericValue });
-        setRangeValue("");
-        setActiveItem(null);
-        onClose();
-      } else {
-        alert(`Enter a value between ${item.min} and ${item.max}`);
-      }
-    } else {
-      onSelect(item);
-      onClose();
+const handleSelect = (item) => {
+  if (Array.isArray(item.choices) && item.choices.length > 0) {
+    if (!activeItem || activeItem.id !== item.id || !triggerValue || !item.choices.includes(triggerValue)) {
+      alert("Please select a valid option.");
+      return;
     }
-  };
+
+    onSelect({ ...item, value: triggerValue });
+    setTriggerValue("");
+    setActiveItem(null);
+    onClose();
+    return;
+  }
+
+  if (item.minRange != null && item.maxRange != null) {
+    if (!activeItem || activeItem.id !== item.id || triggerValue === "") {
+      alert("Please enter a number.");
+      return;
+    }
+
+    const numericValue = Number(triggerValue);
+    if (isNaN(numericValue)) {
+      alert("Value must be a number.");
+      return;
+    }
+
+    if (numericValue < item.minRange || numericValue > item.maxRange) {
+      alert(`Enter a value between ${item.minRange} and ${item.maxRange}`);
+      return;
+    }
+
+    onSelect({ ...item, value: numericValue });
+    setTriggerValue("");
+    setActiveItem(null);
+    onClose();
+    return;
+  }
+
+  
+  onSelect(item);
+  onClose();
+};
 
   return (
     <Modal visible={visible} animationType="fade" transparent>
@@ -53,33 +77,59 @@ export default function ListModal({
 
           <FlatList
             data={data}
-            keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+            keyExtractor={(item, index) =>
+              item?.id?.toString() || index.toString()
+            }
+            ListEmptyComponent={() => (
+              <Text style={{ textAlign: "center", fontSize: 18 }}>
+                No data available
+              </Text>
+            )}
             renderItem={({ item }) => (
               <View style={styles.itemRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.deviceName}>{item.name}</Text>
-                  {item.min != null && item.max != null && (
+
+                  {Array.isArray(item.choices) && item.choices.length > 0 ? (
+                    <View style={styles.choicesContainer}>
+                      {item.choices.map((choice, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.choiceButton,
+                            activeItem?.id === item.id &&
+                            triggerValue === choice && [styles.choiceButtonActive,{ backgroundColor: choiceButtonColor }],
+                          ]}
+                          onPress={() => {
+                            setActiveItem(item);
+                            setTriggerValue(choice);
+                          }}
+                        >
+                          <Text style={styles.choiceText}>{choice}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  ) : item.minRange != null && item.maxRange != null ? (
                     <View style={styles.rangeContainer}>
                       <Text style={styles.rangeText}>
-                        Min: {item.min} | Max: {item.max}
+                        Min: {item.minRange} | Max: {item.maxRange}
                       </Text>
                       <TextInput
                         placeholder="Value"
                         keyboardType="numeric"
                         style={styles.input}
-                        value={
-                          activeItem?.id === item.id ? rangeValue : ""
-                        }
+                        value={activeItem?.id === item.id ? triggerValue : ""}
                         onChangeText={(text) => {
                           setActiveItem(item);
-                          setRangeValue(text);
+                          setTriggerValue(text);
                         }}
                       />
                     </View>
-                  )}
+                  ) : null}
                 </View>
+
                 <TouchableOpacity
-                  style={styles.selectButton}
+                  style={[styles.selectButton, { backgroundColor: buttonColor }]}
                   onPress={() => handleSelect(item)}
                 >
                   <Text style={styles.selectText}>Select</Text>
@@ -162,5 +212,24 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     minWidth: 60,
     fontSize: 16,
+  },
+  choicesContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 6,
+  },
+  choiceButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: "#ddd",
+    borderRadius: 8,
+  },
+  choiceButtonActive: {
+    backgroundColor: "#fcae11",
+  },
+  choiceText: {
+    fontSize: 14,
+    color: "#333",
   },
 });

@@ -99,17 +99,17 @@ useEffect(() => {
 
       <View style={styles.cameraBgIcon}>
         <Ionicons
-          name="camera-outline"
-          size={250}
-          color="rgba(0, 0, 0, 0.15)"
+          name="videocam-outline"
+          size={150}
+          color="rgba(255,13,0,0.07)"
         />
       </View>
 
       <StatusBar barStyle="dark-content"  />
 
       <View style={styles.header}>
-        <HeaderIcons onInfoPress={() => setInfoModal(true)} />
-      </View>
+        <HeaderIcons onInfoPress={() => setInfoModal(true)}  cogHidden={true} />
+      </View> 
 
       <View style={styles.cardSection}>
         <View style={styles.tabs}>
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
   },
   cameraBgIcon: {
     position: "absolute",
-    bottom: -30,
-    left: 15,
+    bottom: -20,
+    left: 50,
   },
   bgCamera1: {
     position: "absolute",

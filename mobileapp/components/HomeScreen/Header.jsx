@@ -5,9 +5,9 @@ import HeaderIcons from "../UI/HeaderIcons";
 import AddDropdown from "./AddDropdown";
 import SettingsDropdown from "./SettingsDropdown";
 import { useDispatch, useSelector } from "react-redux";
-
+import InfoModal from "../UI/InfoModal";
 //renders header elements in the homescreen
-export default function Header({ setModalVisible }) {
+export default function Header({ setModalVisible, modalVisible }) {
   const [addValue, setAddValue] = useState(null);
   const [settingsValue, setSettingsValue] = useState(null);
   const [addVisible, setAddVisible] = useState(false);
@@ -20,7 +20,7 @@ export default function Header({ setModalVisible }) {
 
   return (
     <View style={styles.container}>
-    <HubDropdown currentHub={currentHub} userHubs={userHubs}  noHub={noHub}/>
+      <HubDropdown currentHub={currentHub} userHubs={userHubs} noHub={noHub} />
 
       <HeaderIcons
         onInfoPress={() => setModalVisible(true)}
@@ -40,6 +40,19 @@ export default function Header({ setModalVisible }) {
         setSettingsValue={setSettingsValue}
         settingsVisible={settingsVisible}
         setSettingsVisible={setSettingsVisible}
+      />
+
+      <InfoModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        title={"Homescreen"}
+  message={
+  "This is the Home screen. Tap the + icon to add devices and hubs. Use the cog icon to manage users, settings, and move devices between rooms. Tap on a device card to interact with it. Long press a card to view details or rename the interaction."
+}
+
+        iconName={"home-outline"}
+        iconColor={"#ff8624db"}
+        cancelLabel={"Ok"}
       />
     </View>
   );

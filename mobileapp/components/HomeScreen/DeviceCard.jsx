@@ -19,6 +19,7 @@ import {
   fetchStateValue,
 } from "../../api/services/interactionService";
 import { getCustomName } from "../../util/interactionNames";
+import Toast from "react-native-toast-message";
 
 export default function DeviceCard({ data }) {
   const isInfo = data.type === "INFO";
@@ -30,7 +31,8 @@ export default function DeviceCard({ data }) {
   const isSlider = isRange || hasMultipleChoices;
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [value, setValue] = useState(data.value ?? "");
+  const [value, setValue] = useState(data.value ?? " ");
+
   const [index, setIndex] = useState(
     hasMultipleChoices ? data.choices?.indexOf(data.value) ?? 0 : 0
   );
@@ -63,11 +65,20 @@ export default function DeviceCard({ data }) {
         setValue(newValue);
         highlight.value =
           newValue === "ON" || newValue === "OPEN" ? "#d4f8d4" : "#f8d4d4";
-
+        console.log("Toggle new value:", newValue);
         setTimeout(() => {
           highlight.value = "white";
         }, 600);
       } catch (err) {
+        Toast.show({
+          text1: "Failed to update toggle state",
+          text2: "Please try again.",
+          type: "error",
+          duration: 2000,
+          position: "top",
+          topOffset: 60,
+          swipeable: true,
+        });
         console.warn("Toggle update failed:", err);
       }
     }
@@ -79,7 +90,17 @@ export default function DeviceCard({ data }) {
         setTimeout(() => {
           highlight.value = "white";
         }, 600);
+        console.log("Command executed successfully");
       } catch (err) {
+        Toast.show({
+          text1: "Failed to execute command",
+          text2: "Please try again.",
+          type: "error",
+          duration: 2000,
+          position: "top",
+          topofset: 70,
+          swipeable: true,
+        });
         console.warn("Command failed:", err);
       }
     }
@@ -110,22 +131,43 @@ export default function DeviceCard({ data }) {
     return null;
   };
 
-  //   useEffect(() => {
-  //   if (data?.stateValueId) {
-  //     console.log('FETCHING STATE VALUE:', data.stateValueId);
-  //     fetchStateValue(data.stateValueId)
-  //       .then((res) => {
-  //         if (isRange) {
-  //           setValue(res.value.toString());
-  //         } else if (isChoice) {
-  //           setValue(res.value);
-  //           const idx = data.choices.findIndex((c) => c === res.value);
-  //           if (idx !== -1) setIndex(idx);
-  //         }
-  //       })
-  //       .catch((err) => console.warn("Failed to fetch state value:", err));
-  //   }
-  // }, []);
+  // useEffect(() => {
+  //   let isMounted = true;
+
+  //   const loadStateValue = async () => {
+  //     if (!data?.stateValueId) return;
+
+  //     try {
+  //       console.log("FETCHING STATE VALUE:", data.stateValueId);
+  //       const res = await fetchStateValue(data.stateValueId);
+  //       if (!isMounted) return;
+
+  //       const val = res;
+
+  //       if (isRange && val != null && val !== "undefined") {
+  //         setValue(val.toString());
+  //       } else if (isChoice && val != null) {
+  //         setValue(val);
+  //         const idx = data.choices.findIndex((c) => c === val);
+
+  //         if (idx !== -1) setIndex(idx);
+  //       } else if (val != null && val !== "undefined") {
+  //         setValue(val);
+  //       } else {
+  //         console.warn("Value is empty or 'undefined'", val);
+  //         setValue("-");
+  //       }
+  //     } catch (err) {
+  //       console.warn("❌ Failed to fetch state value:", err);
+  //     }
+  //   };
+
+  //   loadStateValue();
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, [data?.stateValueId]);
+
   return (
     <>
       <Pressable
@@ -174,7 +216,11 @@ export default function DeviceCard({ data }) {
               minRange={isRange ? parseFloat(data.min) : undefined}
               maxRange={isRange ? parseFloat(data.max) : undefined}
               value={isRange ? parseFloat(value) : index}
-              setValue={async (val) => {
+              onChange={(val) => {
+                if (isRange) setValue(val.toString());
+                else if (hasMultipleChoices) setIndex(val);
+              }}
+              onComplete={async (val) => {
                 if (isRange) {
                   const newVal = val.toString();
                   try {
@@ -185,7 +231,38 @@ export default function DeviceCard({ data }) {
                       highlight.value = "white";
                     }, 600);
                   } catch (err) {
+                    Toast.show({
+                      text1: "Failed to update range",
+                      text2: "Please try again.",
+                      type: "error",
+                      duration: 2000,
+                      position: "top",
+                      topofset: 70,
+                      swipeable: true,
+                    });
                     console.warn("Range update failed:", err);
+                  }
+                } else if (hasMultipleChoices) {
+                  const newChoice = data.choices[val];
+                  try {
+                    await updateInteractionState(data.stateValueId, newChoice);
+                    setIndex(val);
+                    setValue(newChoice);
+                    highlight.value = "#d4f8d4";
+                    setTimeout(() => {
+                      highlight.value = "white";
+                    }, 600);
+                  } catch (err) {
+                    Toast.show({
+                      text1: "Failed to update choice",
+                      text2: "Please try again.",
+                      type: "error",
+                      duration: 2000,
+                      position: "top",
+                      topofset: 70,
+                      swipeable: true,
+                    });
+                    console.warn("Choice update failed:", err);
                   }
                 }
               }}

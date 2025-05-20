@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40, 
     borderRadius: 10,
     alignItems: "center",
+    width: "100%",
   },
   saveText: {
     color: "white",

@@ -24,6 +24,7 @@ export default function ScrollableList({
   refreshing,
   onRefresh,
   noData = "No data available",
+  customWidth="90%",
 }) {
   if (!data || data.length === 0) {
     return (
@@ -49,6 +50,7 @@ export default function ScrollableList({
             <Pressable
               style={({ pressed }) => [
                 styles.itemContainer,
+                { width: customWidth },
                 pressed && styles.pressed,
               ]}
               onPress={() => handlePress(item)}
@@ -85,10 +87,10 @@ export default function ScrollableList({
                 {toggle && (
                   <Switch
                     trackColor={{ false: "#767577", true: "#34C759" }}
-                    thumbColor={isEnabled ? "#fff" : "#f4f3f4"}
+                    thumbColor={item.isEnabled ? "#fff" : "#f4f3f4"}
                     ios_backgroundColor="#a3a3a3"
-                    onValueChange={() => toggleSwitch(item.id)}
-                    value={isEnabled}
+                    onValueChange={() => toggleSwitch(item.id, item.isEnabled, item.ruleName)}
+                    value={item.isEnabled}
                     style={
                       Platform.OS === "android" ? styles.switch : undefined
                     }
@@ -166,13 +168,13 @@ const styles = StyleSheet.create({
     paddingRight: 1,
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 10,
+    marginRight: 20,
   },
   itemText: {
     fontSize: 20,
     fontFamily: "Lexend-Regular",
     color: "#000",
-    // flexWrap: "wrap",
+
   },
   buttonContainer: {
     flexDirection: "row",

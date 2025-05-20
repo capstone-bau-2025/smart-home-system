@@ -3,88 +3,75 @@ import { createSlice } from "@reduxjs/toolkit";
 const automationSlice = createSlice({
   name: "automation",
   initialState: {
-    name: null,
-    description: null,
-    type: null,
-    selectedTime: null,
-    ifDevice: null,
-    ifDeviceStatus: null,
-    thenDevice: null,
-    thenDeviceStatus: null,
-    cooldown: null,
+    ruleName: null,
+    ruleDescription: null,
+    triggerType: null,
+    scheduledTime: null,
+    cooldownDuration: null,
+    eventId: null,
+    deviceId: null,
+    stateValueId: null,
+    stateTriggerValue: null,
+    actions: [], // array of { type, deviceId, stateValueId, commandId, actionValue }
   },
   reducers: {
-    setName: (state, action) => {
-      state.name = action.payload;
+    setRuleName: (state, action) => {
+      state.ruleName = action.payload;
     },
-    setDescription: (state, action) => {
-      state.description = action.payload;
+    setRuleDescription: (state, action) => {
+      state.ruleDescription = action.payload;
     },
-    setType: (state, action) => {
-      state.type = action.payload;
+    setTriggerType: (state, action) => {
+      state.triggerType = action.payload;
     },
-    setSelectedTime: (state, action) => {
-      state.selectedTime = action.payload;
+    setScheduledTime: (state, action) => {
+      state.scheduledTime = action.payload;
     },
-    setIfDevice: (state, action) => {
-      state.ifDevice = action.payload;
+    setCooldownDuration: (state, action) => {
+      state.cooldownDuration = action.payload;
     },
-    setIfDeviceStatus: (state, action) => {
-      state.ifDeviceStatus = action.payload;
+    setEventId: (state, action) => {
+      state.eventId = action.payload;
     },
-    setThenDevice: (state, action) => {
-      state.thenDevice = action.payload;
+    setDeviceId: (state, action) => {
+      state.deviceId = action.payload;
     },
-    setThenDeviceStatus: (state, action) => {
-      state.thenDeviceStatus = action.payload;
+    setStateValueId: (state, action) => {
+      state.stateValueId = action.payload;
     },
-    setCooldown: (state, action) => {
-      state.cooldown = action.payload;
+    setStateTriggerValue: (state, action) => {
+      state.stateTriggerValue = action.payload;
     },
-    clearScheduleFields: (state) => {
-      state.selectedTime = null;
-    },
-    clearEventFields: (state) => {
-      state.ifDevice = null;
-      state.ifDeviceStatus = null;
-    },
-    clearStatusChangeFields: (state) => {
-      state.ifDevice = null;
-      state.ifDeviceStatus = null;
-    },
-    clearThenDeviceFields: (state) => {
-      state.thenDevice = null;
-      state.thenDeviceStatus = null;
+    setActions: (state, action) => {
+      state.actions = action.payload;
     },
     resetAutomation: (state) => {
-      state.name = null;
-      state.description = null;
-      state.type = null;
-      state.selectedTime = null;
-      state.ifDevice = null;
-      state.ifDeviceStatus = null;
-      state.thenDevice = null;
-      state.thenDeviceStatus = null;
-      state.cooldown = null;
+      state.ruleName = null;
+      state.ruleDescription = null;
+      state.triggerType = null;
+      state.scheduledTime = null;
+      state.cooldownDuration = null;
+      state.eventId = null;
+      state.deviceId = null;
+      state.stateValueId = null;
+      state.stateTriggerValue = null;
+      state.actions = [];
     },
   },
 });
 
 export const {
-  setName,
-  setDescription,
-  setType,
-  setSelectedTime,
-  setIfDevice,
-  setIfDeviceStatus,
-  setThenDevice,
-  setThenDeviceStatus,
-  setCooldown,
+  setRuleName,
+  setRuleDescription,
+  setTriggerType,
+  setScheduledTime,
+  setCooldownDuration,
+  setEventId,
+  setDeviceId,
+  setStateValueId,
+  setStateTriggerValue,
+  setActions,
   resetAutomation,
-  clearScheduleFields,
-  clearEventFields,
-  clearStatusChangeFields,
-  clearThenDeviceFields,
 } = automationSlice.actions;
 
 export default automationSlice.reducer;
