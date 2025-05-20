@@ -1,6 +1,6 @@
 import { SafeAreaView, StyleSheet, View, Platform } from "react-native";
 import AutomationsList from "../../components/AutomationScreen/AutomationsList";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AutomationInfoModal from "../../components/AutomationScreen/AutomationInfoModal";
 import HeaderIcons from "../../components/UI/HeaderIcons";
 import BottomLeftBlob from "../../components/svg/BottomLeftBlob";
@@ -8,8 +8,10 @@ import InfoModal from "../../components/UI/InfoModal";
 import HubsTabs from "../../components/UI/HubsTabs";
 import Colors from "../../constants/Colors";
 import { StatusBar } from "expo-status-bar";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getAllAutomations } from "../../api/services/automationService";
+import { resetAutomation } from "../../store/slices/automationSlice";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function AutomationScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -20,6 +22,7 @@ export default function AutomationScreen({ navigation }) {
   const [automations, setAutomations] = useState([]);
 
   const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -34,17 +37,21 @@ export default function AutomationScreen({ navigation }) {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(resetAutomation());
+    }, [])
+  );
   const handleDeleteFromList = (id) => {
     setAutomations((prev) => prev.filter((item) => item.id !== id));
     handleRefresh();
   };
 
-  useEffect(() => {
+useFocusEffect(
+  useCallback(() => {
     const fetchAutomations = async () => {
       try {
-        console.log("Fetching automations...");
         const data = await getAllAutomations();
-        console.log("Fetched automations:", data);
         setAutomations(data);
       } catch (error) {
         console.error("Error fetching automations:", error);
@@ -52,7 +59,8 @@ export default function AutomationScreen({ navigation }) {
     };
 
     fetchAutomations();
-  }, []);
+  }, [])
+);
 
   return (
     <>
@@ -63,11 +71,7 @@ export default function AutomationScreen({ navigation }) {
         <View style={styles.header}>
           <HeaderIcons
             onInfoPress={() => setInfoModal(true)}
-            onAddPress={() =>
-              navigation.push("NewAutomation", {
-                onAutomationCreated: handleRefresh,
-              })
-            }
+            onAddPress={() => navigation.push("NewAutomation", {})}
             cogHidden={true}
           />
         </View>

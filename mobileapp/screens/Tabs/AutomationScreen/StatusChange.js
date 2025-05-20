@@ -152,18 +152,24 @@ export default function StatusChange() {
         </Pressable>
         <Text style={styles.selected}>
           Selected:{" "}
-{selectedState ? `${selectedState.name}, Value = ${selectedState.value}` : ""}
+          {selectedState
+            ? `${selectedState.name}, Value = ${selectedState.value}`
+            : ""}
         </Text>
       </View>
 
       <View style={styles.footer}>
-        <SaveButton onPress={handleSave} />
+        <SaveButton onPress={handleSave} color="#6a11cb" />
       </View>
 
       <ListModal
         visible={devicesModal}
         data={immutableDevices}
-        onSelect={(device) => setSelectedDevice(device)}
+        buttonColor="#6a11cb"
+        choiceButtonColor="#6a11cb"
+        onSelect={(device) => {setSelectedDevice(device)
+          setStatesModal(true);
+        }}
         onClose={() => setDevicesModal(false)}
       />
 
@@ -175,6 +181,8 @@ export default function StatusChange() {
         title="Select Status"
         setTriggerValue={setTriggerValue}
         triggerValue={triggerValue}
+        buttonColor="#6a11cb"
+        choiceButtonColor="#6a11cb"
       />
     </SafeAreaView>
   );
@@ -214,7 +222,7 @@ const styles = StyleSheet.create({
   },
   inlineButton: {
     alignSelf: "flex-start",
-    backgroundColor: "#fcae11",
+    backgroundColor: "#6a11cb",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,

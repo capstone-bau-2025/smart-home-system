@@ -18,6 +18,8 @@ export default function ListModal({
   title = "Select Device",
   setTriggerValue,
   triggerValue,
+  buttonColor = "#fcae11",
+  choiceButtonColor = "#fcae11",
 }) {
   const [activeItem, setActiveItem] = useState(null);
 const handleSelect = (item) => {
@@ -78,6 +80,11 @@ const handleSelect = (item) => {
             keyExtractor={(item, index) =>
               item?.id?.toString() || index.toString()
             }
+            ListEmptyComponent={() => (
+              <Text style={{ textAlign: "center", fontSize: 18 }}>
+                No data available
+              </Text>
+            )}
             renderItem={({ item }) => (
               <View style={styles.itemRow}>
                 <View style={{ flex: 1 }}>
@@ -91,7 +98,7 @@ const handleSelect = (item) => {
                           style={[
                             styles.choiceButton,
                             activeItem?.id === item.id &&
-                            triggerValue === choice && styles.choiceButtonActive,
+                            triggerValue === choice && [styles.choiceButtonActive,{ backgroundColor: choiceButtonColor }],
                           ]}
                           onPress={() => {
                             setActiveItem(item);
@@ -122,7 +129,7 @@ const handleSelect = (item) => {
                 </View>
 
                 <TouchableOpacity
-                  style={styles.selectButton}
+                  style={[styles.selectButton, { backgroundColor: buttonColor }]}
                   onPress={() => handleSelect(item)}
                 >
                   <Text style={styles.selectText}>Select</Text>

@@ -5,12 +5,9 @@ import SaveButton from "../../../components/UI/SaveButton";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
-import {
-  setSelectedTime,
-  setType,
-} from "../../../store/slices/automationSlice";
-import { setScheduledTime, setTriggerType, setEventId,setDeviceId,setStateValueId,setStateTriggerValue} from "../../../store/slices/automationSlice";
+import { setScheduledTime, setTriggerType, setEventId,setDeviceId,setStateValueId,setStateTriggerValue,setCooldownDuration} from "../../../store/slices/automationSlice";
 import Toast from "react-native-toast-message";
+import { Ionicons } from "@expo/vector-icons";
 
 
 export default function Schedule({ route }) {
@@ -36,6 +33,7 @@ export default function Schedule({ route }) {
     dispatch(setDeviceId(null));
     dispatch(setStateValueId(null));
     dispatch(setStateTriggerValue(null));
+    dispatch(setCooldownDuration(0));
     
         Toast.show({
           type: "success",
@@ -57,6 +55,12 @@ export default function Schedule({ route }) {
 
   return (
     <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.iconWrapper}>
+            <Ionicons name="alarm-outline" size={24} color="#3e914f" />
+          </View>
+          <Text style={styles.title}>Schedule Time</Text>
+        </View>
       <Text style={styles.label}>Select time in hours and minutes</Text>
 
       {Platform.OS === "android" && (
@@ -84,7 +88,7 @@ export default function Schedule({ route }) {
         />
       )}
 
-      <SaveButton onPress={handleSave} />
+      <SaveButton onPress={handleSave} color="#3e914f"/>
     </View>
   );
 }
@@ -99,7 +103,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 22,
-    fontFamily: "Lexend-Bold",
+    fontFamily: "Lexend-Regular",
     marginBottom: 10,
     textAlign: "center",
   },
@@ -109,18 +113,39 @@ const styles = StyleSheet.create({
     fontFamily: "Lexend-Bold",
   },
   button: {
-    backgroundColor: "#fcae11",
+    backgroundColor: "#27d64d",
     paddingVertical: 14,
     paddingHorizontal: 30,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
+    width: "50%",
     marginBottom: 30,
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+    header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 25,
+  },
+  iconWrapper: {
+    backgroundColor: "#eaffea",
+    padding: 10,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+    title: {
+    fontSize: 28,
+    fontFamily: "Lexend-Bold",
+    textAlign: "center",
+    color: "#333",
+    
   },
 });

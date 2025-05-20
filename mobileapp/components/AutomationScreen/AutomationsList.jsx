@@ -70,6 +70,7 @@ const handleToggleAutomation = async (ruleId, currentStatus, name) => {
         pressableTab={true}
         onRefresh={onRefresh}
         refreshing={refreshing}
+        customWidth="80%"
       />
     </>
   );

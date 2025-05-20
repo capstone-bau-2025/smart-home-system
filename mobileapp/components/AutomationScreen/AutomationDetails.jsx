@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -53,13 +54,14 @@ export default function AutomationDetails({
   const storedSelectedTime = useSelector(
     (state) => state.automation.scheduledTime
   );
+  const actions = useSelector((state) => state.automation.actions);
 
   const resolvedType = savedType || currentAutomation?.triggerType;
 
   const getTypeLabel = () => {
     switch (resolvedType) {
       case "SCHEDULE":
-        return `Schedule – ${storedSelectedTime || "Not set"}`;
+        return `Schedule ${storedSelectedTime || " "}`;
       case "EVENT":
         return `Event`;
       case "STATE_UPDATE":
@@ -112,7 +114,7 @@ export default function AutomationDetails({
             />
           ) : (
             <Text style={styles.propText}>
-              {currentAutomation.ruleDescription || "No details available."}
+              {currentAutomation.ruleDescription || "No description available."}
             </Text>
           )}
         </View>
@@ -145,7 +147,7 @@ export default function AutomationDetails({
             </TouchableOpacity>
           ) : (
             <Text style={styles.propText}>
-              {currentAutomation.triggerType || "No details available."}
+              {getTypeLabel() || "No details available."}
             </Text>
           )}
         </View>
@@ -160,7 +162,12 @@ export default function AutomationDetails({
               style={styles.touchableField}
               onPress={() => navigation.navigate("Action")}
             >
-              <Text style={styles.propText}>Select action</Text>
+              <Text style={styles.propText}>
+                {" "}
+                {actions?.length > 0
+                  ? `${actions.length} Action(s)`
+                  : "Select action"}
+              </Text>
               <Ionicons
                 name="chevron-forward-outline"
                 size={20}
@@ -169,40 +176,15 @@ export default function AutomationDetails({
               />
             </TouchableOpacity>
           ) : (
-            <View style={{ flex: 1 }}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={true}
-                contentContainerStyle={{ flexDirection: "row", gap: 15 }}
-              >
-                {currentAutomation.actions?.length > 0 ? (
-                  currentAutomation.actions.map((action, index) => (
-                    <View
-                      key={index}
-                      style={{
-                        backgroundColor: "#f1f1f1",
-                        borderRadius: 8,
-                        padding: 10,
-                        marginRight: 5,
-                        minWidth: 140,
-                      }}
-                    >
-                      <Text style={styles.propText}>
-                        {`${action.type} → ${
-                          action.actionValue || action.commandId
-                        }`}
-                      </Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text style={styles.propText}>No details available.</Text>
-                )}
-              </ScrollView>
-            </View>
+            <Text style={styles.propText}>
+              {currentAutomation.actions?.length} Action(s)
+            </Text>
           )}
         </View>
 
-        <Text style={styles.infoText}>Cool Down Duration (minutes)</Text>
+        <Text style={styles.infoText}>
+          Cool Down Duration (in minutes and maximum 1440)
+        </Text>
         <View style={styles.propContainerRow}>
           <View style={[styles.iconWrapper, { backgroundColor: "#fff3cd" }]}>
             <Ionicons
@@ -212,15 +194,31 @@ export default function AutomationDetails({
             />
           </View>
           {edit ? (
-            <TextInput
-              style={styles.propText}
-              keyboardType="numeric"
-              placeholder="Enter duration"
-              value={cooldownDuration}
-              onChangeText={(text) => dispatch(setCooldownDuration(text))}
-              placeholderTextColor="#999"
-              maxLength={2}
-            />
+            resolvedType === "SCHEDULE" ? (
+              <Text style={styles.warningPropText}>
+                can't set cooldown duration for scheduling
+              </Text>
+            ) : (
+              <TextInput
+                style={styles.propText}
+                keyboardType="numeric"
+                placeholder="Enter duration"
+                value={cooldownDuration}
+                onChangeText={(text) => {
+                  if (Number(text) <= 1440) {
+                    dispatch(setCooldownDuration(text));
+                  } else {
+                    Alert.alert(
+                      "Invalid Input",
+                      "Please enter a value less than or equal to 1440.",
+                      [{ text: "OK" }]
+                    );
+                  }
+                }}
+                placeholderTextColor="#999"
+                maxLength={4}
+              />
+            )
           ) : (
             <Text style={styles.propText}>
               {currentAutomation.cooldownDuration
@@ -296,4 +294,12 @@ const styles = StyleSheet.create({
   editIcon: {
     marginLeft: 10,
   },
+  warningPropText:{
+    fontFamily: "Lexend-Regular",
+    fontSize: 14,
+    textAlign: "left",
+    flex: 1,
+    flexShrink: 1,
+    color: "#fc4e4e",
+  }
 });

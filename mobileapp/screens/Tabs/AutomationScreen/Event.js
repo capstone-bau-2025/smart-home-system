@@ -10,7 +10,14 @@ import { use, useEffect, useState } from "react";
 import SaveButton from "../../../components/UI/SaveButton";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
-import { setScheduledTime, setTriggerType, setEventId,setDeviceId,setStateValueId,setStateTriggerValue} from "../../../store/slices/automationSlice";
+import {
+  setScheduledTime,
+  setTriggerType,
+  setEventId,
+  setDeviceId,
+  setStateValueId,
+  setStateTriggerValue,
+} from "../../../store/slices/automationSlice";
 import ListModal from "../../../components/AutomationScreen/ListModal";
 import { Ionicons } from "@expo/vector-icons";
 import { fetchDeviceByFilter } from "../../../api/services/deviceService";
@@ -25,9 +32,6 @@ export default function Event() {
   const [eventsById, setEventsById] = useState(null);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
-  console.log(selectedDevice)
-  console.log(selectedEvent)
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -77,14 +81,14 @@ export default function Event() {
     dispatch(setStateTriggerValue(null));
     dispatch(setScheduledTime(null));
 
-        Toast.show({
-          type: "success",
-          text1: "Type selected",
-          text2: "Automation type has been set to Event.",
-          position: "top",
-          topOffset: 60,
-          swipeable: true,
-        });
+    Toast.show({
+      type: "success",
+      text1: "Type selected",
+      text2: "Automation type has been set to Event.",
+      position: "top",
+      topOffset: 60,
+      swipeable: true,
+    });
     navigation.goBack();
   };
 
@@ -152,14 +156,19 @@ export default function Event() {
       </View>
 
       <View style={styles.footer}>
-        <SaveButton onPress={handleSave} />
+        <SaveButton onPress={handleSave} color="#2f5fa3" />
       </View>
 
       <ListModal
         visible={devicesModal}
         data={eventDevices}
-        onSelect={(device) => setSelectedDevice(device)}
+        onSelect={(device) => {
+          setSelectedDevice(device);
+          setEventsModal(true);
+        }}
         onClose={() => setDevicesModal(false)}
+        buttonColor="#2f5fa3"
+        choiceButtonColor="#2f5fa3"
       />
 
       <ListModal
@@ -168,6 +177,8 @@ export default function Event() {
         onSelect={(event) => setSelectedEvent(event)}
         onClose={() => setEventsModal(false)}
         title="Select Event"
+        buttonColor="#2f5fa3"
+        choiceButtonColor="#2f5fa3"
       />
     </SafeAreaView>
   );
@@ -207,7 +218,7 @@ const styles = StyleSheet.create({
   },
   inlineButton: {
     alignSelf: "flex-start",
-    backgroundColor: "#fcae11",
+    backgroundColor: "#2f5fa3",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,

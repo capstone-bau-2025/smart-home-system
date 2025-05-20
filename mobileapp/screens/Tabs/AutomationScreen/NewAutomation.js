@@ -10,15 +10,10 @@ import { createAutomationRule } from "../../../api/services/automationService";
 import { resetAutomation } from "../../../store/slices/automationSlice";
 
 export default function NewAutomation({ route, navigation }) {
-  const { currentAutomation } = route.params || {};
+  const { currentAutomation,  } = route.params || {};
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
-      dispatch(resetAutomation());
-    });
 
-    return unsubscribe;
-  }, [navigation]);
+
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -82,7 +77,7 @@ export default function NewAutomation({ route, navigation }) {
         route.params.onAutomationCreated(); 
       }
       navigation.goBack();
-      dispatch(resetAutomation());
+      
     } catch (err) {
       console.error("❌ Failed to create automation:", err);
       Toast.show({

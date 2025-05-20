@@ -24,6 +24,7 @@ export default function ScrollableList({
   refreshing,
   onRefresh,
   noData = "No data available",
+  customWidth="90%",
 }) {
   if (!data || data.length === 0) {
     return (
@@ -49,6 +50,7 @@ export default function ScrollableList({
             <Pressable
               style={({ pressed }) => [
                 styles.itemContainer,
+                { width: customWidth },
                 pressed && styles.pressed,
               ]}
               onPress={() => handlePress(item)}
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
 
     borderBottomWidth: 1,
     borderColor: "#c4c4c4",
-    width: "80%",
+    width: "90%",
     alignSelf: "center",
   },
   textContainer: {
@@ -166,13 +168,13 @@ const styles = StyleSheet.create({
     paddingRight: 1,
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 10,
+    marginRight: 20,
   },
   itemText: {
     fontSize: 20,
     fontFamily: "Lexend-Regular",
     color: "#000",
-    // flexWrap: "wrap",
+
   },
   buttonContainer: {
     flexDirection: "row",
