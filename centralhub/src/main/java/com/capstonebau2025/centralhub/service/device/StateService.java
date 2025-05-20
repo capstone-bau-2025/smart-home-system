@@ -142,6 +142,7 @@ public class StateService {
         });
     }
 
+    @Transactional
     public List<StateDTO> getStatesByFilterAndDeviceId(Long deviceId, String filter) {
         List<StateValue> states = switch (filter.toUpperCase()) {
             case "MUTABLE" ->
