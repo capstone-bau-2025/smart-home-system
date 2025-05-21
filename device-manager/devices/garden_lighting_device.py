@@ -12,7 +12,7 @@ class DeviceImp(Device):
         super().__init__(device_config, broker, port)
 
         # LED pins for garden lights
-        self.led_pins = [16, 19, 20, 21, 23, 24]
+        self.led_pins = [24]
 
         # Garden light status (all LEDs controlled together)
         self.light_status = "OFF"

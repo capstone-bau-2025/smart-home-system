@@ -12,7 +12,7 @@ class DeviceImp(Device):
         super().__init__(device_config, broker, port)
 
         # Fan configuration
-        self.fan_pin = 25  # GPIO25 for fan control
+        self.fan_pin = 19
         self.fan_status = "OFF"  # Default state
 
         # Lock for thread safety

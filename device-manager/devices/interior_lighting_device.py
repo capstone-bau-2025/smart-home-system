@@ -12,7 +12,7 @@ class DeviceImp(Device):
         super().__init__(device_config, broker, port)
 
         # LED pins (connected to MOSFET gate terminals)
-        self.power_led_pins = [5, 6, 12, 14, 15, 16]
+        self.power_led_pins = [16, 20, 21, 7, 25, 23]
 
         # LED states (initially all OFF)
         self.led_states = ["OFF"] * 6
