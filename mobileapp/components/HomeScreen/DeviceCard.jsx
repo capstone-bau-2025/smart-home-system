@@ -98,7 +98,7 @@ export default function DeviceCard({ data }) {
           type: "error",
           duration: 2000,
           position: "top",
-          topofset: 70,
+          topOffset: 60,
           swipeable: true,
         });
         console.warn("Command failed:", err);
@@ -237,7 +237,7 @@ export default function DeviceCard({ data }) {
                       type: "error",
                       duration: 2000,
                       position: "top",
-                      topofset: 70,
+                      topOffset: 60,
                       swipeable: true,
                     });
                     console.warn("Range update failed:", err);
@@ -259,7 +259,7 @@ export default function DeviceCard({ data }) {
                       type: "error",
                       duration: 2000,
                       position: "top",
-                      topofset: 70,
+                      topOffset: 60,
                       swipeable: true,
                     });
                     console.warn("Choice update failed:", err);
@@ -283,7 +283,7 @@ export default function DeviceCard({ data }) {
 
 const styles = StyleSheet.create({
   card: {
-    width: 170,
+    width: '100%',
     borderRadius: 12,
     padding: 10,
     marginBottom: 15,

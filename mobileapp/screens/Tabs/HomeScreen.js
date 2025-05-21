@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import TopRightBlob from "../../components/svg/TopRightBlob";
 import Header from "../../components/HomeScreen/Header";
-import HubInfoModal from "../../components/HomeScreen/HubInfoModal";
+
 import Home from "../../components/HomeScreen/Home";
 
 import useInitAppData from "../../hooks/useInitAppData";
@@ -31,11 +31,10 @@ export default function HomeScreen() {
   const { refetchUserData, isLoadingUserData } = useInitAppData();
 
   const { areas, refetchAreas } = useAreas(hubSerialNumber);
-  const {
-    devices,
-    isLoadingDevices,
-    refetchDevices,
-  } = useDevices(hubSerialNumber, areas);
+  const { devices, isLoadingDevices, refetchDevices } = useDevices(
+    hubSerialNumber,
+    areas
+  );
 
   useEffect(() => {
     if (areas.length) {
@@ -58,8 +57,7 @@ export default function HomeScreen() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await refetchUserData(),
-      await refetchDevices();
+      await refetchUserData(), await refetchDevices();
       await refetchAreas();
     } catch (err) {
       console.warn("Refresh error:", err);
@@ -68,26 +66,41 @@ export default function HomeScreen() {
     }
   };
 
-  
-  // useEffect(() => {
-  //   startActiveUrlMonitor((newUrl) => {
-  
-  //     dispatch(setUrl(newUrl));
-  //   });
-  // }, []);
+  const startAutoRefetch = () => {
+    const interval = setInterval(async () => {
+      console.log("Auto-refreshing app data...");
+      try {
+        // await refetchUserData();
+        await refetchDevices();
+        await refetchAreas();
+        console.log("Refresh complete");
+      } catch (err) {
+        console.warn("Auto-refresh error:", err);
+      }
+    }, 60000); //60000 
 
+    return () => clearInterval(interval);
+  };
+
+  useEffect(() => {
+    const cleanup = startAutoRefetch();
+    return cleanup;
+  }, []);
+  
+  useEffect(() => {
+    startActiveUrlMonitor((newUrl) => {
+
+      dispatch(setUrl(newUrl));
+    });
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <TopRightBlob />
-      <Header setModalVisible={setModalVisible}  modalVisible={modalVisible}/>
-      
+      <Header setModalVisible={setModalVisible} modalVisible={modalVisible} />
 
-      <HubInfoModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-      />
+
 
       <Home data={areas} onRefresh={handleRefresh} refreshing={refreshing} />
     </SafeAreaView>

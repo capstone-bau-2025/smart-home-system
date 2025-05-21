@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView, Platform } from "react-native";
 import React, { useState, useEffect } from "react";
 import AutomationDetails from "../../../components/AutomationScreen/AutomationDetails";
 import FooterButtons from "../../../components/AutomationScreen/FooterButtons";
@@ -10,10 +10,7 @@ import { createAutomationRule } from "../../../api/services/automationService";
 import { resetAutomation } from "../../../store/slices/automationSlice";
 
 export default function NewAutomation({ route, navigation }) {
-  const { currentAutomation,  } = route.params || {};
-
-
-
+  const { currentAutomation } = route.params || {};
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -74,10 +71,9 @@ export default function NewAutomation({ route, navigation }) {
         swipeable: true,
       });
       if (route.params?.onAutomationCreated) {
-        route.params.onAutomationCreated(); 
+        route.params.onAutomationCreated();
       }
       navigation.goBack();
-      
     } catch (err) {
       console.error("❌ Failed to create automation:", err);
       Toast.show({
@@ -90,7 +86,7 @@ export default function NewAutomation({ route, navigation }) {
     }
   };
   return (
-    <>
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <AutomationDetails
           edit={true}
@@ -114,15 +110,18 @@ export default function NewAutomation({ route, navigation }) {
           navigation.navigate(type);
         }}
       />
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: Colors.primaryBackground,
+  },
+  container: {
+    paddingTop: Platform.OS === "android" ? 50 : 0,
     padding: 20,
     justifyContent: "center",
-    backgroundColor: Colors.primaryBackground,
   },
 });

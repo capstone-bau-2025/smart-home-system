@@ -14,6 +14,8 @@ const hubSlice = createSlice({
     clearCurrentHub(state) {
       state.currentHub = null;
       state.adminInvitationCode = null;
+
+
     },
     addUserHub(state, action) {
       const exists = state.userHubs.some(
@@ -32,6 +34,7 @@ const hubSlice = createSlice({
     clearUserHubs(state) {
       state.userHubs = [];
     },
+
   },
 });
 

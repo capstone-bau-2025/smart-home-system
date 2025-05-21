@@ -5,6 +5,8 @@ import { createContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setUser, clearUser } from './slices/userSlice';
 import { authenticateUser } from '../api/services/onRunService'; 
+import {  clearUserHubs, setCurrentHub,  } from './slices/hubSlice';
+import { clearAreas } from './slices/areaSlice';
 
 
 export const AuthContext = createContext();
@@ -44,6 +46,7 @@ function AuthContextProvider({ children }) {
           email: email,
           localToken: localToken,
         }));
+        
       } catch (authErr) {
         console.warn("Failed to fetch local token after login:", authErr);
         dispatch(setUser({
@@ -69,6 +72,10 @@ function AuthContextProvider({ children }) {
     AsyncStorage.removeItem('userInfo');
     AsyncStorage.removeItem('userEmail');
     dispatch(clearUser());
+    dispatch(clearUserHubs())
+    dispatch(setCurrentHub(null));
+    dispatch(clearAreas());
+    
     setIsLoading(false);
   };
 

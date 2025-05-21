@@ -80,7 +80,6 @@ export default function UsersList({ users, setRenameModal }) {
         <ScrollableList
           data={usersList}
           onRefresh={handleRefresh}
-          contentContainerStyle={{ alignItems: "flex-start" }}
           refreshing={refreshing}
           textFields={["username", "role"]}
           buttonConfig={[

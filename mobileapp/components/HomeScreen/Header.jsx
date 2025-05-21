@@ -46,13 +46,19 @@ export default function Header({ setModalVisible, modalVisible }) {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         title={"Homescreen"}
-  message={
-  "This is the Home screen. Tap the + icon to add devices and hubs. Use the cog icon to manage users, settings, and move devices between rooms. Tap on a device card to interact with it. Long press a card to view details or rename the interaction."
-}
-
+        message={
+          "This is the Home screen. Tap the + icon to add devices and hubs. Use the cog icon to manage users, settings, and move devices between rooms. Tap on a device card to interact with it. Long press a card to view details or rename the interaction."
+        }
         iconName={"home-outline"}
         iconColor={"#ff8624db"}
         cancelLabel={"Ok"}
+        footerTitle="Interaction Cards Legend"
+        footerText={
+          "Green Border: Toggle Interaction (tap to switch ON/OFF)\n" +
+          "Red Border: Command Interaction (executes one-time action)\n" +
+          "Blue Border: Range Interaction (adjust with slider)\n" +
+          "Grey Border: Info only Interaction (read only)"
+        }
       />
     </View>
   );

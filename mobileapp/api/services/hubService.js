@@ -1,9 +1,8 @@
 import axios from "axios";
-import { LOCAL_URL } from "../../util/auth"; 
+import { ACTIVE_URL, LOCAL_URL } from "../../util/auth"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store } from "../../store/store";
-
-// 🔍 Local-only path for discovery/configure
+import getCurrentUrl from "../../util/helperUrl";
 const path = `${LOCAL_URL}api/hub/`;
 
 export const discoverHubs = async () => {
@@ -40,7 +39,7 @@ export const configureHub = async (hubName) => {
 export const updateHubName = async (name) => {
   try {
     const token = await AsyncStorage.getItem("userToken");
-    const currentUrl = store.getState().url.currentUrl || LOCAL_URL;
+    const currentUrl = getCurrentUrl();
     const activePath = `${currentUrl}api/hub/`;
 
     const response = await axios.put(

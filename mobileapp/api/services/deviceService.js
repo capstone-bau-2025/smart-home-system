@@ -1,86 +1,85 @@
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
-import { LOCAL_URL } from "../../util/auth";
 import { store } from "../../store/store";
+import getCurrentUrl from "../../util/helperUrl";
+import { setDevices } from "../../store/slices/devicesSlice";
+
+
 
 export const getDeviceByArea = async (areaId, hubSerialNumber) => {
-  const localToken = store.getState().user.localToken;
-  const response = await axios.get(
-    `${LOCAL_URL}api/devices/by-area/${areaId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${localToken}`,
-        parameter: hubSerialNumber,
-      },
-    }
-  );
+  const token = store.getState().user.localToken;
+  const currentUrl = getCurrentUrl();
+  const response = await axios.get(`${currentUrl}api/devices/by-area/${areaId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    params: {
+      hubSerialNumber,
+    },
+  });
   return response.data;
 };
 
 export const updateDeviceName = async (deviceId, newName) => {
   const token = store.getState().user.localToken;
+  const currentUrl = getCurrentUrl();
+  const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const response = await axios.put(
-    `${LOCAL_URL}api/devices/${deviceId}/name`,
+    `${currentUrl}api/devices/${deviceId}/name`,
     {},
     {
-      params: { name: newName },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      params: { name: newName, hubSerialNumber },
+      headers: { Authorization: `Bearer ${token}` },
     }
   );
-
   return response.data;
 };
-export const updateDeviceArea = async (
-  deviceId,
-  areaId,
-  token,
-  hubSerialNumber
-) => {
+
+export const updateDeviceArea = async (deviceId, areaId, token, hubSerialNumber) => {
+  const currentUrl = getCurrentUrl();
   const response = await axios.put(
-    `${LOCAL_URL}api/devices/${deviceId}/area`,
-    {}, // no body
+    `${currentUrl}api/devices/${deviceId}/area`,
+    {},
     {
-      params: { areaId },
+      params: { areaId,hubSerialNumber },
       headers: {
         Authorization: `Bearer ${token}`,
-        parameter: hubSerialNumber,
+
       },
     }
   );
-
   return response.data;
 };
 
 export const pingDevice = async (deviceId, token, hubSerialNumber) => {
-  const response = await axios.get(`${LOCAL_URL}api/devices/${deviceId}/ping`, {
+  const currentUrl = getCurrentUrl();
+  const response = await axios.get(`${currentUrl}api/devices/${deviceId}/ping`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      parameter: hubSerialNumber,
+
+    },
+    params: {
+      hubSerialNumber,
     },
   });
-
   return response.data;
 };
 
-export const deleteDevice = async (deviceId, token, hubSerialNumber) => {
-  const response = await axios.delete(`${LOCAL_URL}api/devices/${deviceId}`, {
+export const deleteDevice = async (deviceId, token, ) => {
+  const currentUrl = getCurrentUrl();
+    const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
+  const response = await axios.delete(`${currentUrl}api/devices/${deviceId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      parameter: hubSerialNumber,
+
+    },
+    params: {
+      hubSerialNumber,
     },
   });
-
   return response.data;
 };
 
-export const fetchAndDispatchDevices = async (
-  hubSerialNumber,
-  areas,
-  dispatch
-) => {
+export const fetchAndDispatchDevices = async (hubSerialNumber, areas, dispatch) => {
   if (!hubSerialNumber || !areas?.length) return;
 
   try {
@@ -94,10 +93,7 @@ export const fetchAndDispatchDevices = async (
     );
 
     const allDevices = deviceMetaPerArea.flatMap(({ areaId, list }) =>
-      list.map((device) => ({
-        ...device,
-        areaId,
-      }))
+      list.map((device) => ({ ...device, areaId }))
     );
 
     dispatch(setDevices(allDevices));
@@ -110,17 +106,11 @@ export const fetchDeviceByFilter = async (filter) => {
   try {
     const token = store.getState().user.localToken;
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
-
-    const response = await axios.get(
-      `${LOCAL_URL}api/devices/filter`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { filter,hubSerialNumber },
-      }
-    );
-
+    const currentUrl = getCurrentUrl();
+    const response = await axios.get(`${currentUrl}api/devices/filter`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { filter, hubSerialNumber },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching devices by filter:", error);
@@ -128,17 +118,13 @@ export const fetchDeviceByFilter = async (filter) => {
   }
 };
 
-
 export const getEventsByDeviceId = async (deviceId) => {
   try {
     const token = store.getState().user.localToken;
-
-    const response = await axios.get(`${LOCAL_URL}api/events/device/${deviceId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const currentUrl = getCurrentUrl();
+    const response = await axios.get(`${currentUrl}api/events/device/${deviceId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-
     return response.data;
   } catch (error) {
     console.error("❌ Failed to fetch events for device:", error?.response?.data || error.message);
@@ -146,21 +132,14 @@ export const getEventsByDeviceId = async (deviceId) => {
   }
 };
 
-
-export const getStateValuesByDeviceId = async (deviceId, filter ) => {
+export const getStateValuesByDeviceId = async (deviceId, filter) => {
   try {
     const token = store.getState().user.localToken;
-
-    const response = await axios.get(
-      `${LOCAL_URL}api/states/device/${deviceId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { filter },
-      }
-    );
-
+    const currentUrl = getCurrentUrl();
+    const response = await axios.get(`${currentUrl}api/states/device/${deviceId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { filter },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching state values by device:", error);
@@ -168,24 +147,17 @@ export const getStateValuesByDeviceId = async (deviceId, filter ) => {
   }
 };
 
-
-export const getCommandsByDeviceId = async (deviceId, filter ) => {
+export const getCommandsByDeviceId = async (deviceId, filter) => {
   try {
     const token = store.getState().user.localToken;
-
-    const response = await axios.get(
-      `${LOCAL_URL}api/commands/device/${deviceId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { filter },
-      }
-    );
-
+    const currentUrl = getCurrentUrl();
+    const response = await axios.get(`${currentUrl}api/commands/device/${deviceId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { filter },
+    });
     return response.data;
   } catch (error) {
-    console.error("Error fetching state values by device:", error);
+    console.error("Error fetching commands by device:", error);
     throw error;
   }
 };

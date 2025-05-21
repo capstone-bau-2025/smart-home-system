@@ -20,7 +20,9 @@ export default function InfoModal({
   confirmLabel = "Yes",
   cancelLabel = "No",
   onConfirm,
-  title
+  title,
+  footerText,
+  footerTitle,
 }) {
   return (
     <Modal
@@ -33,25 +35,37 @@ export default function InfoModal({
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
-              <View style={[styles.iconContainer, { backgroundColor: iconColor }]}>
+              <View
+                style={[styles.iconContainer, { backgroundColor: iconColor }]}
+              >
                 <Ionicons name={iconName} size={50} color="white" />
               </View>
               <Text style={styles.message}>
-                
                 {title && <Text style={styles.title}>{title}</Text>}
               </Text>
 
               <Text style={styles.message}>
                 {message}{" "}
-                {highlightedText && <Text style={styles.highlightedText}>{highlightedText}</Text>}
+                {highlightedText && (
+                  <Text style={styles.highlightedText}>{highlightedText}</Text>
+                )}
               </Text>
 
+              {(footerTitle || footerText) && (
+                <View style={styles.footerContainer}>
+                  {footerTitle && (
+                    <Text style={styles.footerTitle}>{footerTitle}</Text>
+                  )}
+                  {footerText && (
+                    <Text style={styles.footerText}>{footerText}</Text>
+                  )}
+                </View>
+              )}
               {/* Buttons */}
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                   <Text style={styles.closeButtonText}>{cancelLabel}</Text>
                 </TouchableOpacity>
-          
               </View>
             </View>
           </TouchableWithoutFeedback>
@@ -88,6 +102,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Lexend-Regular",
     textAlign: "center",
+    
   },
   highlightedText: {
     fontFamily: "Lexend-Bold",
@@ -103,7 +118,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-    width: 'auto',
+    width: "auto",
     height: 40,
     marginHorizontal: 10,
     alignItems: "center",
@@ -119,14 +134,36 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     alignItems: "center",
   },
-  title:{
+  title: {
     fontFamily: "Lexend-Bold",
     color: "orange",
-    fontSize:20
+    fontSize: 20,
   },
   closeButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
+  footerContainer: {
+  marginTop: 15,
+  backgroundColor: "#f6f6f6",
+  padding: 12,
+  borderRadius: 10,
+  width: "100%",
+},
+
+footerTitle: {
+  fontFamily: "Lexend-Bold",
+  fontSize: 18,
+  color: "orange",
+  marginBottom: 5,
+  textAlign: "center",
+},
+
+footerText: {
+  fontFamily: "Lexend-Regular",
+  fontSize: 14,
+  color: "#333",
+  textAlign: "left",
+},
 });

@@ -12,13 +12,29 @@ import {
 import React, { useState, useEffect } from "react";
 import DiscoverCard from "../../../components/DiscoverHub/DiscoverCard";
 import { fetchHubs } from "../../../api/services/hubService";
+import useInitAppData from "../../../hooks/useInitAppData";
+import useAreas from "../../../hooks/useAreas";
+import useDevices from "../../../hooks/useDevices";
 
 export default function DiscoverHub() {
   const [hubs, setHubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [serialNumber, setSerialNumber] = useState(null);
 
-  
+  const { refetch: refetchUserData } = useInitAppData();
+  const { refetch: refetchDevices } = useDevices();
+  const { refetch: refetchAreas } = useAreas();
+
+  const refetchAll = async () => {
+    try {
+      await refetchUserData();
+      await refetchDevices();
+      await refetchAreas();
+      console.log("All data reloaded.");
+    } catch (err) {
+      console.warn("Refresh error:", err);
+    }
+  };
   const loadHubs = async () => {
     setLoading(true);
     const { data, error } = await fetchHubs();
@@ -32,6 +48,9 @@ export default function DiscoverHub() {
       } else {
         setHubs([]);
       }
+      if (data && data.length > 0) {
+        await refetchAll();
+      }
     }
     setLoading(false);
   };
@@ -39,7 +58,6 @@ export default function DiscoverHub() {
   useEffect(() => {
     loadHubs();
   }, []);
-
 
   return (
     <SafeAreaView style={styles.container}>

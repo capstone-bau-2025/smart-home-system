@@ -8,7 +8,7 @@ const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
 export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub
 export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`; // cloud
 
-let ACTIVE_URL = null;
+let ACTIVE_URL = LOCAL_URL;
 let pingInterval = null;
 
 //Determine base URL based on connection type (wifi or not)
@@ -28,7 +28,7 @@ let pingInterval = null;
 //     console.error("❌ Failed to determine network type:", err.message);
 //     return BASE_URL;
 //   }
-// }
+// } 
 
 export async function getActiveUrl() {
   const token = store.getState().user.localToken;

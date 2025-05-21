@@ -2,12 +2,19 @@ import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { LOCAL_URL } from "../../util/auth";
+import { ACTIVE_URL } from "../../util/auth";
+import getCurrentUrl from "../../util/helperUrl";
 
 export default function HubConnectionCard() {
-  const currentUrl = useSelector((state) => state.url.currentUrl);
+  const currentUrl = getCurrentUrl();
   const isLocal = currentUrl === LOCAL_URL;
 
-  const cardConnectionStatus = isLocal ? "Connected" : "Connected";
+  const currentHub = useSelector((state) => state.hub.currentHub);
+
+  if (!currentHub) return null;
+  const cardConnectionStatus = isLocal
+    ? "via local network"
+    : "via cloud server";
   const iconColor = isLocal ? "#f4af1b" : "#00a4db";
   const iconBorderColor = isLocal ? "#f4af1b" : "#99b3ff";
   const iconBackgroundColor = isLocal ? "#ffeacf" : "#dbe3fda0";
@@ -15,17 +22,30 @@ export default function HubConnectionCard() {
   const connectionType = isLocal ? "Local" : "Cloud";
 
   return (
-    <View style={[styles.card, { borderColor: iconBorderColor }]}>
-      <View style={[styles.iconWrapper, { backgroundColor: iconBackgroundColor }]}>
-        <Ionicons name={iconName} size={20} color={iconColor} />
+    <>
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <View style={[styles.card, { borderColor: iconBorderColor }]}>
+          <View
+            style={[
+              styles.iconWrapper,
+              { backgroundColor: iconBackgroundColor },
+            ]}
+          >
+            <Ionicons name={iconName} size={20} color={iconColor} />
+          </View>
+          <View style={styles.labelBlock}>
+            <Text
+              style={styles.deviceName}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {connectionType}
+            </Text>
+            <Text style={styles.status}>{`${cardConnectionStatus}`}</Text>
+          </View>
+        </View>
       </View>
-      <View style={styles.labelBlock}>
-        <Text style={styles.deviceName} numberOfLines={1} ellipsizeMode="tail">
-          {connectionType} 
-        </Text>
-        <Text style={styles.status}>{`${cardConnectionStatus}`}</Text>
-      </View>
-    </View>
+    </>
   );
 }
 
