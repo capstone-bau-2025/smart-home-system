@@ -3,6 +3,7 @@ package com.capstonebau2025.centralhub.service.automation;
 import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.repository.*;
+import com.capstonebau2025.centralhub.service.NotificationService;
 import com.capstonebau2025.centralhub.service.device.CommandService;
 import com.capstonebau2025.centralhub.service.device.StateService;
 import jakarta.annotation.PostConstruct;
@@ -27,6 +28,7 @@ public class AutomationExecService {
     private final AutomationTriggerRepository triggerRepository;
     private final AutomationActionRepository actionRepository;
     private final StateValueRepository stateValueRepository;
+    private final NotificationService notificationService;
     private final EventRepository eventRepository;
     private final CommandService commandService;
     private final StateService stateService;
@@ -62,13 +64,9 @@ public class AutomationExecService {
         for (AutomationRule rule : activeRules.values()) {
             try {
                 AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
-                if (trigger == null) continue;
-
-                // Check if the rule is in cooldown period
-                if (rule.getLastExecutedTime() != null && rule.getCooldownDuration() > 0) {
-                    if (isRuleInCooldown(rule)) {
-                        continue;
-                    }
+                if (trigger == null) {
+                    log.warn("No trigger found for rule: {}", rule.getName());
+                    continue;
                 }
 
                 boolean shouldExecute = switch (rule.getTriggerType()) {
@@ -78,6 +76,8 @@ public class AutomationExecService {
                 };
 
                 if (shouldExecute) {
+                    if (rule.getLastExecutedTime() != null && rule.getCooldownDuration() > 0 && isRuleInCooldown(rule))
+                        continue;
                     log.info("Trigger met for rule: {}", rule.getName());
                     executeActions(rule);
                 }
@@ -89,7 +89,7 @@ public class AutomationExecService {
 
 
     public boolean checkScheduledTrigger(AutomationTrigger trigger) {
-        if (trigger.getScheduledTime() == null) return false;
+        if (trigger.getScheduledTime() == null) return false; // TODO: call corrupted automation method
 
         LocalTime now = LocalTime.now();
         LocalTime scheduledTime = trigger.getScheduledTime();
@@ -178,31 +178,34 @@ public class AutomationExecService {
     }
 
     private boolean isRuleInCooldown(AutomationRule rule) {
-            LocalTime now = LocalTime.now();
-            LocalTime lastExecuted = rule.getLastExecutedTime();
+        LocalTime now = LocalTime.now();
+        LocalTime lastExecuted = rule.getLastExecutedTime();
 
-            long secondsSinceLastExecution;
+        long secondsSinceLastExecution;
 
-            // Handle day boundary case (if now is earlier than lastExecuted, it crossed midnight)
-            if (now.isBefore(lastExecuted)) {
-                secondsSinceLastExecution = 86400 - lastExecuted.toSecondOfDay() + now.toSecondOfDay();
-            } else {
-                secondsSinceLastExecution = now.toSecondOfDay() - lastExecuted.toSecondOfDay();
-            }
-
-            // If the cooldown period has passed, clear the lastExecutedTime
-            if (secondsSinceLastExecution >= rule.getCooldownDuration()) {
-                rule.setLastExecutedTime(null);
-                ruleRepository.save(rule);
-                log.debug("Cooldown period expired for rule {}", rule.getName());
-                return false; // Not in cooldown anymore
-            } else {
-                // Still in cooldown period, skip this rule
-                log.debug("Rule {} is in cooldown for {} more seconds",
-                        rule.getName(), rule.getCooldownDuration() - secondsSinceLastExecution);
-                return true; // Still in cooldown
-            }
+        // Handle day boundary case (if now is earlier than lastExecuted, it crossed midnight)
+        if (now.isBefore(lastExecuted)) {
+            secondsSinceLastExecution = 86400 - lastExecuted.toSecondOfDay() + now.toSecondOfDay();
+        } else {
+            secondsSinceLastExecution = now.toSecondOfDay() - lastExecuted.toSecondOfDay();
         }
+
+        // Convert cooldownDuration from minutes to seconds for comparison
+        long cooldownInSeconds = rule.getCooldownDuration() * 60;
+
+        // If the cooldown period has passed, clear the lastExecutedTime
+        if (secondsSinceLastExecution >= cooldownInSeconds) {
+            rule.setLastExecutedTime(null);
+            ruleRepository.save(rule);
+            log.debug("Cooldown period expired for rule {}", rule.getName());
+            return false; // Not in cooldown anymore
+        } else {
+            // Still in cooldown period, skip this rule
+            log.debug("Rule {} was skipped as it is in cooldown for {} more minutes",
+                    rule.getName(), (cooldownInSeconds - secondsSinceLastExecution) / 60);
+            return true; // Still in cooldown
+        }
+    }
 
     private void executeActions(AutomationRule rule) {
         try {
@@ -267,6 +270,18 @@ public class AutomationExecService {
         }
     }
 
+    private void handleCorruptedRule(AutomationRule rule) {
+        // Get the rule with creator information properly loaded
+        AutomationRule loadedRule = ruleRepository.findById(rule.getId()).orElse(null);
+
+        String email = loadedRule.getCreatedBy().getEmail(); // Assuming there's a createdBy field
+        notificationService.sendNotificationToUser(email,
+            "Automation Rule Error",
+            "Your automation rule '" + loadedRule.getName() + "' was corrupted and has been removed.");
+
+        unsubscribeTrigger(loadedRule.getId());
+        ruleRepository.delete(loadedRule);
+    }
 }
 
 

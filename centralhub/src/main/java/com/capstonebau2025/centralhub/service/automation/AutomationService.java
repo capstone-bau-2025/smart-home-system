@@ -46,7 +46,7 @@ public class AutomationService {
                 .description(request.getRuleDescription())
                 .isEnabled(true)
                 .triggerType(triggerType)
-                .cooldownDuration(request.getCooldownDuration())
+                .cooldownDuration(Math.min(request.getCooldownDuration(), 24 * 60)) // limit cooldown to max 1 day
                 .build();
 
         AutomationRule savedRule = ruleRepository.save(rule);

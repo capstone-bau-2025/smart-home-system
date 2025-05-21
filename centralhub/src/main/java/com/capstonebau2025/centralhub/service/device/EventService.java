@@ -63,7 +63,7 @@ public class EventService {
         // Send notification
         String title = "Device " + device.getName() + " triggered " + event.getName() + " event.";
         String body = event.getDescription();
-        notificationService.sendNotification(device, title, body);
+        notificationService.sendDeviceNotification(device, title, body);
 
         // TODO: call automation
         // TODO: think of saving event logs
