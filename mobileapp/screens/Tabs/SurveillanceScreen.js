@@ -33,19 +33,19 @@ export default function SurveillanceScreen() {
   const [selectedCamera, setSelectedCamera] = useState(null);
   const currentHub = useSelector((state) => state.hub.currentHub);
   const hubSerialNumber = currentHub?.serialNumber;
+  const [refreshing, setRefreshing] = useState(false);
 
   function handleCameraPress(camera) {
     setSelectedCamera(camera);
     setStreamModalVisible(true);
   }
-useEffect(() => {
-  if (!hubSerialNumber) return;
 
   const fetchCameras = async () => {
+    if (!hubSerialNumber) return;
+
     setLoading(true);
     try {
       const data = await getAllCameras(hubSerialNumber);
-      console.log("Cameras from API:", data);
       setCameras(data);
     } catch (error) {
       console.error("❌ Error fetching cameras:", error);
@@ -54,10 +54,26 @@ useEffect(() => {
     }
   };
 
-  fetchCameras();
-}, [hubSerialNumber]);
+  useEffect(() => {
+    if (hubSerialNumber) {
+      fetchCameras();
+    } else {
+      setLoading(false);
+    }
+  }, [hubSerialNumber]);
 
-
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const data = await getAllCameras(hubSerialNumber);
+      console.log("Refreshed cameras:", data);
+      setCameras(data);
+    } catch (error) {
+      console.error("Error refreshing cameras:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <BottomRightBlob />
@@ -105,11 +121,11 @@ useEffect(() => {
         />
       </View>
 
-      <StatusBar barStyle="dark-content"  />
+      <StatusBar barStyle="dark-content" />
 
       <View style={styles.header}>
-        <HeaderIcons onInfoPress={() => setInfoModal(true)}  cogHidden={true} />
-      </View> 
+        <HeaderIcons onInfoPress={() => setInfoModal(true)} cogHidden={true} />
+      </View>
 
       <View style={styles.cardSection}>
         <View style={styles.tabs}>
@@ -120,37 +136,35 @@ useEffect(() => {
           />
         </View>
 
-{loading ? (
-  <View style={{ marginTop: 50 }}>
-    <Ionicons name="reload-circle" size={40} color="#999" />
-  </View>
-) : (
-  <FlatList
-    data={cameras}
-    contentContainerStyle={styles.scrollArea}
-    numColumns={2}
-    renderItem={({ item: camera }) => (
-      <CameraCard
-        camera={camera}
-        onPress={handleCameraPress}
-        key={camera.uid}
-      />
-    )}
-    keyExtractor={(item) => item.uid.toString()}
-    showsVerticalScrollIndicator={false}
-    showsHorizontalScrollIndicator={false}
-    ListEmptyComponent={() => 
-    (
-      <View style={{ marginTop: 50, alignItems: "center" }}>
-        <Ionicons name="camera-outline" size={40} color="#999" />
-        <Text style={{ color: "#999", marginTop: 10 }}>
-          No cameras available
-        </Text>
-        </View>
-    )
-    }
-  />
-)}
+        {loading ? (
+          <View style={{ marginTop: 50 }}></View>
+        ) : (
+          <FlatList
+            data={cameras}
+            contentContainerStyle={styles.scrollArea}
+            numColumns={2}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            renderItem={({ item: camera }) => (
+              <CameraCard
+                camera={camera}
+                onPress={handleCameraPress}
+                key={camera.uid}
+              />
+            )}
+            keyExtractor={(item) => item.uid.toString()}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            ListEmptyComponent={() => (
+              <View style={{ marginTop: 50, alignItems: "center" }}>
+                <Ionicons name="camera-outline" size={40} color="#999" />
+                <Text style={{ color: "#999", marginTop: 10 }}>
+                  No cameras available
+                </Text>
+              </View>
+            )}
+          />
+        )}
       </View>
 
       <StreamModal
@@ -181,7 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
-    paddingTop: Platform.OS === "android" ? 50 : 0,
+    paddingTop: Platform.OS === "android" ? 20 : 0,
   },
   cameraBgIcon: {
     position: "absolute",

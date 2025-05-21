@@ -99,6 +99,6 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 18,
     color: "#000",
-    fontFamily: "Lexend-Medium",
+    fontFamily: "Lexend-Regular",
   },
 });

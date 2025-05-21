@@ -65,7 +65,7 @@ export default function HubDropdown({ currentHub, noHub }) {
           onSelect={handleSelectHub}
           triposition={
             Platform.OS === "ios"
-              ? { right: 177, top: 30 }
+              ? { right: 163, top: 30 }
               : { right: 160, top: -20 }
           }
           position={

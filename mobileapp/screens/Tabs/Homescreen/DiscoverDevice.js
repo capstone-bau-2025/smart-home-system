@@ -49,10 +49,7 @@ export default function DiscoverDevice() {
         <>
           <Text style={styles.title}>Scanned Devices</Text>
           <DeviceDiscoveredCard data={devices} />
-        </>
-      )}
-
-      <Pressable
+                <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
         onPress={() => {
           fetchDevices();
@@ -60,6 +57,10 @@ export default function DiscoverDevice() {
       >
         <Text style={styles.buttonText}>Look for devices</Text>
       </Pressable>
+        </>
+      )}
+
+
     </SafeAreaView>
   );
 }

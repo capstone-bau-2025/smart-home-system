@@ -1,39 +1,36 @@
 import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import DeviceDiscoveredModal from "./DeviceDiscoveredModal"; 
+import DeviceDiscoveredModal from "./DeviceDiscoveredModal";
 import { useSelector } from "react-redux";
-
 export default function DeviceDiscoveredCard({ data }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
+  const devices = useSelector((state) => state.devices.devices);
 
-
-  
   const handlePress = (device) => {
     setSelectedDevice(device);
     setModalVisible(true);
     console.log("Selected device:", device?.uid);
   };
 
+  
+  const filteredDevices = Object.values(data).filter(
+    (device) => !devices.some((d) => d.uid === device.uid)
+  );
 
   return (
     <>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {Object.values(data).map((device) => (
+        {filteredDevices.map((device) => (
           <View key={device.uid} style={styles.container}>
             <Pressable
-              style={({ pressed }) => [
-                styles.card,
-                pressed && styles.pressed,
-              ]}
+              style={({ pressed }) => [styles.card, pressed && styles.pressed]}
               onPress={() => handlePress(device)}
             >
               <View>
                 <Text style={styles.nameText}>{device?.model}</Text>
-                <Text style={styles.descriptionText}>
-               {device?.type}
-                </Text>
+                <Text style={styles.descriptionText}>{device?.type}</Text>
               </View>
               <Ionicons
                 name="chevron-forward-outline"
@@ -45,7 +42,12 @@ export default function DeviceDiscoveredCard({ data }) {
         ))}
       </ScrollView>
 
-  <DeviceDiscoveredModal  visible={modalVisible} onClose={() =>setModalVisible(false)} selectedDevice={selectedDevice} title={selectedDevice?.name ?? "Device Details"}/>
+      <DeviceDiscoveredModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        selectedDevice={selectedDevice}
+        title={selectedDevice?.name ?? "Device Details"}
+      />
     </>
   );
 }
@@ -63,14 +65,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#ecdbb5", 
+    backgroundColor: "#ecdbb5",
     borderRadius: 10,
     padding: 12,
     marginBottom: 10,
     width: "95%",
     height: 70,
     borderWidth: 1,
-    borderColor: "#f0a500", 
+    borderColor: "#f0a500",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

@@ -1,15 +1,14 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LOCAL_URL, BASE_URL } from '../../util/auth';
+import { BASE_URL } from '../../util/auth';
 import { store } from '../../store/store';
 import { setUser, setUserId, setUserRole } from '../../store/slices/userSlice';
-
-
+import getCurrentUrl from '../../util/helperUrl';
 
 export const fetchUsers = async (hubSerialNumber) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
-    const currentUrl = store.getState().url.currentUrl || LOCAL_URL;
+    const currentUrl = getCurrentUrl();
 
     const response = await axios.get(`${currentUrl}api/users`, {
       params: { hubSerialNumber },
@@ -27,8 +26,6 @@ export const fetchUsers = async (hubSerialNumber) => {
   }
 };
 
-
-
 export const findAndStoreUserDetails = async (hubSerialNumber) => {
   const state = store.getState();
   const { email } = state.user;
@@ -45,8 +42,6 @@ export const findAndStoreUserDetails = async (hubSerialNumber) => {
     console.error('User ID match failed:', err.response?.data || err.message);
   }
 };
-
-
 
 export const fetchUserDetails = async () => {
   try {
@@ -66,11 +61,10 @@ export const fetchUserDetails = async () => {
   }
 };
 
-
 export const userPermsissions = async (userId, hubSerialNumber) => {
   try {
     const token = await AsyncStorage.getItem("userToken");
-    const currentUrl = store.getState().url.currentUrl || LOCAL_URL;
+    const currentUrl = getCurrentUrl();
 
     const res = await axios.get(`${currentUrl}api/users/${userId}/permissions`, {
       params: { hubSerialNumber },
@@ -88,12 +82,10 @@ export const userPermsissions = async (userId, hubSerialNumber) => {
   }
 };
 
-
-
 export const updateUserPermissions = async (targetUserId, roomIds, hubSerialNumber) => {
   const state = store.getState();
   const token = state.user.localToken;
-  const currentUrl = state.url.currentUrl || LOCAL_URL;
+  const currentUrl = getCurrentUrl();
 
   const payload = { targetUserId, roomIds };
 
@@ -114,12 +106,10 @@ export const updateUserPermissions = async (targetUserId, roomIds, hubSerialNumb
   }
 };
 
-
-
 export const deleteUser = async (userId, hubSerialNumber) => {
   const state = store.getState();
   const token = state.user.localToken;
-  const currentUrl = state.url.currentUrl || LOCAL_URL;
+  const currentUrl = getCurrentUrl();
 
   try {
     const res = await axios.delete(`${currentUrl}api/users/${userId}`, {

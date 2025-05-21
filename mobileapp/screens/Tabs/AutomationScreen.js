@@ -53,6 +53,7 @@ useFocusEffect(
       try {
         const data = await getAllAutomations();
         setAutomations(data);
+        console.log('Fetched automations:', data);
       } catch (error) {
         console.error("Error fetching automations:", error);
       }
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.primaryBackground,
-    paddingTop: Platform.OS === "android" ? 50 : 0,
+    paddingTop: Platform.OS === "android" ? 20 : 0,
   },
   header: {
     flexDirection: "row",

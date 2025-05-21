@@ -125,14 +125,14 @@ export default function ManageHub({
         setSelectedTab={setSelectedTab}
       />
 
-      <View style={styles.countContainer}>
+      {/* <View style={styles.countContainer}>
         <Text style={styles.countText}>Total Users: {userCount}</Text>
         {Object.entries(roleCounts).map(([role, count]) => (
           <Text key={role} style={styles.countText}>
             {role.charAt(0).toUpperCase() + role.slice(1)}: {count}
           </Text>
         ))}
-      </View>
+      </View> */}
 
       <UsersList users={users} setRenameModal={setUserRenameModal} />
 
@@ -143,12 +143,12 @@ export default function ManageHub({
         iconName="help-outline"
         iconColor="orange"
         message={
-          "In this screen, you can configure users' name, permissions, add, and delete"
+          "In this screen, you can configure users' permissions, add new users by pressing the + icons, remove users from the hub. and change the hub name by pressing the cog icon."
         }
         title={"Manage Hubs"}
       />
       <TokenModal visible={addModal} onClose={() => setAddModal(false)} />
-
+ 
       <RenameModal
         visible={cogModal}
         setVisible={setCogModal}
@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     backgroundColor: "#f1f1f1",
+  
   },
   countContainer: {
     flexDirection: "row",

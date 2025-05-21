@@ -60,7 +60,7 @@ export default function CustomSlider({
 
 const styles = StyleSheet.create({
   container: {
-    width: 150,
+    width: "100%",
     padding: 10,
   },
   labels: {
