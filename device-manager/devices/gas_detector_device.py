@@ -1,9 +1,10 @@
 # gas_detector_device.py
-import random
 import threading
 import time
 from datetime import datetime
+import spidev
 from device_base import Device
+import random
 
 class DeviceImp(Device):
     def __init__(self, device_config, broker="localhost", port=1883):
@@ -13,7 +14,11 @@ class DeviceImp(Device):
         self.status = "OFF"  # Default state
         self.gas_level = 0   # Current gas level (0-1000)
 
-        # Thread for gas level simulation
+        # SPI setup for MQ6 sensor
+        self.spi = None
+        self.gas_channel = 0  # MQ6 connected to CH0
+
+        # Thread for gas level readings
         self.detector_thread = None
         self.running = False
 
@@ -21,16 +26,42 @@ class DeviceImp(Device):
         self.gas_threshold = 300
 
         # Device parameters
-        self.update_interval = 2  # seconds
+        self.update_interval = 1  # seconds
 
     def _on_paired(self):
         """Called when device is paired"""
         self.logger.info("Device paired successfully")
         self._start_device()
 
+    def _setup_spi(self):
+        """Initialize SPI interface"""
+        try:
+            self.spi = spidev.SpiDev()
+            self.spi.open(0, 0)  # SPI0, CE0
+            self.spi.max_speed_hz = 1350000
+            self.logger.info("SPI interface initialized")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to initialize SPI: {e}")
+            return False
+
+    def _read_channel(self, channel):
+        """Read data from MCP3008 ADC channel (0-7)"""
+        try:
+            adc = self.spi.xfer2([1, (8 + channel) << 4, 0])
+            data = ((adc[1] & 3) << 8) | adc[2]
+            return data
+        except Exception as e:
+            self.logger.error(f"Error reading SPI channel: {e}")
+            return 0
+
     def _start_device(self):
-        """Start the gas detector simulation"""
+        """Start the gas detector hardware"""
         if self.detector_thread is not None and self.detector_thread.is_alive():
+            return
+
+        if not self._setup_spi():
+            self.logger.error("Failed to start gas detector - SPI initialization failed")
             return
 
         self.running = True
@@ -40,22 +71,26 @@ class DeviceImp(Device):
         self.logger.info("Gas detector hardware started")
 
     def _stop_device(self):
-        """Stop the gas detector simulation"""
+        """Stop the gas detector hardware"""
         self.running = False
         if self.detector_thread is not None:
             self.detector_thread.join(timeout=1)
+
+        if self.spi:
+            try:
+                self.spi.close()
+                self.logger.info("SPI connection closed")
+            except Exception as e:
+                self.logger.error(f"Error closing SPI connection: {e}")
+
         self.logger.info("Gas detector hardware stopped")
 
     def _detector_loop(self):
-        """Main detector loop that simulates gas level readings"""
+        """Main detector loop that reads actual gas sensor values"""
         while self.running:
             if self.status == "ON":
-                # Simulate gas level readings (normally reading from MCP3008 ADC)
-                # Occasionally generate high readings to simulate gas detection
-                if random.randint(1, 100) > 95:  # 5% chance of high reading
-                    self.gas_level = random.randint(self.gas_threshold, 1000)
-                else:
-                    self.gas_level = random.randint(0, self.gas_threshold - 50)
+                # Read actual gas level from MQ6 sensor
+                self.gas_level = self._read_channel(self.gas_channel)
 
                 # Check for gas detection event
                 if self.gas_level > self.gas_threshold:

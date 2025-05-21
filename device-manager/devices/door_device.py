@@ -13,7 +13,7 @@ class DeviceImp(Device):
         super().__init__(device_config, broker, port)
 
         # Servo configuration
-        self.servo_pin = 13
+        self.servo_pin = 26
         self.door_status = "CLOSED"  # Default state
 
         # PWM setup
