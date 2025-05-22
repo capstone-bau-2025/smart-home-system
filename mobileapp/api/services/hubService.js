@@ -38,10 +38,11 @@ export const configureHub = async (hubName) => {
 
 export const updateHubName = async (name) => {
   try {
-    const token = await AsyncStorage.getItem("userToken");
+      const token = store.getState().user.localToken; 
+
     const currentUrl = getCurrentUrl();
     const activePath = `${currentUrl}api/hub/`;
-
+    const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
 
     const response = await axios.put(
       `${activePath}update-name?name=${name}`,  
@@ -49,7 +50,12 @@ export const updateHubName = async (name) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
+
         },
+        params: {
+          hubSerialNumber,
+        }
+        
       }
     );
     return response.data; 

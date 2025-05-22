@@ -19,7 +19,7 @@ export default function useDevices(hubSerialNumber, areas) {
 
       try {
         const interactionsByArea = await fetchAllInteractions();
-
+        console.log("Refetched Interactions:", interactionsByArea);
         const deviceMetaPerArea = await Promise.all(
           interactionsByArea.map((area) =>
             getDeviceByArea(area.areaId, hubSerialNumber).then((list) => ({
