@@ -7,6 +7,7 @@ import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.repository.EventRepository;
 import com.capstonebau2025.centralhub.service.NotificationService;
+import com.capstonebau2025.centralhub.service.automation.AutomationExecService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class EventService {
     private final DeviceRepository deviceRepository;
     private final EventRepository eventRepository;
     private final NotificationService notificationService;
+    private final AutomationExecService automationExecService;
 
     // Map to track last notification time for each device-event combination
     private final Map<String, LocalDateTime> lastProcessedTimes = new ConcurrentHashMap<>();
@@ -65,8 +67,7 @@ public class EventService {
         String body = event.getDescription();
         notificationService.sendDeviceNotification(device, title, body);
 
-        // TODO: call automation
-        // TODO: think of saving event logs
+        automationExecService.addEvent(event.getId(), device.getId());
     }
 
     public List<IdNameDTO> getAllByDeviceId(Long id) {

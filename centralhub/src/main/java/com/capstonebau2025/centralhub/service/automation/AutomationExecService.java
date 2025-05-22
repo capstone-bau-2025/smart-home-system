@@ -1,7 +1,6 @@
 package com.capstonebau2025.centralhub.service.automation;
 
 import com.capstonebau2025.centralhub.entity.*;
-import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.NotificationService;
 import com.capstonebau2025.centralhub.service.device.CommandService;
@@ -16,33 +15,29 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AutomationExecService {
-
     private final AutomationRuleRepository ruleRepository;
     private final AutomationTriggerRepository triggerRepository;
     private final AutomationActionRepository actionRepository;
     private final StateValueRepository stateValueRepository;
     private final NotificationService notificationService;
-    private final EventRepository eventRepository;
     private final CommandService commandService;
     private final StateService stateService;
 
-
     private final Map<Long, AutomationRule> activeRules = new ConcurrentHashMap<>();
-    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>();
-
+    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>(); // Key= eventId, Value=DeviceId
 
     @PostConstruct
     public void getAllActiveRules() {
+        log.info("loading automation rules");
          ruleRepository.findAllByIsEnabledTrue().forEach(rule -> activeRules.put(rule.getId(), rule));
     }
-
 
     public void subscribeTrigger(Long ruleId) {
         ruleRepository.findById(ruleId).ifPresent(rule -> {
@@ -63,16 +58,10 @@ public class AutomationExecService {
     public void automationLoop() {
         for (AutomationRule rule : activeRules.values()) {
             try {
-                AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
-                if (trigger == null) {
-                    log.warn("No trigger found for rule: {}", rule.getName());
-                    continue;
-                }
-
                 boolean shouldExecute = switch (rule.getTriggerType()) {
-                    case SCHEDULE -> checkScheduledTrigger(trigger);
-                    case EVENT -> checkEventTrigger(trigger);
-                    case STATE_UPDATE -> checkStateTrigger(trigger);
+                    case SCHEDULE -> checkScheduledTrigger(rule);
+                    case EVENT -> checkEventTrigger(rule);
+                    case STATE_UPDATE -> checkStateTrigger(rule);
                 };
 
                 if (shouldExecute) {
@@ -87,9 +76,13 @@ public class AutomationExecService {
         }
     }
 
+    public boolean checkScheduledTrigger(AutomationRule rule) {
+        AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
 
-    public boolean checkScheduledTrigger(AutomationTrigger trigger) {
-        if (trigger.getScheduledTime() == null) return false; // TODO: call corrupted automation method
+        if (trigger == null || trigger.getScheduledTime() == null) {
+            handleCorruptedRule(rule);
+            return false;
+        }
 
         LocalTime now = LocalTime.now();
         LocalTime scheduledTime = trigger.getScheduledTime();
@@ -101,35 +94,43 @@ public class AutomationExecService {
         // Calculate the absolute difference in seconds
         long differenceInSeconds = Math.abs(nowSeconds - scheduledSeconds);
 
-        // Check if current time is within ±60 seconds of scheduled time
-        return differenceInSeconds <= 60;
+        // Check if current time is within ±90 seconds of scheduled time
+        return differenceInSeconds <= 90;
     }
 
+    public boolean checkEventTrigger(AutomationRule rule) {
+        AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
 
-    public boolean checkEventTrigger(AutomationTrigger trigger) {
-        if (trigger.getEvent() == null) return false;
+        if (trigger == null || trigger.getEvent() == null) {
+            handleCorruptedRule(rule);
+            return false;
+        }
+
         // Simply check if the event exists in recent events
-        Long eventId = recentEvents.get(trigger.getEvent().getId());
-        return eventId != null;
+        Long deviceId = recentEvents.get(trigger.getEvent().getId());
+        return Objects.equals(deviceId, trigger.getDevice().getId());
     }
 
+    public boolean checkStateTrigger(AutomationRule rule) {
+        AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
 
-    public boolean checkStateTrigger(AutomationTrigger trigger) {
-        if (trigger.getStateValue() == null) return false;
+        if (trigger == null || trigger.getStateValue() == null) {
+            handleCorruptedRule(rule);
+            return false;
+        }
 
-        // Get the current state value from the repository instead of using trigger.getStateTriggerValue()
         StateValue currentState = stateValueRepository.findById(trigger.getStateValue().getId())
                 .orElse(null);
 
-        if (currentState == null) return false;
+        if (currentState == null) {
+            handleCorruptedRule(rule);
+            return false;
+        }
 
         String actualValue = currentState.getStateValue();
         String expectedValue = trigger.getStateTriggerValue(); // This is the condition value from the trigger
 
-        // Check if both values can be parsed as numbers
-        boolean isNumeric = isNumeric(actualValue) && isNumeric(expectedValue);
-
-        if (isNumeric) {
+        if (currentState.getState().getType() == State.StateType.RANGE) {
             try {
                 double actualNumeric = Double.parseDouble(actualValue);
                 double expectedNumeric = Double.parseDouble(expectedValue);
@@ -142,39 +143,16 @@ public class AutomationExecService {
                     case LESS_OR_EQUAL -> actualNumeric <= expectedNumeric;
                 };
             } catch (NumberFormatException e) {
-                log.warn("Failed to parse numeric values despite validation: {}, {}", actualValue, expectedValue);
+                log.warn("Failed to parse numeric values for range automation trigger: {}, {}, for automation rule: {}", actualValue, expectedValue, rule.getName());
                 return false;
             }
-        } else {
-            // For string values, only EQUAL operator is supported
-            return switch (trigger.getOperator()) {
-                case EQUAL -> actualValue.equals(expectedValue);
-                default -> {
-                    log.warn("Non-numeric comparison attempted with non-EQUAL operator: {}", trigger.getOperator());
-                    yield false;
-                }
-            };
+        } else { // ENUM type, only support equal operator
+            return actualValue.equals(expectedValue);
         }
     }
 
     public void addEvent(long eventId , long deviceId) {
-        // Find the event from the repository
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-        // Add the event to the recent events list
-        recentEvents.put(event.getId(), event.getId());
-    }
-
-    private boolean isNumeric(String str) {
-        if (str == null || str.isEmpty()) {
-            return false;
-        }
-        try {
-            Double.parseDouble(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        recentEvents.put(eventId, deviceId);
     }
 
     private boolean isRuleInCooldown(AutomationRule rule) {
@@ -216,7 +194,6 @@ public class AutomationExecService {
                 log.warn("No actions found for rule: {}", rule.getName());
                 return;
             }
-
             log.info("Executing {} actions for rule: {}", actions.size(), rule.getName());
 
             // Execute each action
@@ -279,6 +256,7 @@ public class AutomationExecService {
             "Automation Rule Error",
             "Your automation rule '" + loadedRule.getName() + "' was corrupted and has been removed.");
 
+        log.warn("automation rule {} was corrupted and has been removed.", loadedRule.getName());
         unsubscribeTrigger(loadedRule.getId());
         ruleRepository.delete(loadedRule);
     }
