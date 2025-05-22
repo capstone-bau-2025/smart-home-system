@@ -1,14 +1,16 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { LOCAL_URL } from "../../util/auth";
 import { ACTIVE_URL } from "../../util/auth";
 import getCurrentUrl from "../../util/helperUrl";
-
+import { setUrl } from "../../store/slices/urlSlice";
+import { BASE_URL } from "../../util/auth";
+import { useDispatch } from "react-redux";
 export default function HubConnectionCard() {
   const currentUrl = getCurrentUrl();
   const isLocal = currentUrl === LOCAL_URL;
-
+  const dispatch = useDispatch();
   const currentHub = useSelector((state) => state.hub.currentHub);
 
   if (!currentHub) return null;
@@ -24,7 +26,18 @@ export default function HubConnectionCard() {
   return (
     <>
       <View style={{ flexDirection: "row", gap: 10 }}>
-        <View style={[styles.card, { borderColor: iconBorderColor }]}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.card,
+            { borderColor: iconBorderColor },
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={() => {
+            const newUrl = currentUrl === BASE_URL ? LOCAL_URL : BASE_URL;
+            dispatch(setUrl(newUrl));
+            console.log("URL manually toggled to:", newUrl);
+          }}
+        >
           <View
             style={[
               styles.iconWrapper,
@@ -43,7 +56,7 @@ export default function HubConnectionCard() {
             </Text>
             <Text style={styles.status}>{`${cardConnectionStatus}`}</Text>
           </View>
-        </View>
+        </Pressable>
       </View>
     </>
   );

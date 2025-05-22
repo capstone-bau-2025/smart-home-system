@@ -87,7 +87,7 @@ export default function UsersList({ users, setRenameModal }) {
               icon: "key-outline",
               onPress: (user) => handleOpenModal("edit", user.id),
             },
-            { icon: "pencil-outline", onPress: () => setRenameModal(true) },
+            // { icon: "pencil-outline", onPress: () => setRenameModal(true) },
             {
               icon: "remove-circle-outline",
               onPress: (user) => handleOpenModal("remove", user.id),

@@ -61,13 +61,15 @@ export const pingDevice = async (deviceId, token, hubSerialNumber) => {
       hubSerialNumber,
     },
   });
-  return response.data;
+  return response;
 };
 
 export const deleteDevice = async (deviceId, token, ) => {
   const currentUrl = getCurrentUrl();
+      console.log(currentUrl)
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const response = await axios.delete(`${currentUrl}api/devices/${deviceId}`, {
+
     headers: {
       Authorization: `Bearer ${token}`,
 
