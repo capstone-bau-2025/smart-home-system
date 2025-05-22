@@ -14,16 +14,12 @@ public class NotificationService {
 
     @Transactional
     public void sendDeviceNotification(Device device, String title, String body) {
-        device.getArea().getPermissions().stream()
-                .map(Permission::getUser)
-                .forEach(u -> cloudClient.sendNotification(u.getEmail(), title, body));
-    }
-
-    public void sendNotificationToAdmins(String title, String body) {
-        // TODO: Implement this method if needed
+//        device.getArea().getPermissions().stream()
+//                .map(Permission::getUser)
+//                .forEach(u -> cloudClient.sendNotification(u.getEmail(), title, body));
     }
 
     public void sendNotificationToUser(String email, String title, String body) {
-        cloudClient.sendNotification(email, title, body);
+//        cloudClient.sendNotification(email, title, body);
     }
 }

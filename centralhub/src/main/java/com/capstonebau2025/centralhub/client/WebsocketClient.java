@@ -1,6 +1,7 @@
 package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.RemoteCommandMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +23,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 @Component
 public class WebsocketClient {
-    private static final Logger logger = LoggerFactory.getLogger(WebsocketClient.class);
     private static final int RECONNECT_DELAY_SECONDS = 5;
 
     private StompSession session;
@@ -64,20 +65,20 @@ public class WebsocketClient {
 
         // Add token to URL for authentication ws://localhost:8082/hub-socket
         String connectionUrl = serverUrl.replaceFirst("^http", "ws") + "/hub-socket?token=" + CloudAuthClient.hubToken;
-        logger.info("Connecting with URL: {}", connectionUrl);
+        log.info("Connecting with URL: {}", connectionUrl);
 
         try {
             // Connect and establish session
             session = stompClient.connectAsync(connectionUrl, new ReconnectingStompSessionHandler()).get();
             reconnecting.set(false);
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Connection failed: {}", e.getMessage());
+            log.error("Connection failed: {}", e.getMessage());
             scheduleReconnect();
         }
     }
 
     private void scheduleReconnect() {
-        logger.info("Scheduling reconnection attempt in {} seconds", RECONNECT_DELAY_SECONDS);
+        log.info("Scheduling reconnection attempt in {} seconds", RECONNECT_DELAY_SECONDS);
         reconnectExecutor.schedule(() -> {
             reconnecting.set(false);
             connect();
@@ -95,7 +96,7 @@ public class WebsocketClient {
     private class ReconnectingStompSessionHandler extends StompSessionHandlerAdapter {
         @Override
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-            logger.info("Connected to Cloud Server");
+            log.info("Connected to Cloud Server");
             isConnected.set(true);
             reconnecting.set(false);
 
@@ -112,7 +113,7 @@ public class WebsocketClient {
                 @Override
                 public void handleFrame(StompHeaders headers, Object payload) {
                     Message msg = (Message) payload;
-                    logger.info("Received from Cloud: {}", msg.getContent());
+                    log.info("Received from Cloud: {}", msg.getContent());
                 }
             });
 
@@ -126,25 +127,24 @@ public class WebsocketClient {
                 @Override
                 public void handleFrame(StompHeaders headers, Object payload) {
                     RemoteCommandMessage message = (RemoteCommandMessage) payload;
-                    logger.info("Received command from Cloud: {}", message);
 
                     // Forward the message to our command handler
                     commandHandler.processCommand(serialNumber, message);
                 }
             });
 
-            logger.info("Subscribed to /topic/commands/{}", serialNumber);
+            log.info("Subscribed to /topic/commands/{}", serialNumber);
         }
 
         @Override
         public void handleException(StompSession session, StompCommand command,
                                     StompHeaders headers, byte[] payload, Throwable exception) {
-            logger.error("Error in STOMP session: {}", exception.getMessage());
+            log.error("Error in STOMP session: {}", exception.getMessage());
         }
 
         @Override
         public void handleTransportError(StompSession session, Throwable exception) {
-            logger.error("Transport error: {}", exception.getMessage());
+            log.error("Transport error: {}", exception.getMessage());
             isConnected.set(false);
 
             if (!reconnecting.get()) {
