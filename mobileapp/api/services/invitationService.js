@@ -9,11 +9,14 @@ export const generateInviteCode = async (roleId) => {
   try {
     const token = await AsyncStorage.getItem("userToken");
     const endpoint = `${currentUrl}api/invitations?roleId=${roleId}`;
-
+    const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const response = await axios.post(endpoint, null, {
       headers: {
         Accept: "*/*",
         Authorization: `Bearer ${token}`,
+      },
+      params: {
+        hubSerialNumber: hubSerialNumber,
       },
     });
 

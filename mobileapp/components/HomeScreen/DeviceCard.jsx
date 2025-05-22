@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Pressable } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,6 +20,8 @@ import {
 } from "../../api/services/interactionService";
 import { getCustomName } from "../../util/interactionNames";
 import Toast from "react-native-toast-message";
+import { pingDevice } from "../../api/services/deviceService";
+import { store } from "../../store/store";
 
 export default function DeviceCard({ data }) {
   const isInfo = data.type === "INFO";
@@ -53,6 +55,26 @@ export default function DeviceCard({ data }) {
   const handleLongPress = () => {
     setModalVisible(true);
   };
+
+  // useEffect(() => {
+  //   const checkDeviceReachability = async () => {
+  //     const token = store.getState().user.localToken;
+  //     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
+  //     const deviceId = data.deviceId;
+  //     try {
+  //       const response = await pingDevice(deviceId, token, hubSerialNumber);
+  //       if (response.status === 200) {
+  //         console.log(`Device  ${deviceId}  is reachable`);
+  //       } else {
+  //         console.log(`Device ${deviceId}  is not reachable`);
+  //       }
+  //     } catch (error) {
+  //       console.error("Ping failed:", error.message);
+  //     }
+  //   };
+
+  //   checkDeviceReachability();
+  // }, []);
 
   const handlePress = async () => {
     if (isToggleChoice) {
@@ -283,7 +305,7 @@ export default function DeviceCard({ data }) {
 
 const styles = StyleSheet.create({
   card: {
-    width: '100%',
+    width: "100%",
     borderRadius: 12,
     padding: 10,
     marginBottom: 15,

@@ -2,11 +2,13 @@ import axios from "axios";
 import { AppState, Platform } from "react-native";
 import * as Network from "expo-network";
 import { store } from "../store/store";
-const LOCAL_IP = "192.168.1.36";
+
+const LOCAL_IP = "192.168.1.36"; //this is were the hub is running (will be raspberrypi.local)
 const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
 
-export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub
-export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`; // cloud
+export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub (if rasperry pi change base_local_ip to rasperrypi.local)
+export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`; // cloud (change to cloud server ip)
+
 
 let ACTIVE_URL = LOCAL_URL;
 let pingInterval = null;
@@ -31,19 +33,21 @@ let pingInterval = null;
 // } 
 
 export async function getActiveUrl() {
-  const token = store.getState().user.localToken;
+  const token = store.getState().user.cloudToken;
   try {
-    await axios.get(`http://192.168.1.36:8080/api/hub/discover`, {
-      // headers: {
-      //   Authorization: `Bearer ${token}`,
-      // },
-      timeout: 60000,
+    await axios.get(`${LOCAL_URL}api/hub/discover`, { //should ping hub
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      timeout: 1500 ,
+      //60000
     });
+    console.log("Checking local URL");
     console.log("ACTIVE_URL set to LOCAL:", LOCAL_URL);
     return LOCAL_URL;
   } catch (err) {
     try {
-      await axios.get(`${BASE_URL}`);
+      await axios.get(`${BASE_URL}`); //should ping hub
       console.log("ACTIVE_URL set to CLOUD:", BASE_URL);
       return BASE_URL;
     } catch (error) {

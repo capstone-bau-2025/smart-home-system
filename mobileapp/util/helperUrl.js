@@ -1,8 +1,7 @@
 import { store } from "../store/store";
-import { ACTIVE_URL } from "./auth";
-import { BASE_URL } from "./auth";
+import { LOCAL_URL } from "./auth";
 
 export default function getCurrentUrl() {
-  return store.getState().url.currentUrl || ACTIVE_URL;
+  const currentUrl = store.getState().url.currentUrl;
+  return currentUrl ?? LOCAL_URL;
 }
-

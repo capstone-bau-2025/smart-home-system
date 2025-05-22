@@ -64,6 +64,9 @@ export const updateAutomationStatus = async (ruleId, isEnabled) => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: {
+          hubSerialNumber: store.getState().hub.currentHub?.serialNumber,
+        },
       }
     );
 
@@ -81,11 +84,15 @@ export const deleteAutomation = async (ruleId) => {
   try {
     const token = store.getState().user.localToken;
     const currentUrl = getCurrentUrl();
+    const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const response = await axios.delete(
       `${currentUrl}api/automations/${ruleId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+        params: {
+          hubSerialNumber,
         },
       }
     );

@@ -42,6 +42,7 @@ export const updateHubName = async (name) => {
     const currentUrl = getCurrentUrl();
     const activePath = `${currentUrl}api/hub/`;
 
+
     const response = await axios.put(
       `${activePath}update-name?name=${name}`,  
       {},
