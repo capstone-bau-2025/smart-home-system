@@ -15,7 +15,7 @@ export default function Header({ setModalVisible, modalVisible }) {
 
   const currentHub = useSelector((state) => state.hub.currentHub);
   const userHubs = useSelector((state) => state.hub.userHubs);
-  const noHub = userHubs.length === 0;
+  const noHub = userHubs?.length === 0;
   const dispatch = useDispatch();
 
   return (

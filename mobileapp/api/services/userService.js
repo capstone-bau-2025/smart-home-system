@@ -4,16 +4,17 @@ import { BASE_URL } from '../../util/auth';
 import { store } from '../../store/store';
 import { setUser, setUserId, setUserRole } from '../../store/slices/userSlice';
 import getCurrentUrl from '../../util/helperUrl';
+import getAuthToken from '../../util/getAuthToken';
 
 export const fetchUsers = async (hubSerialNumber) => {
   try {
-    const token = await AsyncStorage.getItem('userToken');
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
 
     const response = await axios.get(`${currentUrl}api/users`, {
       params: { hubSerialNumber },
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
         Accept: 'application/json',
       },
     });
@@ -29,7 +30,7 @@ export const fetchUsers = async (hubSerialNumber) => {
 export const findAndStoreUserDetails = async (hubSerialNumber) => {
   const state = store.getState();
   const { email } = state.user;
-
+  
   try {
     const users = await fetchUsers(hubSerialNumber);
     const match = users.find((u) => u.email === email);
@@ -63,13 +64,13 @@ export const fetchUserDetails = async () => {
 
 export const userPermsissions = async (userId, hubSerialNumber) => {
   try {
-    const token = await AsyncStorage.getItem("userToken");
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
-
+    
     const res = await axios.get(`${currentUrl}api/users/${userId}/permissions`, {
       params: { hubSerialNumber },
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
         Accept: "application/json",
       },
     });
@@ -83,8 +84,7 @@ export const userPermsissions = async (userId, hubSerialNumber) => {
 };
 
 export const updateUserPermissions = async (targetUserId, roomIds, hubSerialNumber) => {
-  const state = store.getState();
-  const token = state.user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
 
   const payload = { targetUserId, roomIds };
@@ -92,7 +92,7 @@ export const updateUserPermissions = async (targetUserId, roomIds, hubSerialNumb
   try {
     const res = await axios.post(`${currentUrl}api/users/update-permissions`, payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
         'Content-Type': 'application/json',
       },
       params: { hubSerialNumber },
@@ -107,14 +107,13 @@ export const updateUserPermissions = async (targetUserId, roomIds, hubSerialNumb
 };
 
 export const deleteUser = async (userId, hubSerialNumber) => {
-  const state = store.getState();
-  const token = state.user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
 
   try {
     const res = await axios.delete(`${currentUrl}api/users/${userId}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
         Accept: "application/json",
       },
       params: { hubSerialNumber },

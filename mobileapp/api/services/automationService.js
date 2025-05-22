@@ -1,17 +1,15 @@
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
-import { LOCAL_URL } from "../../util/auth";
 import { store } from "../../store/store";
 import getCurrentUrl from "../../util/helperUrl";
+import getAuthToken from "../../util/getAuthToken";
 
 export const getAllAutomations = async () => {
-  const token = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const currentUrl = getCurrentUrl();
   const response = await axios.get(`${currentUrl}api/automations`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${fetchedToken}`,
     },
     params: {
       hubSerialNumber,
@@ -23,7 +21,7 @@ export const getAllAutomations = async () => {
 
 export const createAutomationRule = async (automationData) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const currentUrl = getCurrentUrl();
     const response = await axios.post(
@@ -31,7 +29,7 @@ export const createAutomationRule = async (automationData) => {
       automationData,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${fetchedToken}`,
           "Content-Type": "application/json",
         },
         params: {
@@ -52,7 +50,7 @@ export const createAutomationRule = async (automationData) => {
 
 export const updateAutomationStatus = async (ruleId, isEnabled) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
     const response = await axios.patch(
       `${currentUrl}api/automations/status`,
@@ -62,7 +60,7 @@ export const updateAutomationStatus = async (ruleId, isEnabled) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${fetchedToken}`,
         },
         params: {
           hubSerialNumber: store.getState().hub.currentHub?.serialNumber,
@@ -82,14 +80,14 @@ export const updateAutomationStatus = async (ruleId, isEnabled) => {
 
 export const deleteAutomation = async (ruleId) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const response = await axios.delete(
       `${currentUrl}api/automations/${ruleId}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${fetchedToken}`,
         },
         params: {
           hubSerialNumber,

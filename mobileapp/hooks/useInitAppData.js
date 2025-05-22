@@ -28,7 +28,7 @@ export default function useInitAppData() {
       dispatch(setUsername(data.username));
       dispatch(setUserHubs(data.hubsConnected));
 
-      if (data.hubsConnected.length > 0) {
+    if (Array.isArray(data.hubsConnected) && data.hubsConnected.length > 0) {
         const defaultHub = data.hubsConnected[0];
         dispatch(setCurrentHub(defaultHub));
 

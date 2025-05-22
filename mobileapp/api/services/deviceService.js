@@ -2,15 +2,16 @@ import axios from "axios";
 import { store } from "../../store/store";
 import getCurrentUrl from "../../util/helperUrl";
 import { setDevices } from "../../store/slices/devicesSlice";
+import getAuthToken from "../../util/getAuthToken";
 
 export const getDeviceByArea = async (areaId, hubSerialNumber) => {
-  const token = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const response = await axios.get(
     `${currentUrl}api/devices/by-area/${areaId}`,
     {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
       },
       params: {
         hubSerialNumber,
@@ -21,7 +22,7 @@ export const getDeviceByArea = async (areaId, hubSerialNumber) => {
 };
 
 export const updateDeviceName = async (deviceId, newName) => {
-  const token = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const response = await axios.put(
@@ -29,7 +30,7 @@ export const updateDeviceName = async (deviceId, newName) => {
     {},
     {
       params: { name: newName, hubSerialNumber },
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${fetchedToken}` },
     }
   );
   return response.data;
@@ -41,6 +42,7 @@ export const updateDeviceArea = async (
   token,
   hubSerialNumber
 ) => {
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const response = await axios.put(
     `${currentUrl}api/devices/${deviceId}/area`,
@@ -48,7 +50,7 @@ export const updateDeviceArea = async (
     {
       params: { areaId, hubSerialNumber },
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
       },
     }
   );
@@ -56,12 +58,13 @@ export const updateDeviceArea = async (
 };
 
 export const pingDevice = async (deviceId, token, hubSerialNumber) => {
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const response = await axios.get(
     `${currentUrl}api/devices/${deviceId}/ping`,
     {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
       },
       params: {
         hubSerialNumber,
@@ -72,12 +75,12 @@ export const pingDevice = async (deviceId, token, hubSerialNumber) => {
 };
 
 export const deleteDevice = async (deviceId, token) => {
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
-  console.log(currentUrl);
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const response = await axios.delete(`${currentUrl}api/devices/${deviceId}`, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${fetchedToken}`,
     },
     params: {
       hubSerialNumber,
@@ -115,12 +118,12 @@ export const fetchAndDispatchDevices = async (
 
 export const fetchDeviceByFilter = async (filter) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const currentUrl = getCurrentUrl();
     console.log(currentUrl);
     const response = await axios.get(`${currentUrl}api/devices/filter`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${fetchedToken}` },
       params: { filter, hubSerialNumber },
     });
     return response.data;
@@ -132,13 +135,13 @@ export const fetchDeviceByFilter = async (filter) => {
 
 export const getEventsByDeviceId = async (deviceId) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const response = await axios.get(
       `${currentUrl}api/events/device/${deviceId}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${fetchedToken}` },
         params: { hubSerialNumber },
       }
     );
@@ -154,13 +157,13 @@ export const getEventsByDeviceId = async (deviceId) => {
 
 export const getStateValuesByDeviceId = async (deviceId, filter) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const response = await axios.get(
       `${currentUrl}api/states/device/${deviceId}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${fetchedToken}` },
         params: { filter, hubSerialNumber },
       }
     );
@@ -173,13 +176,13 @@ export const getStateValuesByDeviceId = async (deviceId, filter) => {
 
 export const getCommandsByDeviceId = async (deviceId, filter) => {
   try {
-    const token = store.getState().user.localToken;
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
     const response = await axios.get(
       `${currentUrl}api/commands/device/${deviceId}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${fetchedToken}` },
         params: { filter, hubSerialNumber },
       }
     );

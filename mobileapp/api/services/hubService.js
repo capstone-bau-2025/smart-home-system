@@ -3,6 +3,8 @@ import { ACTIVE_URL, LOCAL_URL } from "../../util/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store } from "../../store/store";
 import getCurrentUrl from "../../util/helperUrl";
+import getAuthToken from "../../util/getAuthToken";
+
 const path = `${LOCAL_URL}api/hub/`;
 
 export const discoverHubs = async () => {
@@ -38,8 +40,7 @@ export const configureHub = async (hubName) => {
 
 export const updateHubName = async (name) => {
   try {
-      const token = store.getState().user.localToken; 
-
+    const fetchedToken = getAuthToken();
     const currentUrl = getCurrentUrl();
     const activePath = `${currentUrl}api/hub/`;
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
@@ -49,13 +50,11 @@ export const updateHubName = async (name) => {
       {},
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-
+          Authorization: `Bearer ${fetchedToken}`,
         },
         params: {
           hubSerialNumber,
         }
-        
       }
     );
     return response.data; 
