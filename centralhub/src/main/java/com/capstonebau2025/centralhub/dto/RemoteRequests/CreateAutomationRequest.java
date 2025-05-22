@@ -23,6 +23,7 @@ public class CreateAutomationRequest {
     //attribute specific for trigger type status -> LIST OF DEVICES -> LIST OF STATES (IMMUTALBE), STATE TRIGGER VALUE
     private Long stateValueId;
     private String stateTriggerValue;
+    private String operator; // EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL
 
     //attribute specific for trigger type scheduled
     private String scheduledTime; // "HH:MM"
