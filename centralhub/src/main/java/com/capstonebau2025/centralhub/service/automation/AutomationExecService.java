@@ -4,6 +4,7 @@ import com.capstonebau2025.centralhub.entity.*;
 import com.capstonebau2025.centralhub.repository.*;
 import com.capstonebau2025.centralhub.service.NotificationService;
 import com.capstonebau2025.centralhub.service.device.CommandService;
+import com.capstonebau2025.centralhub.service.device.EventService;
 import com.capstonebau2025.centralhub.service.device.StateService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -28,10 +28,11 @@ public class AutomationExecService {
     private final StateValueRepository stateValueRepository;
     private final NotificationService notificationService;
     private final CommandService commandService;
+    private final EventService eventService;
     private final StateService stateService;
 
     private final Map<Long, AutomationRule> activeRules = new ConcurrentHashMap<>();
-    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>(); // Key= eventId, Value=DeviceId
+
 
     @PostConstruct
     public void getAllActiveRules() {
@@ -74,6 +75,7 @@ public class AutomationExecService {
                 log.error("Error processing rule {}: {}", rule.getId(), ex.getMessage(), ex);
             }
         }
+        eventService.clearRecentEvents();
     }
 
     public boolean checkScheduledTrigger(AutomationRule rule) {
@@ -106,9 +108,8 @@ public class AutomationExecService {
             return false;
         }
 
-        // Simply check if the event exists in recent events
-        Long deviceId = recentEvents.get(trigger.getEvent().getId());
-        return Objects.equals(deviceId, trigger.getDevice().getId());
+        // check if the event exists in recent events
+        return eventService.recentEventExists(trigger.getEvent().getId(), trigger.getDevice().getId());
     }
 
     public boolean checkStateTrigger(AutomationRule rule) {
@@ -149,10 +150,6 @@ public class AutomationExecService {
         } else { // ENUM type, only support equal operator
             return actualValue.equals(expectedValue);
         }
-    }
-
-    public void addEvent(long eventId , long deviceId) {
-        recentEvents.put(eventId, deviceId);
     }
 
     private boolean isRuleInCooldown(AutomationRule rule) {

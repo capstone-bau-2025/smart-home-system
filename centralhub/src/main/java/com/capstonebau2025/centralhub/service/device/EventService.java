@@ -7,7 +7,6 @@ import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.repository.EventRepository;
 import com.capstonebau2025.centralhub.service.NotificationService;
-import com.capstonebau2025.centralhub.service.automation.AutomationExecService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -25,10 +25,10 @@ public class EventService {
     private final DeviceRepository deviceRepository;
     private final EventRepository eventRepository;
     private final NotificationService notificationService;
-    private final AutomationExecService automationExecService;
 
     // Map to track last notification time for each device-event combination
     private final Map<String, LocalDateTime> lastProcessedTimes = new ConcurrentHashMap<>();
+    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>(); // Key= eventId, Value=DeviceId
 
     // Cooldown period of 1 hour
     private static final long NOTIFICATION_COOLDOWN_MINUTES = 60;
@@ -65,14 +65,23 @@ public class EventService {
         // Send notification
         String title = "Device " + device.getName() + " triggered " + event.getName() + " event.";
         String body = event.getDescription();
-        notificationService.sendDeviceNotification(device, title, body);
 
-        automationExecService.addEvent(event.getId(), device.getId());
+        notificationService.sendDeviceNotification(device, title, body);
+        recentEvents.put(event.getId(), device.getId());
     }
 
     public List<IdNameDTO> getAllByDeviceId(Long id) {
         return eventRepository.findAllByDeviceId(id).stream()
                 .map(event -> new IdNameDTO(event.getId(), event.getName()))
                 .toList();
+    }
+
+    public void clearRecentEvents() {
+        recentEvents.clear();
+    }
+
+    public boolean recentEventExists(Long eventId, Long deviceId) {
+        Long recentDeviceId = recentEvents.get(eventId);
+        return Objects.equals(recentDeviceId, deviceId);
     }
 }
