@@ -29,11 +29,12 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/api/hub/**",
                                 "/hub-socket/**",
                                 "/api/notify",
                                 "/api/streams/**"
                         ).permitAll()
+                        .requestMatchers("/api/hub/update-name").authenticated()
+                        .requestMatchers("/api/hub/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session // Lambda for session management
