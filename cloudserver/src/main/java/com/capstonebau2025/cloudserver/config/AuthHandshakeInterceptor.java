@@ -1,6 +1,7 @@
 package com.capstonebau2025.cloudserver.config;
 
 import com.capstonebau2025.cloudserver.service.JwtService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -11,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -30,6 +32,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         String hubId = jwtService.extractHubSerialNumber(token);
         attributes.put("hubId", hubId);
 
+        log.info("Websocket handshake successful for hub with serial number: {}", hubId);
         return true;
     }
 

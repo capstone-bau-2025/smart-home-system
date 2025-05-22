@@ -44,6 +44,7 @@ public class WebSocketCommandHandler {
     private final CommandService commandService;
     private final EventService eventService;
     private final StateService stateService;
+    private final HubService hubService;
     @Setter
     private StompSession stompSession;
 
@@ -149,6 +150,9 @@ public class WebSocketCommandHandler {
                     break;
                 case "GET_STATES_BY_DEVICE":
                     response = handleGetStatesByDevice(message);
+                    break;
+                case "UPDATE_HUB_NAME":
+                    response = handleUpdateHubName(message);
                     break;
                 default:
                     log.warn("Unknown command type: {}", message.getCommandType());
@@ -741,6 +745,25 @@ public class WebSocketCommandHandler {
                     .build();
         } catch (Exception e) {
             log.error("Error processing GET_STATES_BY_DEVICE command: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private RemoteCommandResponse handleUpdateHubName(RemoteCommandMessage message) {
+        try {
+            Map<String, Object> payload = (Map<String, Object>) message.getPayload();
+            String name = payload.get("name").toString();
+
+            hubService.setHubName(name);
+
+            return RemoteCommandResponse.builder()
+                    .commandType(message.getCommandType())
+                    .status("SUCCESS")
+                    .message("Hub name updated successfully")
+                    .requestId(message.getRequestId())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error processing UPDATE_HUB_NAME command: {}", e.getMessage(), e);
             throw e;
         }
     }

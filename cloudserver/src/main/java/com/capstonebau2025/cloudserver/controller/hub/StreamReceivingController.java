@@ -23,7 +23,7 @@ public class StreamReceivingController {
     @Operation(summary = "HUB-only endpoint")
     public void receiveStream(@PathVariable String sessionId, HttpServletRequest request) throws IOException {
         log.info("Receiving stream for session {}", sessionId);
-
+        // TODO: validate hub
         try {
             // Use the SAME thread to process the incoming stream until it's complete
             remoteStreamingService.receiveStreamFromHub(sessionId, request.getInputStream());

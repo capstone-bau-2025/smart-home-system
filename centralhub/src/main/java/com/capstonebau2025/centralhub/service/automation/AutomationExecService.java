@@ -54,7 +54,7 @@ public class AutomationExecService {
         log.info("Unsubscribed rule {} from trigger monitoring", ruleId);
     }
 
-    @Scheduled(fixedRate = 60_000) // every minute
+    @Scheduled(fixedRate = 30_000) // every minute
     @Transactional
     public void automationLoop() {
         for (AutomationRule rule : activeRules.values()) {

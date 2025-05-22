@@ -20,6 +20,7 @@ public class CreateAutomationRequest {
     // Trigger type: status
     private Long stateValueId;
     private String stateTriggerValue;
+    private String operator; // EQUAL, GREATER, LESS, GREATER_OR_EQUAL, LESS_OR_EQUAL
 
     // Trigger type: scheduled
     private String scheduledTime;

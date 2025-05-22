@@ -1,8 +1,6 @@
 package com.capstonebau2025.centralhub.client;
 
 import com.capstonebau2025.centralhub.dto.RemoteCommandMessage;
-import com.capstonebau2025.centralhub.entity.Hub;
-import com.capstonebau2025.centralhub.service.HubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -136,9 +134,6 @@ public class WebsocketClient {
             });
 
             logger.info("Subscribed to /topic/commands/{}", serialNumber);
-
-            // Send a test message
-            session.send("/app/message", new Message("Hello from " + serialNumber, serialNumber));
         }
 
         @Override

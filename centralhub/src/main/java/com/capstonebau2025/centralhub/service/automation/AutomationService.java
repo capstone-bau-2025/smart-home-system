@@ -74,11 +74,14 @@ public class AutomationService {
                 triggerRepository.save(trigger);
             }
             case STATE_UPDATE -> {
+                AutomationTrigger.TriggerOperator operator = (request.getOperator() != null) ? AutomationTrigger.TriggerOperator.valueOf(request.getOperator().toUpperCase()) : AutomationTrigger.TriggerOperator.EQUAL;
+
                 StateValue stateValue = stateValueRepository.findById(request.getStateValueId())
                         .orElseThrow(() -> new ResourceNotFoundException("State value not found"));
                 AutomationTrigger trigger = AutomationTrigger.builder()
                         .automationRule(savedRule)
                         .stateValue(stateValue)
+                        .operator(operator) // TODO: add operator to request
                         .stateTriggerValue(request.getStateTriggerValue())
                         .device(stateValue.getDevice())  // Optional: set device if your entity supports it
                         .build();

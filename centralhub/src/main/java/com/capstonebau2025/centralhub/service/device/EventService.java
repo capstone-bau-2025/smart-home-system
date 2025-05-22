@@ -66,8 +66,8 @@ public class EventService {
         String title = "Device " + device.getName() + " triggered " + event.getName() + " event.";
         String body = event.getDescription();
 
-        notificationService.sendDeviceNotification(device, title, body);
         recentEvents.put(event.getId(), device.getId());
+        notificationService.sendDeviceNotification(device, title, body);
     }
 
     public List<IdNameDTO> getAllByDeviceId(Long id) {
