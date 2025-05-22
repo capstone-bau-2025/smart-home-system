@@ -188,7 +188,7 @@ useEffect(() => {
 
   const interval = setInterval(() => {
     loadStateValue();
-  }, 60000); 
+  }, 10000); 
 
   return () => {
     isMounted = false;

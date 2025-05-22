@@ -37,14 +37,16 @@ export async function getActiveUrl() {
     await axios.get(`${LOCAL_URL}api/hub/discover`, {
       timeout: 1500,
     });
-    console.log("✅ LOCAL URL is responsive");
+    console.log("LOCAL URL is responsive");
     return LOCAL_URL;
   } catch (error) {
-    console.warn("❌ LOCAL URL FAILED, switching to CLOUD:", error.message);
+    console.warn("LOCAL URL FAILED, switching to CLOUD:", error.message);
     console.log("ACTIVE_URL set to CLOUD:", BASE_URL);
     return BASE_URL;
   }
 }
+
+
 
 
 export function stopActiveUrlMonitor() {
