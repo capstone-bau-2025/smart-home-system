@@ -153,42 +153,48 @@ export default function DeviceCard({ data }) {
     return null;
   };
 
-  // useEffect(() => {
-  //   let isMounted = true;
+useEffect(() => {
+  let isMounted = true;
 
-  //   const loadStateValue = async () => {
-  //     if (!data?.stateValueId) return;
+  const loadStateValue = async () => {
+    if (!data?.stateValueId) return;
 
-  //     try {
-  //       console.log("FETCHING STATE VALUE:", data.stateValueId);
-  //       const res = await fetchStateValue(data.stateValueId);
-  //       if (!isMounted) return;
+    try {
+      const res = await fetchStateValue(data.stateValueId);
+      if (!isMounted) return;
+      console.log("Fetched state value:", res);
+      const val = res;
 
-  //       const val = res;
+      if (isRange && val != null && val !== "undefined") {
+        setValue(val.toString());
+      } else if (isChoice && val != null) {
+        setValue(val);
+        const idx = data.choices.findIndex((c) => c === val);
+        if (idx !== -1) setIndex(idx);
+      } else if (val != null && val !== "undefined") {
+        setValue(val);
+      } else {
+        console.warn("Value is empty or 'undefined'", val);
+        setValue("-");
+      }
+    } catch (err) {
+      console.warn("❌ Failed to fetch state value:", err);
+    }
+  };
 
-  //       if (isRange && val != null && val !== "undefined") {
-  //         setValue(val.toString());
-  //       } else if (isChoice && val != null) {
-  //         setValue(val);
-  //         const idx = data.choices.findIndex((c) => c === val);
 
-  //         if (idx !== -1) setIndex(idx);
-  //       } else if (val != null && val !== "undefined") {
-  //         setValue(val);
-  //       } else {
-  //         console.warn("Value is empty or 'undefined'", val);
-  //         setValue("-");
-  //       }
-  //     } catch (err) {
-  //       console.warn("❌ Failed to fetch state value:", err);
-  //     }
-  //   };
+  loadStateValue();
 
-  //   loadStateValue();
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, [data?.stateValueId]);
+
+  const interval = setInterval(() => {
+    loadStateValue();
+  }, 60000); 
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval); 
+  };
+}, [data?.stateValueId]);
 
   return (
     <>

@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryBackground,
   },
   container: {
-    paddingTop: Platform.OS === "android" ? 50 : 0,
+    paddingTop: Platform.OS === "android" ? 100 : 0,
     padding: 20,
     justifyContent: "center",
   },

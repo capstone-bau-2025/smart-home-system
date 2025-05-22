@@ -33,29 +33,19 @@ let pingInterval = null;
 // } 
 
 export async function getActiveUrl() {
-  const token = store.getState().user.cloudToken;
   try {
-    await axios.get(`${LOCAL_URL}api/hub/discover`, { //should ping hub
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      timeout: 1500 ,
-      //60000
+    await axios.get(`${LOCAL_URL}api/hub/discover`, {
+      timeout: 1500,
     });
-    console.log("Checking local URL");
-    console.log("ACTIVE_URL set to LOCAL:", LOCAL_URL);
+    console.log("✅ LOCAL URL is responsive");
     return LOCAL_URL;
-  } catch (err) {
-    try {
-      await axios.get(`${BASE_URL}`); //should ping hub
-      console.log("ACTIVE_URL set to CLOUD:", BASE_URL);
-      return BASE_URL;
-    } catch (error) {
-      console.error("❌ Both LOCAL and BASE URLs failed.");
-      return null;
-    }
+  } catch (error) {
+    console.warn("❌ LOCAL URL FAILED, switching to CLOUD:", error.message);
+    console.log("ACTIVE_URL set to CLOUD:", BASE_URL);
+    return BASE_URL;
   }
 }
+
 
 export function stopActiveUrlMonitor() {
   if (pingInterval) {
