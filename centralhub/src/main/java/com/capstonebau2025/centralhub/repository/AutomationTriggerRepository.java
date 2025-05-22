@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface AutomationTriggerRepository extends JpaRepository<AutomationTrigger, Long> {
     Optional<AutomationTrigger> findByAutomationRuleId(Long automationRuleId);
 
+    boolean existsByDeviceId(Long deviceId);
 }
