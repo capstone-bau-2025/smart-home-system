@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface AutomationActionRepository extends JpaRepository<AutomationAction, Long> {
     List<AutomationAction> findByAutomationRuleId(Long automationRuleId);
+
+    boolean existsByDeviceId(Long deviceId);
 }

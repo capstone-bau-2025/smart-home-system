@@ -40,13 +40,15 @@ public class AutomationService {
             throw new ResourceNotFoundException("Invalid trigger type: " + request.getTriggerType());
         }
 
+        int cooldownDuration = (triggerType == AutomationRule.TriggerType.SCHEDULE) ? 10 : Math.min(request.getCooldownDuration(), 24 * 60);
+
         AutomationRule rule = AutomationRule.builder()
                 .createdBy(user)
                 .name(request.getRuleName())
                 .description(request.getRuleDescription())
                 .isEnabled(true)
                 .triggerType(triggerType)
-                .cooldownDuration(request.getCooldownDuration())
+                .cooldownDuration(cooldownDuration) // limit cooldown to max 1 day
                 .build();
 
         AutomationRule savedRule = ruleRepository.save(rule);

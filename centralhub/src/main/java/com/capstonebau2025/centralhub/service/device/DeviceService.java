@@ -6,19 +6,24 @@ import com.capstonebau2025.centralhub.entity.Area;
 import com.capstonebau2025.centralhub.entity.Device;
 import com.capstonebau2025.centralhub.exception.PermissionException;
 import com.capstonebau2025.centralhub.exception.ResourceNotFoundException;
+import com.capstonebau2025.centralhub.exception.ValidationException;
 import com.capstonebau2025.centralhub.helper.MqttUserControl;
 import com.capstonebau2025.centralhub.repository.AreaRepository;
+import com.capstonebau2025.centralhub.repository.AutomationActionRepository;
+import com.capstonebau2025.centralhub.repository.AutomationTriggerRepository;
 import com.capstonebau2025.centralhub.repository.DeviceRepository;
 import com.capstonebau2025.centralhub.service.PermissionService;
 import com.capstonebau2025.centralhub.service.mqtt.MqttMessageProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
@@ -28,6 +33,8 @@ public class DeviceService {
     private final MqttMessageProducer mqttMessageProducer;
     private final AreaRepository areaRepository;
     private final MqttUserControl mqttUserControl;
+    private final AutomationTriggerRepository automationTriggerRepository;
+    private final AutomationActionRepository automationActionRepository;
     private final ObjectMapper mapper;
 
     public void setDeviceName(Long id, String name) {
@@ -111,6 +118,11 @@ public class DeviceService {
     public void deleteDevice(Long id) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
+
+        if(automationTriggerRepository.existsByDeviceId(id) || automationActionRepository.existsByDeviceId(id)) {
+            log.warn("Attempt to delete a device used in an automation. Device ID: {}", id);
+            throw new ValidationException("Device is currently being used by an automation. Please delete the automation first and try again.");
+        }
 
         // Send MQTT deletion message & delete mqtt user
         ObjectNode message = mapper.createObjectNode()

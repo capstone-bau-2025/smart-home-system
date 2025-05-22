@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -27,6 +28,7 @@ public class EventService {
 
     // Map to track last notification time for each device-event combination
     private final Map<String, LocalDateTime> lastProcessedTimes = new ConcurrentHashMap<>();
+    private final Map<Long, Long> recentEvents = new ConcurrentHashMap<>(); // Key= eventId, Value=DeviceId
 
     // Cooldown period of 1 hour
     private static final long NOTIFICATION_COOLDOWN_MINUTES = 60;
@@ -63,15 +65,23 @@ public class EventService {
         // Send notification
         String title = "Device " + device.getName() + " triggered " + event.getName() + " event.";
         String body = event.getDescription();
-        notificationService.sendNotification(device, title, body);
 
-        // TODO: call automation
-        // TODO: think of saving event logs
+        notificationService.sendDeviceNotification(device, title, body);
+        recentEvents.put(event.getId(), device.getId());
     }
 
     public List<IdNameDTO> getAllByDeviceId(Long id) {
         return eventRepository.findAllByDeviceId(id).stream()
                 .map(event -> new IdNameDTO(event.getId(), event.getName()))
                 .toList();
+    }
+
+    public void clearRecentEvents() {
+        recentEvents.clear();
+    }
+
+    public boolean recentEventExists(Long eventId, Long deviceId) {
+        Long recentDeviceId = recentEvents.get(eventId);
+        return Objects.equals(recentDeviceId, deviceId);
     }
 }
