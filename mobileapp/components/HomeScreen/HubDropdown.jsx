@@ -18,7 +18,7 @@ export default function HubDropdown({ currentHub, noHub }) {
   const userHubs = useSelector((state) => state.hub.userHubs);
 
 
-  const dropdownData = userHubs.map((hub) => ({
+  const dropdownData = userHubs?.map((hub) => ({
     label: hub.name || "Unnamed Hub",
     value: hub,
     icon: "cube-outline",

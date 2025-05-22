@@ -3,17 +3,19 @@ import { LOCAL_URL } from "../../util/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store } from "../../store/store";
 import getCurrentUrl from "../../util/helperUrl";
+import getAuthToken from "../../util/getAuthToken";
 
 export const generateInviteCode = async (roleId) => {
   const currentUrl = getCurrentUrl();
   try {
-    const token = await AsyncStorage.getItem("userToken");
+    const fetchedToken = getAuthToken();
     const endpoint = `${currentUrl}api/invitations?roleId=${roleId}`;
     const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
+
     const response = await axios.post(endpoint, null, {
       headers: {
         Accept: "*/*",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
       },
       params: {
         hubSerialNumber: hubSerialNumber,

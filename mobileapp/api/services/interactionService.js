@@ -2,15 +2,16 @@ import axios from "axios";
 import { LOCAL_URL } from "../../util/auth";
 import { store } from "../../store/store";
 import getCurrentUrl from "../../util/helperUrl";
+import getAuthToken from "../../util/getAuthToken";
 
 export const fetchAllInteractions = async () => {
-  const localToken = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   try {
     const res = await axios.get(`${currentUrl}api/interactions`, {
       headers: {
-        Authorization: `Bearer ${localToken}`,
+        Authorization: `Bearer ${fetchedToken}`,
         Accept: "application/json",
       },
       params: {
@@ -29,7 +30,7 @@ export const fetchAllInteractions = async () => {
 };
 
 export const updateInteractionState = async (stateValueId, value) => {
-  const token = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const res = await axios.post(
@@ -40,7 +41,7 @@ export const updateInteractionState = async (stateValueId, value) => {
     },
     {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
       },
       params: {
         hubSerialNumber,
@@ -52,7 +53,7 @@ export const updateInteractionState = async (stateValueId, value) => {
 };
 
 export const executeInteractionCommand = async (deviceId, commandId) => {
-  const token = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const res = await axios.post(
@@ -63,7 +64,7 @@ export const executeInteractionCommand = async (deviceId, commandId) => {
     },
     {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${fetchedToken}`,
       },
       params: {
         hubSerialNumber,
@@ -75,7 +76,7 @@ export const executeInteractionCommand = async (deviceId, commandId) => {
 };
 
 export async function fetchStateValue(stateValueId) {
-  const token = store.getState().user.localToken;
+  const fetchedToken = getAuthToken();
   const hubSerialNumber = store.getState().hub.currentHub?.serialNumber;
   const currentUrl = getCurrentUrl();
   try {
@@ -83,7 +84,7 @@ export async function fetchStateValue(stateValueId) {
       `${currentUrl}api/interactions/fetch-state/${stateValueId}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${fetchedToken}`,
           Accept: "*/*",
         },
         params: {

@@ -30,7 +30,7 @@
 
           
                 <View style={[styles.dropdown,position]}>
-                  {data.map((item, index) => (
+                  {data?.map((item, index) => (
                     <Pressable
                       key={index}
                       style={({ pressed }) => [

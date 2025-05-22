@@ -3,11 +3,13 @@ import { AppState, Platform } from "react-native";
 import * as Network from "expo-network";
 import { store } from "../store/store";
 
-const LOCAL_IP = "192.168.1.36"; //this is were the hub is running (will be raspberrypi.local)
-const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
+const LOCAL_IP = "raspberrypi.local"; //this is were the hub is running (will be raspberrypi.local)
+//  const BASE_LOCAL_IP = Platform.OS === "android" ? "10.0.2.2" : LOCAL_IP;
+ //const LOCAL_IP = "";
+const CLOUD_IP = "9.163.143.44";
 
-export const LOCAL_URL = `http://${BASE_LOCAL_IP}:8080/`; // hub (if rasperry pi change base_local_ip to rasperrypi.local)
-export const BASE_URL = `http://${BASE_LOCAL_IP}:8082/`; // cloud (change to cloud server ip)
+export const LOCAL_URL = `http://${LOCAL_IP}:8080/`; // hub (if rasperry pi change base_local_ip to rasperrypi.local)
+export const BASE_URL = `http://${CLOUD_IP}:8082/`; // cloud (change to cloud server ip)
 
 
 let ACTIVE_URL = LOCAL_URL;

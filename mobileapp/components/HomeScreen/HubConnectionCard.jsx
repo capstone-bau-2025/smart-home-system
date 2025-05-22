@@ -22,7 +22,11 @@ export default function HubConnectionCard() {
   const iconBackgroundColor = isLocal ? "#ffeacf" : "#dbe3fda0";
   const iconName = isLocal ? "home-outline" : "cloud-outline";
   const connectionType = isLocal ? "Local" : "Cloud";
-
+//          onPress={() => {
+          //   const newUrl = currentUrl === BASE_URL ? LOCAL_URL : BASE_URL;
+          //   dispatch(setUrl(newUrl));
+          //   console.log("URL manually toggled to:", newUrl);
+          // }}
   return (
     <>
       <View style={{ flexDirection: "row", gap: 10 }}>
@@ -32,11 +36,7 @@ export default function HubConnectionCard() {
             { borderColor: iconBorderColor },
             pressed && { opacity: 0.7 },
           ]}
-          onPress={() => {
-            const newUrl = currentUrl === BASE_URL ? LOCAL_URL : BASE_URL;
-            dispatch(setUrl(newUrl));
-            console.log("URL manually toggled to:", newUrl);
-          }}
+
         >
           <View
             style={[
