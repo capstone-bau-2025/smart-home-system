@@ -27,15 +27,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth // Lambda for authorization rules
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/map/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/hub/**",
                                 "/hub-socket/**",
-                                "/api/auth/hub-token",
-                                "/api/notify"
+                                "/api/notify",
+                                "/api/streams/**"
                         ).permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session // Lambda for session management
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

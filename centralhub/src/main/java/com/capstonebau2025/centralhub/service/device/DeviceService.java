@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +38,7 @@ public class DeviceService {
     private final AutomationActionRepository automationActionRepository;
     private final ObjectMapper mapper;
 
+    @Transactional
     public void setDeviceName(Long id, String name) {
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Device not found with ID: " + id));
