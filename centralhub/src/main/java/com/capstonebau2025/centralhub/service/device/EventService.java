@@ -52,6 +52,8 @@ public class EventService {
         boolean shouldProcess = lastProcessed == null ||
                 lastProcessed.plusMinutes(NOTIFICATION_COOLDOWN_MINUTES).isBefore(now);
 
+        recentEvents.put(event.getId(), device.getId());
+
         if (shouldProcess) {
             processEvent(device, event);
             lastProcessedTimes.put(eventIdentifier, now);
@@ -66,7 +68,7 @@ public class EventService {
         String title = "Device " + device.getName() + " triggered " + event.getName() + " event.";
         String body = event.getDescription();
 
-        recentEvents.put(event.getId(), device.getId());
+
         notificationService.sendDeviceNotification(device, title, body);
     }
 

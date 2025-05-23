@@ -146,8 +146,14 @@ public class AutomationService {
         AutomationRule rule = ruleRepository.findById(ruleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Rule not found"));
 
-        // Unsubscribe from triggers
+        AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(ruleId).orElse(null);
+        List<AutomationAction> actions = actionRepository.findByAutomationRuleId(ruleId);
         automationExecService.unsubscribeTrigger(rule.getId());
+
+
+        if(trigger != null)
+            triggerRepository.delete(trigger);
+        actionRepository.deleteAll(actions);
         ruleRepository.delete(rule);
     }
 

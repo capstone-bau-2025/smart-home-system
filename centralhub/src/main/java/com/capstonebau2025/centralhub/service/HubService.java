@@ -1,8 +1,6 @@
 package com.capstonebau2025.centralhub.service;
 
-import com.capstonebau2025.centralhub.client.CloudAuthClient;
 import com.capstonebau2025.centralhub.client.CloudClient;
-import com.capstonebau2025.centralhub.dto.cloudComm.HubRegistrationResponse;
 import com.capstonebau2025.centralhub.dto.localRequests.ConfigureHubRequest;
 import com.capstonebau2025.centralhub.dto.GetInvitationResponse;
 import com.capstonebau2025.centralhub.dto.HubInfoResponse;
@@ -17,6 +15,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +28,9 @@ public class HubService {
     private final CloudClient cloudClient;
     private final InvitationService invitationService;
     private final Logger logger = LoggerFactory.getLogger(HubService.class);
+
+    @Value("${serial-number}")
+    private String serialNumber;
 
     public Hub getHub() {
         return hubRepository.findFirst()
@@ -43,7 +45,7 @@ public class HubService {
             logger.info("Creating default Hub configuration");
             Hub hub = Hub.builder()
                 .name("Central Hub")
-                .serialNumber("123456789")
+                .serialNumber(serialNumber)
                 .location("Default Location")
                 .status(Hub.Status.INITIALIZING)
                 .build();

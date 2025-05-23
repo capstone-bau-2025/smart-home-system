@@ -42,7 +42,7 @@ export const getAllRooms = async () => {
   return response.data;
 };
 
-export const deleteRoom = async (areaId, hubSerialNumber) => {
+export const deleteRoom = async (areaId) => {
   const fetchedToken = getAuthToken();
   const currentUrl = getCurrentUrl();
   const activePath = `${currentUrl}api/areas/`;

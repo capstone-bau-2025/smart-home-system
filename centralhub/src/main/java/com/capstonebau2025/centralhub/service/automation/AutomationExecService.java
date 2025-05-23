@@ -57,6 +57,7 @@ public class AutomationExecService {
     @Scheduled(fixedRate = 30_000) // every minute
     @Transactional
     public void automationLoop() {
+        System.out.println("automation_loop");
         for (AutomationRule rule : activeRules.values()) {
             try {
                 boolean shouldExecute = switch (rule.getTriggerType()) {
@@ -80,7 +81,7 @@ public class AutomationExecService {
 
     public boolean checkScheduledTrigger(AutomationRule rule) {
         AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
-
+        System.out.println("checking event schedule for rule id " + rule.getId());
         if (trigger == null || trigger.getScheduledTime() == null) {
             handleCorruptedRule(rule);
             return false;
@@ -102,7 +103,7 @@ public class AutomationExecService {
 
     public boolean checkEventTrigger(AutomationRule rule) {
         AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
-
+        System.out.println("checking event schedule for rule id " + rule.getId());
         if (trigger == null || trigger.getEvent() == null) {
             handleCorruptedRule(rule);
             return false;
@@ -114,7 +115,7 @@ public class AutomationExecService {
 
     public boolean checkStateTrigger(AutomationRule rule) {
         AutomationTrigger trigger = triggerRepository.findByAutomationRuleId(rule.getId()).orElse(null);
-
+        System.out.println("checking event schedule for rule id " + rule.getId());
         if (trigger == null || trigger.getStateValue() == null) {
             handleCorruptedRule(rule);
             return false;
@@ -233,7 +234,7 @@ public class AutomationExecService {
             // Set the cooldown duration from the user-specified value
             // This will be checked in the automationLoop method
             if (rule.getCooldownDuration() > 0) {
-                log.info("Setting cooldown for rule {} to {} seconds", rule.getName(), rule.getCooldownDuration());
+                log.info("Setting cooldown for rule {} to {} minutes", rule.getName(), rule.getCooldownDuration());
             }
 
             // Save the updated rule with the new lastExecutedTime
