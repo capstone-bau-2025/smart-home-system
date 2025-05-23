@@ -47,10 +47,10 @@ public class AutomationRule {
 
     private LocalTime lastExecutedTime; // Last time the automation was executed
 
-    @OneToOne(mappedBy = "automationRule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "automationRule")
     private AutomationTrigger trigger;
 
-    @OneToMany(mappedBy = "automationRule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "automationRule")
     private List<AutomationAction> actions = new ArrayList<>();
 
     public enum TriggerType {
